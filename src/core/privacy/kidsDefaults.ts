@@ -1,0 +1,1 @@
+export const KIDS_DEFAULTS = { remoteAnalytics:false, ads:false, thirdPartyTracking:false, externalLinksBehindParentGate:true, purchasesBehindParentGate:true, collectChildEmail:false, collectPreciseLocation:false } as const;

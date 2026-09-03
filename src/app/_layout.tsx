@@ -1,18 +1,2 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
-
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
-
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
-  );
-}
+import React from 'react';import{Stack}from'expo-router';import{SQLiteProvider}from'expo-sqlite';import{GestureHandlerRootView}from'react-native-gesture-handler';import{migrateDb}from'@/core/data/database';import{AppDataProvider}from'@/features/session/AppDataProvider';import{colors}from'@/core/theme/tokens';
+export default function RootLayout(){return <GestureHandlerRootView style={{flex:1}}><SQLiteProvider databaseName="pequenas-finanzas.db" onInit={migrateDb}><AppDataProvider><Stack screenOptions={{headerStyle:{backgroundColor:colors.forestDark},headerTintColor:colors.white,headerTitleStyle:{fontWeight:'900'}}}><Stack.Screen name="index" options={{headerShown:false}}/><Stack.Screen name="onboarding" options={{headerShown:false}}/><Stack.Screen name="(tabs)" options={{headerShown:false}}/><Stack.Screen name="lesson/[id]" options={{title:'Aventura financiera'}}/><Stack.Screen name="game/[gameId]" options={{title:'Minijuego'}}/><Stack.Screen name="shop" options={{title:'Área de canje'}}/></Stack></AppDataProvider></SQLiteProvider></GestureHandlerRootView>}

@@ -1,42 +1,45 @@
 {
   "expo": {
-    "name": "pequenas-finanzas",
+    "name": "Pequeñas Finanzas",
     "slug": "pequenas-finanzas",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
     "scheme": "pequenasfinanzas",
-    "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
-    },
-    "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
-    },
+    "version": "0.1.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "plugins": [
       "expo-router",
+      "expo-sqlite",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "image": "./assets/app/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#F6F0DE"
         }
-      ]
+      ],
+      "expo-image",
+      "expo-audio"
     ],
     "experiments": {
-      "typedRoutes": true,
-      "reactCompiler": true
+      "typedRoutes": true
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pequenasfinanzas.app"
+    },
+    "android": {
+      "package": "com.pequenasfinanzas.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/app/adaptive-icon.png",
+        "backgroundColor": "#18452C"
+      },
+      "versionCode": 1
+    },
+    "icon": "./assets/app/icon.png",
+    "web": {
+      "favicon": "./assets/app/favicon.png"
     }
   }
 }

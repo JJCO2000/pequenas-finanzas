@@ -1,0 +1,3 @@
+import React from 'react'; import { ScrollView, StyleSheet, View } from 'react-native'; import { colors, spacing } from '@/core/theme/tokens';
+export function Screen({children,scroll=true}:{children:React.ReactNode;scroll?:boolean}){if(!scroll)return <View style={s.root}>{children}</View>;return <ScrollView style={s.bg} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">{children}</ScrollView>}
+const s=StyleSheet.create({bg:{flex:1,backgroundColor:colors.cream},root:{flex:1,backgroundColor:colors.cream,padding:spacing.lg},content:{padding:spacing.lg,gap:spacing.md,paddingBottom:80}});

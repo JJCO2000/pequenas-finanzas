@@ -1,0 +1,41 @@
+{
+  "policy": "Toda imagen debe tener una fuente de verdad. design/=fuente maestra; assets/=derivado optimizado. Verificar derechos antes de publicación pública.",
+  "items": [
+    {
+      "id": "pdf-base",
+      "source": "user-provided",
+      "file": "design/reference/pdf/Pequenas-finanzas-original.pdf",
+      "usage": "Referencia visual y de flujo"
+    },
+    {
+      "id": "canvas-priority-1",
+      "source": "user-provided",
+      "file": "design/canva/screenshots/modelo-canvas-prioridad-1.jpg",
+      "usage": "Modelo Canvas de prioridad 1"
+    },
+    {
+      "id": "dino-sheet",
+      "source": "derived-from-user-pdf",
+      "file": "assets/characters/reference/dino-sheet.png",
+      "usage": "Referencia de personajes"
+    },
+    {
+      "id": "trex",
+      "source": "crop-from-user-pdf-resource-sheet",
+      "file": "assets/characters/trex/static/trex.png",
+      "usage": "Mascota MVP"
+    },
+    {
+      "id": "stegosaurus",
+      "source": "crop-from-user-pdf-resource-sheet",
+      "file": "assets/characters/stegosaurus/static/stegosaurus.png",
+      "usage": "Home"
+    },
+    {
+      "id": "longneck",
+      "source": "crop-from-user-pdf-resource-sheet",
+      "file": "assets/characters/longneck/static/longneck.png",
+      "usage": "Mapa"
+    }
+  ]
+}

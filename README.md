@@ -1,56 +1,33 @@
-# Welcome to your Expo app 👋
+# Pequeñas Finanzas — MVP Plan 1.1 Play Ready
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+MVP infantil de educación financiera basado en el PDF original: nombre → mapa → tema → actividad → recompensa → gastar/ahorrar/invertir → canje.
 
-## Get started
+## Ubicación
+`C:\Users\Omen\Documents\Proyectos\pequenas-finanzas`
 
-1. Install dependencies
+Misma raíz de proyectos que `ucapsa-app` y `solo-leveling`.
 
-   ```bash
-   npm install
-   ```
+## Desarrollo
+- `.\START.ps1` — Expo Go + cache limpia.
+- `.\START_TUNNEL.ps1` — Expo Go por tunnel.
+- `.\BUILD_ANDROID.ps1 -Profile development` — development APK.
+- `.\START_DEV.ps1` — Metro para development client.
 
-2. Start the app
+## QA
+- `.\VERIFY.ps1` — dependencias + Expo Doctor + TypeScript + config + bundle Android.
+- `.\AUDIT_PLAN_1_1.ps1` — arquitectura/SSOT/anti-duplicados.
+- `.\VERIFY_RELEASE.ps1` — preflight de release siguiendo el patrón robusto usado en UCAPSA.
 
-   ```bash
-   npx expo start
-   ```
+## Distribución
+- `.\BUILD_ANDROID.ps1 -Profile preview` — APK instalable.
+- `.\BUILD_ANDROID.ps1 -Profile production` — AAB Google Play.
+- `.\SETUP_GOOGLE_PLAY.ps1` — prepara Service Account en EAS.
+- `.\SUBMIT_ANDROID.ps1 -Track internal` — prueba interna.
+- `.\SUBMIT_ANDROID.ps1 -Track production` — producción (con confirmación explícita; release queda draft).
 
-In the output, you'll find options to open the app in a
+## Arquitectura
+`src/core` infraestructura/políticas reutilizables · `src/features` producto/juegos · `src/game-kits` mecánicas · `src/registry` fuentes únicas · `content` fuentes pedagógicas · `design` masters · `assets` runtime.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Lee primero:
+- `docs/product/PLAN_PEQUENAS_FINANZAS_1_1.md`
+- `docs/build/EXPO_GO_EAS_GOOGLE_PLAY.md`

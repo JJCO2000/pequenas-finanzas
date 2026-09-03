@@ -1,0 +1,1 @@
+export const WALLET_POLICY = { allowNegativeBalance: false, moneyStorage: 'integer-cents', investmentDisclaimer: 'Las inversiones del juego son simulaciones educativas, no recomendaciones financieras.' } as const;
