@@ -8,6 +8,7 @@ import type {
 } from '@/core/domain/types';
 
 export const ACTIVE_PROFILE_STATE_KEY = 'active_profile_id';
+export const LOCAL_CHANGE_JOURNAL_LIMIT = 250;
 export const now = () => new Date().toISOString();
 
 const LEGACY_INVESTMENT_COMPANION_KEYS: Record<string, InvestmentCompanionKey> = {
@@ -83,7 +84,13 @@ export async function txLog(
   );
 }
 
-export async function enqueueSync(
+/**
+ * Local-only technical journal. There is intentionally no remote transport in
+ * the current MVP. Entries are bounded so normal play cannot grow SQLite
+ * forever. The legacy function name is kept as an alias for repository
+ * compatibility until a real sync feature has a remote contract.
+ */
+export async function recordLocalChange(
   tx: SQLiteDatabase,
   profileId: string,
   entityType: string,
@@ -92,7 +99,7 @@ export async function enqueueSync(
   payload: unknown,
 ) {
   await tx.runAsync(
-    'INSERT INTO sync_outbox(profile_id,entity_type,entity_id,operation,payload_json,status,created_at) VALUES(?,?,?,?,?,\'pending\',?)',
+    'INSERT INTO sync_outbox(profile_id,entity_type,entity_id,operation,payload_json,status,created_at) VALUES(?,?,?,?,?,\'local_only\',?)',
     profileId,
     entityType,
     entityId,
@@ -100,4 +107,20 @@ export async function enqueueSync(
     JSON.stringify(payload),
     now(),
   );
+  await tx.runAsync(
+    `DELETE FROM sync_outbox
+     WHERE profile_id=?
+       AND id NOT IN (
+         SELECT id FROM sync_outbox
+         WHERE profile_id=?
+         ORDER BY id DESC
+         LIMIT ?
+       )`,
+    profileId,
+    profileId,
+    LOCAL_CHANGE_JOURNAL_LIMIT,
+  );
 }
+
+/** @deprecated Local MVP has no remote sync. Use recordLocalChange for new code. */
+export const enqueueSync = recordLocalChange;
