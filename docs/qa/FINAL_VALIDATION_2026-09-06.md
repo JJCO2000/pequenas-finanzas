@@ -73,4 +73,4 @@ El PR no debe dejar de ser draft ni fusionarse hasta que:
 - No haya regresiones en la matriz de dispositivo.
 - Android immersive, tipografía y SFX pasen en hardware real.
 
-No se requiere ni se autoriza generar AAB o publicar en Google Play como parte de esta validación.
+La validación técnica puede ejecutar `expo export --platform android` porque solo genera un bundle estático de comprobación. No se debe generar un AAB/APK de distribución ni publicar en Google Play como parte de este plan salvo petición explícita posterior del usuario.
