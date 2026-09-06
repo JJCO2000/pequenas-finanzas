@@ -3,11 +3,12 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useAppData } from '@/features/session/AppDataProvider';
 import { formatMoney, pesos } from '@/core/domain/money';
+import { getTransactionPresentation, formatTransactionAmount } from '@/features/wallet/transactionPresentation';
 import { ACTIVE_THEME } from '@/core/theme';
 import { useCampBack } from '@/features/shell/navigation/useCampBack';
 import { WorldScene } from '@/features/shell/world';
 import { ActionPill, CompactHeader, FloatingCard, HudPill, SceneHotspot } from '@/features/shell/gameui';
-import { colors, radii } from '@/core/theme/tokens';
+import { colors, radii, typography } from '@/core/theme/tokens';
 
 const INVEST_AMOUNTS = [10, 20, 50] as const;
 type WalletMode = 'save' | 'invest' | 'history';
@@ -51,7 +52,7 @@ export default function WalletScreen() {
             <View style={styles.drawerCopy}>
               <Text style={styles.kicker}>NIDO DE AHORRO</Text>
               <Text style={styles.title}>Guarda $10 o retíralos cuando los necesites</Text>
-              <Text numberOfLines={1} style={styles.copy}>El dinero solo cambia de lugar: disponible ↔ ahorro.</Text>
+              <Text numberOfLines={2} style={styles.copy}>El dinero solo cambia de lugar: disponible ↔ ahorro.</Text>
             </View>
             <View style={styles.actions}>
               <ActionPill label="AHORRAR $10" onPress={() => void doAction(() => save(pesos(10)), 'Guardaste $10.')} tone="gold" />
@@ -66,7 +67,7 @@ export default function WalletScreen() {
             <View style={styles.drawerCopy}>
               <Text style={styles.kicker}>EXPEDICIÓN · D{currentDay + 4}</Text>
               <Text style={styles.title}>Elige cuánto mandar de viaje</Text>
-              <Text numberOfLines={1} style={styles.copy}>{activeInvestments.length} activas · regla N+4 / +50%.</Text>
+              <Text numberOfLines={2} style={styles.copy}>{activeInvestments.length} activas · regla N+4 / +50%.</Text>
             </View>
             <View style={styles.actions}>
               {INVEST_AMOUNTS.map((amount) => <ActionPill key={amount} label={`$${amount}`} onPress={() => void doAction(() => invest(pesos(amount)), `Inversión de $${amount} enviada.`)} tone="gold" />)}
@@ -77,13 +78,37 @@ export default function WalletScreen() {
 
         {mode === 'history' ? (
           <View style={styles.history}>
-            {transactions.slice(0, 5).map((transaction) => (
-              <View key={transaction.id} style={styles.historyRow}>
-                <Image source={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} style={styles.coinTiny} resizeMode="contain" />
-                <Text numberOfLines={1} style={styles.historySource}>{transaction.source}</Text>
-                <Text style={styles.historyAmount}>{formatMoney(transaction.amountCents)}</Text>
-              </View>
-            ))}
+            {transactions.slice(0, 5).map((transaction) => {
+              const presentation = getTransactionPresentation(transaction.kind);
+              return (
+                <View
+                  key={transaction.id}
+                  style={[
+                    styles.historyRow,
+                    presentation.direction === 'inflow' && styles.historyInflow,
+                    presentation.direction === 'outflow' && styles.historyOutflow,
+                    presentation.direction === 'transfer' && styles.historyTransfer,
+                  ]}
+                >
+                  <View style={styles.historyTop}>
+                    <View style={[
+                      styles.directionPill,
+                      presentation.direction === 'inflow' && styles.directionInflow,
+                      presentation.direction === 'outflow' && styles.directionOutflow,
+                      presentation.direction === 'transfer' && styles.directionTransfer,
+                    ]}>
+                      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72} style={styles.directionText}>{presentation.symbol} {presentation.label}</Text>
+                    </View>
+                    <Text style={[
+                      styles.historyAmount,
+                      presentation.direction === 'inflow' && styles.amountInflow,
+                      presentation.direction === 'outflow' && styles.amountOutflow,
+                    ]}>{formatTransactionAmount(transaction)}</Text>
+                  </View>
+                  <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.78} style={styles.historySource}>{transaction.source}</Text>
+                </View>
+              );
+            })}
             {transactions.length === 0 ? <Text style={styles.empty}>Aún no hay movimientos.</Text> : null}
           </View>
         ) : null}
@@ -95,34 +120,44 @@ export default function WalletScreen() {
 }
 
 function Tab({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
-  return <Pressable onPress={onPress} style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && styles.pressed]}><Text style={[styles.tabText, active && styles.tabTextActive]}>{label}</Text></Pressable>;
+  return <Pressable onPress={onPress} style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && styles.pressed]}><Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={[styles.tabText, active && styles.tabTextActive]}>{label}</Text></Pressable>;
 }
 
 const styles = StyleSheet.create({
   root: { paddingHorizontal: 10, paddingVertical: 8 },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  objects: { flex: 1, minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingBottom: 106 },
-  drawer: { position: 'absolute', left: 12, right: 12, bottom: 10, minHeight: 96, padding: 7 },
-  tabs: { height: 26, flexDirection: 'row', gap: 5 },
-  tab: { flex: 1, borderRadius: 13, backgroundColor: '#EAF2E4', alignItems: 'center', justifyContent: 'center' },
+  objects: { flex: 1, minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18, paddingBottom: 126 },
+  drawer: { position: 'absolute', left: 12, right: 12, bottom: 10, minHeight: 116, padding: 8 },
+  tabs: { height: 34, flexDirection: 'row', gap: 5 },
+  tab: { flex: 1, borderRadius: 17, backgroundColor: '#EAF2E4', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
   tabActive: { backgroundColor: colors.gold },
-  tabText: { color: colors.forestDark, fontSize: 6.5, fontWeight: '900', letterSpacing: 0.4 },
+  tabText: { color: colors.forestDark, fontSize: typography.micro, lineHeight: 12, fontWeight: '900', letterSpacing: 0.35 },
   tabTextActive: { color: '#093F2D' },
-  drawerBody: { minHeight: 58, flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 5 },
+  drawerBody: { minHeight: 68, flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 6 },
   drawerArt: { width: 58, height: 52 },
   drawerCopy: { flex: 1, minWidth: 0 },
-  kicker: { color: colors.orange, fontSize: 5.5, fontWeight: '900', letterSpacing: 0.5 },
-  title: { color: colors.forestDark, fontSize: 10.5, lineHeight: 12, fontWeight: '900', marginTop: 1 },
-  copy: { color: colors.inkMuted, fontSize: 6, lineHeight: 7.5, fontWeight: '700', marginTop: 1 },
+  kicker: { color: colors.orange, fontSize: typography.micro, lineHeight: 12, fontWeight: '900', letterSpacing: 0.5 },
+  title: { color: colors.forestDark, fontSize: 13, lineHeight: 15, fontWeight: '900', marginTop: 2 },
+  copy: { color: colors.inkMuted, fontSize: typography.micro, lineHeight: 12, fontWeight: '700', marginTop: 2 },
   actions: { flexDirection: 'row', gap: 5, alignItems: 'center' },
-  history: { minHeight: 58, flexDirection: 'row', flexWrap: 'wrap', gap: 5, alignContent: 'center', paddingTop: 5 },
-  historyRow: { width: '32%', minHeight: 25, borderRadius: 13, backgroundColor: '#EEF6E8', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 6 },
-  coinTiny: { width: 18, height: 18 },
-  historySource: { flex: 1, color: colors.ink, fontSize: 6.5, fontWeight: '800' },
-  historyAmount: { color: colors.forestDark, fontSize: 7.5, fontWeight: '900' },
-  empty: { color: colors.inkMuted, fontSize: 7, fontWeight: '700' },
-  toast: { position: 'absolute', top: 52, alignSelf: 'center', minWidth: 170, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 5, zIndex: 30 },
+  history: { minHeight: 70, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'space-between', gap: 5, paddingTop: 6 },
+  historyRow: { flex: 1, minWidth: 0, minHeight: 64, borderRadius: 13, borderWidth: 1, paddingHorizontal: 6, paddingVertical: 5, justifyContent: 'center' },
+  historyInflow: { backgroundColor: '#E5F5DE', borderColor: '#9CCE8D' },
+  historyOutflow: { backgroundColor: '#FFE9DC', borderColor: '#F2B58E' },
+  historyTransfer: { backgroundColor: '#E7F4F7', borderColor: '#A7D4DC' },
+  historyTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 4 },
+  directionPill: { flexShrink: 1, minWidth: 0, borderRadius: radii.pill, paddingHorizontal: 5, paddingVertical: 3 },
+  directionInflow: { backgroundColor: colors.forest },
+  directionOutflow: { backgroundColor: colors.orange },
+  directionTransfer: { backgroundColor: '#397A87' },
+  directionText: { color: colors.white, fontSize: typography.micro, lineHeight: 11, fontWeight: '900' },
+  historySource: { color: colors.inkMuted, fontSize: typography.micro, lineHeight: 12, fontWeight: '700', marginTop: 4 },
+  historyAmount: { color: colors.forestDark, fontSize: typography.caption, lineHeight: 13, fontWeight: '900', flexShrink: 0 },
+  amountInflow: { color: colors.forest },
+  amountOutflow: { color: '#B84D18' },
+  empty: { color: colors.inkMuted, fontSize: typography.caption, lineHeight: 13, fontWeight: '700', alignSelf: 'center' },
+  toast: { position: 'absolute', top: 56, alignSelf: 'center', minWidth: 180, borderRadius: radii.pill, paddingHorizontal: 11, paddingVertical: 7, zIndex: 30 },
   toastGood: { backgroundColor: '#72AD54' }, toastBad: { backgroundColor: colors.danger },
-  toastText: { color: colors.white, fontSize: 7, fontWeight: '900', textAlign: 'center' },
+  toastText: { color: colors.white, fontSize: typography.caption, lineHeight: 13, fontWeight: '900', textAlign: 'center' },
   pressed: { transform: [{ scale: 0.97 }] },
 });

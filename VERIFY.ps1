@@ -35,6 +35,16 @@ Run-Step 'Plan 2.1 runtime invariants' { node '.\scripts\check-plan21-runtime.mj
 Run-Step 'Plan 2.1 policy tests' { node '.\tests\unit\plan21-policies.spec.mjs' }
 Run-Step 'Plan 2.1D playable game catalog' { node '.\scripts\check-games21d-runtime.mjs' }
 Run-Step 'Coin Catcher UI-runtime worklets' { node '.\scripts\check-coin-catcher-worklets.mjs' }
+Run-Step 'Navigation return regression guard' { node '.\scripts\check-navigation-return.mjs' }
+Run-Step 'Android immersive system bars guard' { node '.\scripts\check-immersive-system-bars.mjs' }
+Run-Step 'Readable typography floor guard' { node '.\scripts\check-readable-type.mjs' }
+Run-Step 'SFX runtime wiring guard' { node '.\scripts\check-sfx-runtime.mjs' }
+Run-Step 'Egg power clarity and invariant guard' { node '.\scripts\check-egg-power-clarity.mjs' }
+Run-Step 'Game result resilience guard' { node '.\scripts\check-game-result-resilience.mjs' }
+Run-Step 'Financial movement direction guard' { node '.\scripts\check-financial-direction.mjs' }
+Run-Step 'Bounded local change journal guard' { node '.\scripts\check-local-journal.mjs' }
+Run-Step 'Seven-game regression guard' { node '.\scripts\check-seven-game-regression.mjs' }
+Run-Step 'Remediation plan completeness guard' { node '.\scripts\check-remediation-plan-completeness.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan

@@ -5,7 +5,7 @@ import { buildInvestmentForecastByDays, buildPortfolioProfitForecast } from '@/c
 import { formatMoney } from '@/core/domain/money';
 import { getInvestmentCompanion } from '@/registry/investmentCompanions';
 import { ACTIVE_THEME } from '@/core/theme';
-import { colors, radii, shadows } from '@/core/theme/tokens';
+import { colors, radii, shadows, typography } from '@/core/theme/tokens';
 
 export function InvestmentPortfolio({ investments, currentDay }: { investments: Investment[]; currentDay: number }) {
   const [selectedId, setSelectedId] = useState('all');
@@ -19,8 +19,8 @@ export function InvestmentPortfolio({ investments, currentDay }: { investments: 
     [selectedId, selectedInvestments],
   );
   const maxProfit = Math.max(1, ...points.map((point) => point.projectedProfitCents));
-  const chartWidth = 250;
-  const chartHeight = 66;
+  const chartWidth = 270;
+  const chartHeight = 72;
   const padX = 12;
   const padY = 9;
   const plotWidth = chartWidth - padX * 2;
@@ -65,11 +65,11 @@ export function InvestmentPortfolio({ investments, currentDay }: { investments: 
               <Pressable key={investment.id} onPress={() => setSelectedId(investment.id)} style={[styles.card, active && styles.cardActive]}>
                 <Image source={companion.asset} style={styles.dino} resizeMode="contain" />
                 <View style={styles.copy}>
-                  <Text numberOfLines={1} style={styles.name}>{companion.label}</Text>
+                  <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.name}>{companion.label}</Text>
                   <Text style={styles.days}>D{investment.createdLevelOrder} → D{investment.targetLevelOrder}</Text>
-                  <Text style={styles.money}>{formatMoney(investment.principalCents)} → {formatMoney(investment.payoutCents)}</Text>
+                  <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.money}>{formatMoney(investment.principalCents)} → {formatMoney(investment.payoutCents)}</Text>
                 </View>
-                <View style={[styles.status, investment.status === 'claimed' && styles.claimed]}><Text style={styles.statusText}>{investment.status === 'claimed' ? ACTIVE_THEME.copy.investmentArrived : ACTIVE_THEME.copy.investmentTravelling}</Text></View>
+                <View style={[styles.status, investment.status === 'claimed' && styles.claimed]}><Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} style={styles.statusText}>{investment.status === 'claimed' ? ACTIVE_THEME.copy.investmentArrived : ACTIVE_THEME.copy.investmentTravelling}</Text></View>
               </Pressable>
             );
           })}
@@ -81,33 +81,33 @@ export function InvestmentPortfolio({ investments, currentDay }: { investments: 
 }
 
 const styles = StyleSheet.create({
-  root: { height: 120, flexDirection: 'row', gap: 7 },
-  chartPane: { width: 280, borderRadius: 16, backgroundColor: 'rgba(4,55,37,0.88)', borderWidth: 1.5, borderColor: 'rgba(139,202,126,0.75)', padding: 7, ...shadows.soft },
-  chartHead: { height: 29, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  eyebrow: { color: '#FFD85A', fontSize: 5.5, fontWeight: '900', letterSpacing: 0.5 },
-  chartTitle: { color: colors.white, fontSize: 9, lineHeight: 10, fontWeight: '900' },
-  liveValue: { color: '#FFD85A', fontSize: 10, fontWeight: '900' },
+  root: { height: 142, flexDirection: 'row', gap: 8 },
+  chartPane: { width: 300, borderRadius: 17, backgroundColor: 'rgba(4,55,37,0.88)', borderWidth: 1.5, borderColor: 'rgba(139,202,126,0.75)', padding: 8, ...shadows.soft },
+  chartHead: { height: 38, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  eyebrow: { color: '#FFD85A', fontSize: typography.micro, lineHeight: 12, fontWeight: '900', letterSpacing: 0.5 },
+  chartTitle: { color: colors.white, fontSize: typography.label, lineHeight: 14, fontWeight: '900' },
+  liveValue: { color: '#FFD85A', fontSize: 14, lineHeight: 16, fontWeight: '900' },
   chart: { position: 'relative', borderRadius: 12, backgroundColor: 'rgba(3,35,24,0.58)', overflow: 'hidden' },
   line: { position: 'absolute', height: 3, borderRadius: 2, backgroundColor: '#FFD54F' },
   point: { position: 'absolute', width: 8, height: 8, borderRadius: 4, backgroundColor: '#FF9D58', borderWidth: 1.5, borderColor: colors.white },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyText: { color: '#DDEDD8', fontSize: 7, fontWeight: '800' },
+  emptyText: { color: '#DDEDD8', fontSize: typography.caption, lineHeight: 13, fontWeight: '800' },
   listPane: { flex: 1, minWidth: 0 },
-  listTop: { height: 24, flexDirection: 'row', alignItems: 'center', gap: 6 },
-  listTitle: { color: colors.white, fontSize: 9, fontWeight: '900', textShadowColor: '#183A2A', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 1 },
-  allPill: { borderRadius: radii.pill, backgroundColor: 'rgba(255,253,244,0.88)', paddingHorizontal: 7, paddingVertical: 3 },
+  listTop: { height: 32, flexDirection: 'row', alignItems: 'center', gap: 7 },
+  listTitle: { color: colors.white, fontSize: typography.label, lineHeight: 14, fontWeight: '900', textShadowColor: '#183A2A', textShadowOffset: { width: 1, height: 1 }, textShadowRadius: 1 },
+  allPill: { borderRadius: radii.pill, backgroundColor: 'rgba(255,253,244,0.88)', paddingHorizontal: 8, paddingVertical: 4 },
   allPillActive: { backgroundColor: '#FFD54F' },
-  allText: { color: colors.forestDark, fontSize: 5.5, fontWeight: '900' },
-  list: { gap: 6, alignItems: 'center', paddingRight: 4 },
-  card: { width: 148, height: 82, borderRadius: 14, backgroundColor: 'rgba(255,253,244,0.94)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.92)', flexDirection: 'row', alignItems: 'center', padding: 6, gap: 4, position: 'relative', ...shadows.soft },
+  allText: { color: colors.forestDark, fontSize: typography.micro, lineHeight: 12, fontWeight: '900' },
+  list: { gap: 7, alignItems: 'center', paddingRight: 4 },
+  card: { width: 164, height: 100, borderRadius: 15, backgroundColor: 'rgba(255,253,244,0.94)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.92)', flexDirection: 'row', alignItems: 'center', padding: 7, gap: 5, position: 'relative', ...shadows.soft },
   cardActive: { borderColor: '#FFD54F' },
-  dino: { width: 42, height: 42 },
-  copy: { flex: 1, minWidth: 0 },
-  name: { color: colors.forestDark, fontSize: 7.5, fontWeight: '900' },
-  days: { color: colors.inkMuted, fontSize: 5.5, fontWeight: '700' },
-  money: { color: colors.orange, fontSize: 6.5, fontWeight: '900', marginTop: 1 },
-  status: { position: 'absolute', right: 5, top: 5, borderRadius: radii.pill, backgroundColor: colors.orange, paddingHorizontal: 5, paddingVertical: 2 },
+  dino: { width: 44, height: 44 },
+  copy: { flex: 1, minWidth: 0, paddingTop: 13 },
+  name: { color: colors.forestDark, fontSize: typography.caption, lineHeight: 13, fontWeight: '900' },
+  days: { color: colors.inkMuted, fontSize: typography.micro, lineHeight: 12, fontWeight: '700' },
+  money: { color: colors.orange, fontSize: typography.micro, lineHeight: 12, fontWeight: '900', marginTop: 1 },
+  status: { position: 'absolute', right: 5, top: 5, maxWidth: 92, borderRadius: radii.pill, backgroundColor: colors.orange, paddingHorizontal: 6, paddingVertical: 3 },
   claimed: { backgroundColor: colors.leaf },
-  statusText: { color: colors.white, fontSize: 4.8, fontWeight: '900' },
-  sideEmpty: { color: colors.white, fontSize: 7, fontWeight: '700', paddingVertical: 20 },
+  statusText: { color: colors.white, fontSize: typography.micro, lineHeight: 11, fontWeight: '900' },
+  sideEmpty: { color: colors.white, fontSize: typography.caption, lineHeight: 13, fontWeight: '700', paddingVertical: 24 },
 });

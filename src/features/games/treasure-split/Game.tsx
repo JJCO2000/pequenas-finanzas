@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, AppState, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { GameComponentProps } from '@/core/game-runtime';
 import { TREASURE_SPLIT_ROUNDS, type TreasureBucket } from '@/content/games/treasureSplit';
@@ -27,7 +27,9 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
   const [roundScore, setRoundScore] = useState(0);
   const [scores, setScores] = useState<number[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [appActive, setAppActive] = useState(AppState.currentState === 'active');
   const sim = useRef(new Animated.Value(0)).current;
+  const simulatingRef = useRef(false);
   const startRef = useRef(Date.now());
   const finishedRef = useRef(false);
   const round = TREASURE_SPLIT_ROUNDS[roundIndex] ?? TREASURE_SPLIT_ROUNDS[0]!;
@@ -37,15 +39,31 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
 
   const target = useMemo(() => ({ spend: round.spend, save: round.save, invest: round.invest }), [round]);
 
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      const nextActive = state === 'active';
+      setAppActive(nextActive);
+      if (!nextActive && simulatingRef.current) {
+        sim.stopAnimation();
+        sim.setValue(0);
+        simulatingRef.current = false;
+        setPhase('plan');
+        setFeedback('La simulación se pausó. Puedes iniciarla de nuevo cuando regreses.');
+      }
+    });
+    return () => sub.remove();
+  }, [sim]);
+
   const finish = (allScores: number[]) => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    simulatingRef.current = false;
     const score = Math.round(allScores.reduce((sum, item) => sum + item, 0) / Math.max(1, allScores.length));
     onFinish({ gameId: session.gameId, sessionId: session.sessionId, score, durationMs: Date.now() - startRef.current, completed: true, metrics: { rounds: allScores.length, averageResilience: score } });
   };
 
   const adjust = (key: TreasureBucket, delta: number) => {
-    if (phase !== 'plan') return;
+    if (!appActive || phase !== 'plan' || simulatingRef.current || finishedRef.current) return;
     setAllocation((previous) => {
       if (delta > 0 && Object.values(previous).reduce((a, b) => a + b, 0) >= round.total) return previous;
       const nextValue = Math.max(0, previous[key] + delta);
@@ -55,13 +73,16 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
   };
 
   const simulate = () => {
-    if (used !== round.total || phase !== 'plan') return;
+    if (!appActive || used !== round.total || phase !== 'plan' || simulatingRef.current || finishedRef.current) return;
+    simulatingRef.current = true;
     setPhase('simulate');
     setFeedback(null);
     sim.setValue(0);
-    Animated.timing(sim, { toValue: 1, duration: 1450, useNativeDriver: true }).start(() => {
+    Animated.timing(sim, { toValue: 1, duration: 1450, useNativeDriver: true }).start(({ finished }) => {
+      if (!finished || !simulatingRef.current || finishedRef.current) return;
       const distance = Math.abs(allocation.spend - target.spend) + Math.abs(allocation.save - target.save) + Math.abs(allocation.invest - target.invest);
       const score = Math.max(40, 100 - distance * 10);
+      simulatingRef.current = false;
       setRoundScore(score);
       setScores((previous) => [...previous, score]);
       setFeedback(score >= 90 ? 'Tu reparto resistió el evento con muy buen equilibrio.' : score >= 70 ? 'Funcionó, pero una categoría quedó más expuesta.' : 'El evento mostró que conviene repartir con más intención.');
@@ -71,6 +92,7 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
   };
 
   const nextRound = () => {
+    if (!appActive || simulatingRef.current || finishedRef.current) return;
     const nextScores = scores;
     if (roundIndex >= TREASURE_SPLIT_ROUNDS.length - 1) {
       finish(nextScores);
@@ -82,7 +104,6 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
     setFeedback(null);
     setRoundScore(0);
   };
-
 
   return (
     <ImageBackground source={ACTIVE_THEME.world.activity} resizeMode="cover" style={styles.root}>
@@ -114,8 +135,8 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
               <Text style={styles.bucketHint}>{bucket.hint}</Text>
               <Text style={styles.bucketValue}>{allocation[bucket.key]}</Text>
               <View style={styles.bucketControls}>
-                <Pressable onPress={() => adjust(bucket.key, -1)} style={styles.control}><Text style={styles.controlText}>−</Text></Pressable>
-                <Pressable onPress={() => adjust(bucket.key, 1)} style={styles.control}><Text style={styles.controlText}>+</Text></Pressable>
+                <Pressable disabled={!appActive || phase !== 'plan'} onPress={() => adjust(bucket.key, -1)} style={[styles.control, (!appActive || phase !== 'plan') && styles.disabled]}><Text style={styles.controlText}>−</Text></Pressable>
+                <Pressable disabled={!appActive || phase !== 'plan'} onPress={() => adjust(bucket.key, 1)} style={[styles.control, (!appActive || phase !== 'plan') && styles.disabled]}><Text style={styles.controlText}>+</Text></Pressable>
               </View>
               <CoinPile count={allocation[bucket.key]} max={10} size={18} style={styles.allocatedCoins} />
             </View>
@@ -126,7 +147,7 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
           {phase === 'plan' ? (
             <>
               <Text style={styles.eventMark}>?</Text><Text style={styles.eventTitle}>EVENTO OCULTO</Text><Text style={styles.eventCopy}>No sabes qué ocurrirá. Reparte pensando en hoy, metas y crecimiento.</Text>
-              <PrimaryGameButton label={used === round.total ? 'VIVIR EL DÍA →' : `FALTAN ${round.total - used}`} onPress={simulate} disabled={used !== round.total} />
+              <PrimaryGameButton label={used === round.total ? 'VIVIR EL DÍA →' : `FALTAN ${round.total - used}`} onPress={simulate} disabled={!appActive || used !== round.total} />
             </>
           ) : phase === 'simulate' ? (
             <Animated.View style={[styles.simCard, { transform: [{ scale: sim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.85, 1.08, 1] }) }, { rotate: sim.interpolate({ inputRange: [0, 0.5, 1], outputRange: ['-4deg', '4deg', '0deg'] }) }] }]}>
@@ -137,9 +158,10 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
               <Text style={styles.resultScore}>{roundScore}</Text><Text style={styles.resultLabel}>RESILIENCIA</Text>
               {feedback ? <FeedbackPill text={feedback} good={roundScore >= 80} /> : null}
               <View style={styles.targetRow}><Text style={styles.targetText}>Objetivo: {target.spend} gastar · {target.save} ahorrar · {target.invest} invertir</Text></View>
-              <PrimaryGameButton label={roundIndex === TREASURE_SPLIT_ROUNDS.length - 1 ? 'TERMINAR →' : 'SIGUIENTE EXPEDICIÓN →'} onPress={nextRound} />
+              <PrimaryGameButton label={roundIndex === TREASURE_SPLIT_ROUNDS.length - 1 ? 'TERMINAR →' : 'SIGUIENTE EXPEDICIÓN →'} onPress={nextRound} disabled={!appActive} />
             </>
           )}
+          {!appActive ? <View style={styles.pauseBadge}><Text style={styles.pauseText}>PAUSA</Text></View> : null}
         </View>
       </View>
     </ImageBackground>
@@ -148,34 +170,37 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', padding: 10, gap: 6 },
-  top: { height: 42, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  top: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 9 },
   story: { flex: 1, minWidth: 0, borderRadius: radii.xl, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: 12, paddingVertical: 6, ...shadows.soft },
-  kicker: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 },
+  kicker: { color: colors.gold, fontSize: 10, fontWeight: '900', letterSpacing: 0.8 },
   storyTitle: { color: colors.white, fontSize: 12, lineHeight: 14, fontWeight: '900' },
-  storyText: { color: colors.cream, fontSize: 8, lineHeight: 10, fontWeight: '700', marginTop: 1 },
+  storyText: { color: colors.cream, fontSize: 10, lineHeight: 13, fontWeight: '700', marginTop: 1 },
   board: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 8 },
-  treasureSource: { width: '14%', minWidth: 105, maxWidth: 150, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 8, ...shadows.card },
+  treasureSource: { width: '15%', minWidth: 112, maxWidth: 160, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 8, ...shadows.card },
   sourceHero: { width: 64, height: 54, marginBottom: -4 },
-  sourceLabel: { color: colors.forestDark, fontSize: 10.5, fontWeight: '900' },
-  sourceCount: { color: colors.inkMuted, fontSize: 9, fontWeight: '900' },
+  sourceLabel: { color: colors.forestDark, fontSize: 11, fontWeight: '900' },
+  sourceCount: { color: colors.inkMuted, fontSize: 10, lineHeight: 12, fontWeight: '900', textAlign: 'center' },
   buckets: { flex: 1, flexDirection: 'row', gap: 9 },
   bucket: { flex: 1, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 1, borderColor: colors.creamStrong, alignItems: 'center', padding: 7, ...shadows.soft },
   bucketObject: { height: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
   bucketLabel: { color: colors.forestDark, fontSize: 10, lineHeight: 12, fontWeight: '900' },
-  bucketHint: { color: colors.inkMuted, fontSize: 8, fontWeight: '700', marginTop: 2 },
+  bucketHint: { color: colors.inkMuted, fontSize: 10, lineHeight: 12, fontWeight: '700', marginTop: 2 },
   bucketValue: { color: colors.forestDark, fontSize: 18, lineHeight: 21, fontWeight: '900', marginTop: 4 },
   bucketControls: { flexDirection: 'row', gap: 8, marginTop: 3 },
   allocatedCoins: { minHeight: 22, marginTop: 3 },
-  control: { width: 38, height: 28, borderRadius: 23, backgroundColor: colors.forest, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  control: { width: 38, height: 30, borderRadius: 23, backgroundColor: colors.forest, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
   controlText: { color: colors.white, fontSize: 15, lineHeight: 17, fontWeight: '900' },
-  eventStage: { width: '16%', minWidth: 120, maxWidth: 180, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 10, gap: 6, ...shadows.card },
+  eventStage: { width: '18%', minWidth: 135, maxWidth: 195, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 10, gap: 6, position: 'relative', ...shadows.card },
   eventMark: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.surfacePurple, color: colors.purple, fontSize: 18, lineHeight: 30, fontWeight: '900', textAlign: 'center' },
   eventTitle: { color: colors.forestDark, fontSize: 10, lineHeight: 12, fontWeight: '900', textAlign: 'center' },
-  eventCopy: { color: colors.inkMuted, fontSize: 8.5, lineHeight: 11, fontWeight: '700', textAlign: 'center' },
+  eventCopy: { color: colors.inkMuted, fontSize: 10, lineHeight: 13, fontWeight: '700', textAlign: 'center' },
   simCard: { alignItems: 'center', justifyContent: 'center', gap: 8 },
   simIcon: { color: colors.gold, fontSize: 30, lineHeight: 32 },
   resultScore: { color: colors.orange, fontSize: 24, lineHeight: 26, fontWeight: '900' },
-  resultLabel: { color: colors.forestDark, fontSize: 9, fontWeight: '900', letterSpacing: 1 },
+  resultLabel: { color: colors.forestDark, fontSize: 10, fontWeight: '900', letterSpacing: 1 },
   targetRow: { borderRadius: radii.md, backgroundColor: colors.surfaceGreen, padding: 8 },
-  targetText: { color: colors.forestDark, fontSize: 8, lineHeight: 11, fontWeight: '800', textAlign: 'center' },
+  targetText: { color: colors.forestDark, fontSize: 10, lineHeight: 13, fontWeight: '800', textAlign: 'center' },
+  pauseBadge: { position: 'absolute', top: 8, borderRadius: radii.pill, backgroundColor: colors.glassDark, paddingHorizontal: 14, paddingVertical: 7 },
+  pauseText: { color: colors.white, fontSize: 10, fontWeight: '900' },
+  disabled: { opacity: 0.5 },
 });

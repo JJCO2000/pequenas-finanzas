@@ -39,7 +39,20 @@ export const colors = {
 } as const;
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 40 } as const;
 export const radii = { sm: 10, md: 16, lg: 24, xl: 32, pill: 999 } as const;
-export const typography = { small: 13, body: 17, h2: 21, h1: 28, title: 36 } as const;
+
+// Compact landscape UI still needs a readable floor. Functional copy should
+// use these roles instead of one-off 5–9px values.
+export const typography = {
+  micro: 10,
+  caption: 11,
+  label: 12,
+  small: 13,
+  body: 17,
+  h2: 21,
+  h1: 28,
+  title: 36,
+} as const;
+
 export const shadows = {
   card: {
     shadowColor: '#000',
