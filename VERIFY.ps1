@@ -40,6 +40,7 @@ Run-Step 'Android immersive system bars guard' { node '.\scripts\check-immersive
 Run-Step 'Readable typography floor guard' { node '.\scripts\check-readable-type.mjs' }
 Run-Step 'SFX runtime wiring guard' { node '.\scripts\check-sfx-runtime.mjs' }
 Run-Step 'Egg power clarity and invariant guard' { node '.\scripts\check-egg-power-clarity.mjs' }
+Run-Step 'Game result resilience guard' { node '.\scripts\check-game-result-resilience.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan
