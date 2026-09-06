@@ -16,12 +16,13 @@ import { ScenicBackdrop } from '@/features/shell/components/PFVisual';
 import { colors, shadows } from '@/core/theme/tokens';
 
 export default function GameRoute() {
-  const params = useLocalSearchParams<{ gameId: string; mode?: string; day?: string }>();
+  const params = useLocalSearchParams<{ gameId: string; mode?: string; day?: string; from?: string }>();
   const { profile, inventory, settings, submitGameResult } = useAppData();
   const gameId = String(params.gameId);
   const game = getGame(gameId);
   const presentation = getGamePresentation(gameId);
   const mode: GameRunMode = params.mode === 'campaign' ? 'campaign' : 'arcade';
+  const fromCamp = params.from === 'camp';
   const parsedDay = Number(params.day ?? 0);
   const campaignDay = mode === 'campaign' && Number.isInteger(parsedDay) && parsedDay > 0 ? parsedDay : null;
   const [started, setStarted] = useState(false);
@@ -57,14 +58,25 @@ export default function GameRoute() {
     }
   };
 
-  const returnPath = mode === 'campaign' ? '/play' : '/arcade';
-  const goBack = () => router.replace(returnPath as any);
+  const arcadeHref = fromCamp
+    ? ({ pathname: '/arcade', params: { from: 'camp' } } as const)
+    : ('/arcade' as const);
+
+  const goBack = () => {
+    if (mode === 'campaign') {
+      if (router.canGoBack()) router.back();
+      else router.replace('/play' as any);
+      return;
+    }
+    router.dismissTo(arcadeHref as any);
+  };
+
   const returnToJourney = () => {
     if (mode === 'campaign' && campaignDay) {
       router.replace({ pathname: '/play', params: { completed: String(campaignDay) } } as any);
       return;
     }
-    router.replace(returnPath as any);
+    router.dismissTo(arcadeHref as any);
   };
 
   const resultSubtitle = reward?.maturedCount
