@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useSfx } from '@/features/audio/SfxProvider';
 import { colors, radii, shadows, spacing, typography } from '@/core/theme/tokens';
 
 export function HudChip({ label, value, tone = 'dark' }: { label: string; value: string | number; tone?: 'dark' | 'gold' | 'danger' | 'light' }) {
@@ -17,16 +18,18 @@ export function GameProgress({ value }: { value: number }) {
 }
 
 export function PrimaryGameButton({ label, onPress, disabled, style }: { label: string; onPress: () => void; disabled?: boolean; style?: StyleProp<ViewStyle> }) {
+  const { play } = useSfx();
   return (
-    <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.primary, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
+    <Pressable accessibilityRole="button" disabled={disabled} onPress={() => { play('tap'); onPress(); }} style={({ pressed }) => [styles.primary, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
       <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.primaryText}>{label}</Text>
     </Pressable>
   );
 }
 
 export function SecondaryGameButton({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
+  const { play } = useSfx();
   return (
-    <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.secondary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
+    <Pressable accessibilityRole="button" disabled={disabled} onPress={() => { play('tap'); onPress(); }} style={({ pressed }) => [styles.secondary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
       <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.secondaryText}>{label}</Text>
     </Pressable>
   );
