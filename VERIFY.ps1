@@ -36,6 +36,7 @@ Run-Step 'Plan 2.1 policy tests' { node '.\tests\unit\plan21-policies.spec.mjs' 
 Run-Step 'Plan 2.1D playable game catalog' { node '.\scripts\check-games21d-runtime.mjs' }
 Run-Step 'Coin Catcher UI-runtime worklets' { node '.\scripts\check-coin-catcher-worklets.mjs' }
 Run-Step 'Navigation return regression guard' { node '.\scripts\check-navigation-return.mjs' }
+Run-Step 'Android immersive system bars guard' { node '.\scripts\check-immersive-system-bars.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan
