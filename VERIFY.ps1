@@ -38,6 +38,7 @@ Run-Step 'Coin Catcher UI-runtime worklets' { node '.\scripts\check-coin-catcher
 Run-Step 'Navigation return regression guard' { node '.\scripts\check-navigation-return.mjs' }
 Run-Step 'Android immersive system bars guard' { node '.\scripts\check-immersive-system-bars.mjs' }
 Run-Step 'Readable typography floor guard' { node '.\scripts\check-readable-type.mjs' }
+Run-Step 'SFX runtime wiring guard' { node '.\scripts\check-sfx-runtime.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan
