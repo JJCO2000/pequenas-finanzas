@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-const VERSION = 4;
+const VERSION = 5;
 
 export async function migrateDb(db: SQLiteDatabase) {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
@@ -202,6 +202,30 @@ export async function migrateDb(db: SQLiteDatabase) {
       SELECT profile_id,game_id,1,MIN(created_at)
       FROM game_sessions
       GROUP BY profile_id,game_id;
+    `);
+  }
+
+  if (current < 5) {
+    await db.execAsync(`
+      UPDATE sync_outbox
+      SET status='local_only',synced_at=NULL
+      WHERE status='pending';
+
+      DROP INDEX IF EXISTS sync_outbox_pending;
+      CREATE INDEX IF NOT EXISTS sync_outbox_local_history
+        ON sync_outbox(profile_id,id DESC);
+
+      DELETE FROM sync_outbox
+      WHERE id IN (
+        SELECT older.id
+        FROM sync_outbox older
+        WHERE (
+          SELECT COUNT(*)
+          FROM sync_outbox newer
+          WHERE newer.profile_id=older.profile_id
+            AND newer.id>older.id
+        ) >= 250
+      );
     `);
   }
 
