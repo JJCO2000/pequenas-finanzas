@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { Image } from 'expo-image';
+import { useSfx } from '@/features/audio/SfxProvider';
 import { colors, radii, shadows, typography } from '@/core/theme/tokens';
 
 export function CompactHeader({
@@ -50,11 +51,12 @@ export function IconButton({ label, accessibilityLabel, onPress, tone = 'dark' }
   onPress: () => void;
   tone?: 'dark' | 'light' | 'gold';
 }) {
+  const { play } = useSfx();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      onPress={onPress}
+      onPress={() => { play('tap'); onPress(); }}
       style={({ pressed }) => [
         styles.iconButton,
         tone === 'light' && styles.iconButtonLight,
@@ -100,11 +102,12 @@ export function SceneHotspot({ art, label, sublabel, onPress, selected = false, 
   style?: StyleProp<ViewStyle>;
   artBackground?: string;
 }) {
+  const { play } = useSfx();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
-      onPress={onPress}
+      onPress={() => { play('tap'); onPress(); }}
       style={({ pressed }) => [styles.hotspot, selected && styles.hotspotSelected, style, pressed && styles.pressed]}
     >
       <View style={[styles.hotspotArtWell, { backgroundColor: artBackground }]}>
@@ -128,12 +131,13 @@ export function GameTile({ art, title, badge, meta, onPress, locked = false, sty
   style?: StyleProp<ViewStyle>;
   artBackground?: string;
 }) {
+  const { play } = useSfx();
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={onPress ? title : undefined}
       disabled={!onPress || locked}
-      onPress={onPress}
+      onPress={onPress ? () => { play('tap'); onPress(); } : undefined}
       style={({ pressed }) => [styles.gameTile, locked && styles.locked, style, pressed && onPress && !locked && styles.pressed]}
     >
       <View style={[styles.tileArtWell, { backgroundColor: artBackground }]}>
@@ -158,8 +162,9 @@ export function FloatingCard({ children, tone = 'light', style }: { children: Re
 }
 
 export function ActionPill({ label, onPress, tone = 'gold', style }: { label: string; onPress: () => void; tone?: 'gold' | 'dark' | 'light'; style?: StyleProp<ViewStyle> }) {
+  const { play } = useSfx();
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.action, tone === 'dark' && styles.actionDark, tone === 'light' && styles.actionLight, style, pressed && styles.pressed]}>
+    <Pressable onPress={() => { play('tap'); onPress(); }} style={({ pressed }) => [styles.action, tone === 'dark' && styles.actionDark, tone === 'light' && styles.actionLight, style, pressed && styles.pressed]}>
       <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={[styles.actionText, tone === 'dark' && styles.actionTextLight]}>{label}</Text>
     </Pressable>
   );
