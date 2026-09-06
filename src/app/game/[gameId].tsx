@@ -8,6 +8,7 @@ import type { GameRunMode } from '@/core/domain/types';
 import { deriveGameModifiers } from '@/core/economy/gameUpgradePolicy';
 import { getGame } from '@/registry/games';
 import { getGamePresentation } from '@/registry/gamePresentation';
+import { SHOP_ITEMS } from '@/registry/shop';
 import { formatMoney } from '@/core/domain/money';
 import { ACTIVE_THEME } from '@/core/theme';
 import { MissionCompleteOverlay } from '@/features/adventure/components/MissionCompleteOverlay';
@@ -36,6 +37,12 @@ export default function GameRoute() {
     hapticsEnabled: settings.haptics !== 'off',
     soundEnabled: settings.sound !== 'off',
   }), [inventory, settings.haptics, settings.sound]);
+
+  const activePowerLabels = useMemo(() => {
+    if (gameId !== 'coin-catcher') return [];
+    const owned = new Set(inventory.filter((item) => item.quantity > 0).map((item) => item.itemId));
+    return SHOP_ITEMS.filter((item) => item.gameId === gameId && owned.has(item.id)).map((item) => item.effectTitle);
+  }, [gameId, inventory]);
 
   const session = useMemo(
     () => (profile && game ? createGameSession(game.id, profile.id, profile.ageBand, 1, { mode, campaignDay, modifiers }) : null),
@@ -99,6 +106,7 @@ export default function GameRoute() {
           hero={presentation.hero}
           introSteps={game.presentation.introSteps}
           modeLabel={mode === 'campaign' ? `AVENTURA · DÍA ${campaignDay ?? ''}` : 'ARCADE · JUEGO LIBRE'}
+          activePowerLabels={activePowerLabels}
           onBack={goBack}
           onStart={() => {
             setLearningOpen(false);
