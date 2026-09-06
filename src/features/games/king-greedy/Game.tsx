@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { GameComponentProps } from '@/core/game-runtime';
 import { GREEDY_KING_ROUNDS } from '@/content/games/greedyKing';
@@ -34,7 +34,9 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
   const [cashouts, setCashouts] = useState(0);
   const [bombs, setBombs] = useState(0);
   const [feedback, setFeedback] = useState<{ text: string; good: boolean } | null>(null);
+  const [appActive, setAppActive] = useState(AppState.currentState === 'active');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const spinningRef = useRef(false);
   const startRef = useRef(Date.now());
   const finishedRef = useRef(false);
   const spinsRef = useRef(0);
@@ -45,12 +47,35 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
   const haptics = session.modifiers.hapticsEnabled !== false;
   const story = GREEDY_KING_ROUNDS[spins % GREEDY_KING_ROUNDS.length]?.offer ?? 'El Rey quiere que arriesgues más.';
 
+  const startSelector = () => {
+    if (intervalRef.current || !spinningRef.current || finishedRef.current || !appActive) return;
+    intervalRef.current = setInterval(() => setActive((value) => (value + 1) % SPACES.length), 92);
+  };
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      const nextActive = state === 'active';
+      setAppActive(nextActive);
+      if (!nextActive && intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    });
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (appActive && spinningRef.current && !finishedRef.current) startSelector();
+  }, [appActive]);
+
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current); }, []);
 
   const finish = (secured = bankedRef.current) => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    spinningRef.current = false;
     if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
     const finalCashouts = cashoutsRef.current;
     const finalBombs = bombsRef.current;
     const finalSpins = spinsRef.current;
@@ -59,15 +84,17 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
   };
 
   const startSpin = () => {
-    if (spinning || spins >= MAX_SPINS || finishedRef.current) return;
+    if (!appActive || spinningRef.current || spinsRef.current >= MAX_SPINS || finishedRef.current) return;
+    spinningRef.current = true;
     setFeedback(null);
     setSpinning(true);
     if (haptics) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    intervalRef.current = setInterval(() => setActive((value) => (value + 1) % SPACES.length), 92);
+    startSelector();
   };
 
   const stopSpin = () => {
-    if (!spinning) return;
+    if (!appActive || !spinningRef.current || finishedRef.current) return;
+    spinningRef.current = false;
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = null;
     setSpinning(false);
@@ -83,7 +110,7 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
       setBombs(bombsRef.current);
       setFeedback({ text: '¡CODICIA! Perdiste solo lo que no habías asegurado. Tu tesoro protegido sigue intacto.', good: false });
       if (haptics) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      if (nextSpins >= MAX_SPINS) setTimeout(() => finish(banked), 650);
+      if (nextSpins >= MAX_SPINS) setTimeout(() => finish(bankedRef.current), 650);
       return;
     }
     const nextExposed = exposedRef.current + outcome.value;
@@ -94,7 +121,7 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
   };
 
   const secure = () => {
-    if (spinning || exposed <= 0) return;
+    if (!appActive || spinningRef.current || exposedRef.current <= 0 || finishedRef.current) return;
     const amountSecured = exposedRef.current;
     const nextBanked = bankedRef.current + amountSecured;
     bankedRef.current = nextBanked;
@@ -105,7 +132,7 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
     setCashouts(cashoutsRef.current);
     setFeedback({ text: `Aseguraste ${amountSecured}. La codicia ya no puede quitarte ese dinero.`, good: true });
     if (haptics) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (spins >= MAX_SPINS || nextBanked >= TARGET) setTimeout(() => finish(nextBanked), 500);
+    if (spinsRef.current >= MAX_SPINS || nextBanked >= TARGET) setTimeout(() => finish(nextBanked), 500);
   };
 
   return (
@@ -132,6 +159,7 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
             ))}
             <View style={styles.center}><Text style={styles.crown}>♛</Text><Text style={styles.centerTitle}>{spinning ? '¡DETÉN!' : 'CODICIA'}</Text><Text style={styles.centerMeta}>{spinning ? 'El selector corre' : 'Tú decides cuándo parar'}</Text></View>
           </View>
+          {!appActive ? <View style={styles.pauseBadge}><Text style={styles.pauseText}>PAUSA</Text></View> : null}
         </View>
 
         <View style={styles.riskPane}>
@@ -143,10 +171,10 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
             <View style={[styles.vault, styles.vaultRisk]}><Text style={styles.vaultLabel}>MESA DE RIESGO</Text><CoinPile count={exposed} max={8} size={22} /><Text style={styles.vaultValue}>{exposed}</Text></View>
           </View>
           <View style={styles.actions}>
-            {!spinning ? <PrimaryGameButton label={spins >= MAX_SPINS ? 'ASEGURAR Y TERMINAR' : 'GIRAR →'} onPress={spins >= MAX_SPINS ? secure : startSpin} disabled={spins >= MAX_SPINS && exposed <= 0} /> : <Pressable onPress={stopSpin} style={({ pressed }: { pressed: boolean }) => [styles.stop, pressed && styles.pressed]}><Text style={styles.stopText}>DETENER</Text></Pressable>}
-            <SecondaryGameButton label="ASEGURAR" onPress={secure} disabled={spinning || exposed <= 0} />
+            {!spinning ? <PrimaryGameButton label={spins >= MAX_SPINS ? 'ASEGURAR Y TERMINAR' : 'GIRAR →'} onPress={spins >= MAX_SPINS ? secure : startSpin} disabled={!appActive || (spins >= MAX_SPINS && exposed <= 0)} /> : <Pressable disabled={!appActive} onPress={stopSpin} style={({ pressed }: { pressed: boolean }) => [styles.stop, !appActive && styles.disabled, pressed && appActive && styles.pressed]}><Text style={styles.stopText}>DETENER</Text></Pressable>}
+            <SecondaryGameButton label="ASEGURAR" onPress={secure} disabled={!appActive || spinning || exposed <= 0} />
           </View>
-          {spins >= MAX_SPINS && exposed <= 0 ? <PrimaryGameButton label="TERMINAR PARTIDA →" onPress={() => finish(banked)} /> : null}
+          {spins >= MAX_SPINS && exposed <= 0 ? <PrimaryGameButton label="TERMINAR PARTIDA →" onPress={() => finish(bankedRef.current)} disabled={!appActive} /> : null}
           <View style={styles.feedbackSlot}>{feedback ? <FeedbackPill text={feedback.text} good={feedback.good} /> : <Text style={styles.tip}>No hay respuesta correcta fija: administra cuánto riesgo estás dispuesto a dejar expuesto.</Text>}</View>
         </View>
       </View>
@@ -156,36 +184,39 @@ export function KingGreedyGame({ session, onFinish }: GameComponentProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', padding: 7, gap: 6 },
-  top: { height: 42, flexDirection: 'row', gap: 9, alignItems: 'center' },
+  top: { minHeight: 48, flexDirection: 'row', gap: 9, alignItems: 'center' },
   story: { flex: 1, minWidth: 0, borderRadius: radii.xl, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: 12, paddingVertical: 6, ...shadows.soft },
-  kicker: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 },
-  storyText: { color: colors.white, fontSize: 10, lineHeight: 12, fontWeight: '800' },
+  kicker: { color: colors.gold, fontSize: 10, fontWeight: '900', letterSpacing: 0.8 },
+  storyText: { color: colors.white, fontSize: 10, lineHeight: 13, fontWeight: '800' },
   board: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 8 },
   wheelPane: { flex: 1, minWidth: 0, alignItems: 'center', justifyContent: 'center', position: 'relative' },
   kingHero: { position: 'absolute', left: 8, bottom: -2, width: 72, height: 72 },
   wheel: { width: 236, height: 220, borderRadius: 110, backgroundColor: colors.glassDark, borderWidth: 7, borderColor: colors.gold, position: 'relative', ...shadows.card },
-  space: { position: 'absolute', width: 60, height: 39, borderRadius: radii.lg, backgroundColor: colors.forest, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center' },
+  space: { position: 'absolute', width: 64, minHeight: 42, borderRadius: radii.lg, backgroundColor: colors.forest, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center' },
   spaceActive: { backgroundColor: colors.orange, borderColor: colors.white, transform: [{ scale: 1.14 }] },
   spaceBomb: { backgroundColor: colors.danger },
   spaceSafe: { backgroundColor: colors.leaf },
-  spaceText: { color: colors.white, fontSize: 8.5, lineHeight: 10, fontWeight: '900', textAlign: 'center' },
+  spaceText: { color: colors.white, fontSize: 10, lineHeight: 12, fontWeight: '900', textAlign: 'center' },
   center: { position: 'absolute', left: 68, top: 66, width: 92, height: 84, borderRadius: 46, backgroundColor: colors.gold, borderWidth: 4, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 7 },
   crown: { color: colors.forestDark, fontSize: 15, lineHeight: 17 },
-  centerTitle: { color: colors.forestDark, fontSize: 12.5, fontWeight: '900' },
-  centerMeta: { color: colors.ink, fontSize: 7, lineHeight: 10, fontWeight: '800', textAlign: 'center' },
-  riskPane: { width: '26%', minWidth: 220, maxWidth: 300, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, padding: 11, justifyContent: 'center', ...shadows.card },
-  riskKicker: { color: colors.orange, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 },
+  centerTitle: { color: colors.forestDark, fontSize: 13, fontWeight: '900' },
+  centerMeta: { color: colors.ink, fontSize: 10, lineHeight: 12, fontWeight: '800', textAlign: 'center' },
+  pauseBadge: { position: 'absolute', top: 6, borderRadius: radii.pill, backgroundColor: colors.glassDark, paddingHorizontal: 14, paddingVertical: 7 },
+  pauseText: { color: colors.white, fontSize: 10, fontWeight: '900' },
+  riskPane: { width: '28%', minWidth: 235, maxWidth: 320, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, padding: 11, justifyContent: 'center', ...shadows.card },
+  riskKicker: { color: colors.orange, fontSize: 10, fontWeight: '900', letterSpacing: 0.8 },
   riskTitle: { color: colors.forestDark, fontSize: 14, lineHeight: 17, fontWeight: '900', marginTop: 3 },
-  riskCopy: { color: colors.inkMuted, fontSize: 8.5, lineHeight: 11, fontWeight: '700', marginTop: 5 },
-  vaults: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  vault: { flex: 1, minHeight: 66, borderRadius: radii.lg, backgroundColor: colors.surfaceGreen, borderWidth: 1, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', gap: 2, paddingVertical: 8 },
+  riskCopy: { color: colors.inkMuted, fontSize: 10, lineHeight: 13, fontWeight: '700', marginTop: 5 },
+  vaults: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  vault: { flex: 1, minHeight: 70, borderRadius: radii.lg, backgroundColor: colors.surfaceGreen, borderWidth: 1, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', gap: 2, paddingVertical: 8 },
   vaultRisk: { backgroundColor: colors.surfaceOrange, borderColor: colors.orangeSoft },
-  vaultLabel: { color: colors.inkMuted, fontSize: 7, fontWeight: '900', letterSpacing: 0.7 },
+  vaultLabel: { color: colors.inkMuted, fontSize: 10, fontWeight: '900', letterSpacing: 0.5, textAlign: 'center' },
   vaultValue: { color: colors.forestDark, fontSize: 15, lineHeight: 17, fontWeight: '900' },
-  actions: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  stop: { flex: 1, minHeight: 34, borderRadius: radii.pill, backgroundColor: colors.danger, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
-  stopText: { color: colors.white, fontSize: 11.5, fontWeight: '900', letterSpacing: 1 },
-  feedbackSlot: { minHeight: 46, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
-  tip: { color: colors.inkMuted, fontSize: 9, lineHeight: 13, fontWeight: '800', textAlign: 'center' },
+  actions: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  stop: { flex: 1, minHeight: 38, borderRadius: radii.pill, backgroundColor: colors.danger, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  stopText: { color: colors.white, fontSize: 12, fontWeight: '900', letterSpacing: 1 },
+  feedbackSlot: { minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  tip: { color: colors.inkMuted, fontSize: 10, lineHeight: 13, fontWeight: '800', textAlign: 'center' },
+  disabled: { opacity: 0.55 },
   pressed: { transform: [{ scale: 0.96 }] },
 });
