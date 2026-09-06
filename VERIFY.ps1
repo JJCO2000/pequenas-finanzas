@@ -42,6 +42,7 @@ Run-Step 'SFX runtime wiring guard' { node '.\scripts\check-sfx-runtime.mjs' }
 Run-Step 'Egg power clarity and invariant guard' { node '.\scripts\check-egg-power-clarity.mjs' }
 Run-Step 'Game result resilience guard' { node '.\scripts\check-game-result-resilience.mjs' }
 Run-Step 'Financial movement direction guard' { node '.\scripts\check-financial-direction.mjs' }
+Run-Step 'Bounded local change journal guard' { node '.\scripts\check-local-journal.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan
