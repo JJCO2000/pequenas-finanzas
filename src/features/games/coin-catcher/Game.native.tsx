@@ -76,6 +76,7 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
   const pausedRef = useRef(true);
   const finishedRef = useRef(false);
   const startRef = useRef(Date.now());
+  const [appActive, setAppActive] = useState(AppState.currentState === 'active');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
@@ -178,6 +179,12 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
   }, true);
 
   useEffect(() => {
+    if (!appActive) {
+      pausedRef.current = true;
+      paused.value = true;
+      frame.setActive(false);
+      return;
+    }
     if (countdown <= 0) {
       pausedRef.current = false;
       paused.value = false;
@@ -187,11 +194,13 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
     }
     const timer = setTimeout(() => setCountdown((value) => value - 1), 650);
     return () => clearTimeout(timer);
-  }, [countdown, frame, paused]);
+  }, [appActive, countdown, frame, paused]);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
-      const isPaused = state !== 'active' || countdown > 0;
+      const active = state === 'active';
+      setAppActive(active);
+      const isPaused = !active || countdown > 0;
       pausedRef.current = isPaused;
       paused.value = isPaused;
       frame.setActive(!isPaused && !finishedRef.current);
@@ -303,11 +312,11 @@ const styles = StyleSheet.create({
   hud: { position: 'absolute', zIndex: 8, top: 10, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 },
   progressWrap: { position: 'absolute', zIndex: 7, top: 60, left: '30%', right: '30%' },
   hero: { position: 'absolute', left: 26, bottom: 22, width: 118, height: 118, zIndex: 5 },
-  dragHint: { position: 'absolute', bottom: 10, alignSelf: 'center', minWidth: 180, minHeight: 34, borderRadius: radii.pill, backgroundColor: 'rgba(4,73,49,0.93)', borderWidth: 1, borderColor: '#85C77B', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, ...shadows.card },
-  dragHintText: { color: colors.white, fontSize: 9.5, fontWeight: '900' },
+  dragHint: { position: 'absolute', bottom: 10, alignSelf: 'center', minWidth: 180, minHeight: 36, borderRadius: radii.pill, backgroundColor: 'rgba(4,73,49,0.93)', borderWidth: 1, borderColor: '#85C77B', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, ...shadows.card },
+  dragHintText: { color: colors.white, fontSize: 10, fontWeight: '900' },
   countdown: { position: 'absolute', alignSelf: 'center', top: '34%', width: 108, height: 108, borderRadius: 54, backgroundColor: 'rgba(255,253,243,0.96)', borderWidth: 3, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', ...shadows.card },
   countdownNumber: { color: colors.forestDark, fontSize: 44, lineHeight: 46, fontWeight: '900' },
-  countdownText: { color: colors.orange, fontSize: 8, fontWeight: '900', letterSpacing: 1 },
+  countdownText: { color: colors.orange, fontSize: 10, fontWeight: '900', letterSpacing: 1 },
   comboBurst: { position: 'absolute', right: 42, top: 68, borderRadius: radii.pill, backgroundColor: '#FF8C45', borderWidth: 2, borderColor: '#FFD0AE', paddingHorizontal: 10, paddingVertical: 5, ...shadows.soft },
   comboBurstText: { color: colors.white, fontSize: 10.5, fontWeight: '900' },
   fallbackCoin: { position: 'absolute', left: 0, top: 0, zIndex: 4, borderRadius: 999, backgroundColor: '#FFD54F', borderWidth: 3, borderColor: '#FFF3A5', alignItems: 'center', justifyContent: 'center' },
