@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useAppData } from '@/features/session/AppDataProvider';
 import { formatMoney, pesos } from '@/core/domain/money';
+import { getTransactionPresentation, formatTransactionAmount } from '@/features/wallet/transactionPresentation';
 import { ACTIVE_THEME } from '@/core/theme';
 import { useCampBack } from '@/features/shell/navigation/useCampBack';
 import { WorldScene } from '@/features/shell/world';
@@ -77,13 +78,37 @@ export default function WalletScreen() {
 
         {mode === 'history' ? (
           <View style={styles.history}>
-            {transactions.slice(0, 5).map((transaction) => (
-              <View key={transaction.id} style={styles.historyRow}>
-                <Image source={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} style={styles.coinTiny} resizeMode="contain" />
-                <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.historySource}>{transaction.source}</Text>
-                <Text style={styles.historyAmount}>{formatMoney(transaction.amountCents)}</Text>
-              </View>
-            ))}
+            {transactions.slice(0, 5).map((transaction) => {
+              const presentation = getTransactionPresentation(transaction.kind);
+              return (
+                <View
+                  key={transaction.id}
+                  style={[
+                    styles.historyRow,
+                    presentation.direction === 'inflow' && styles.historyInflow,
+                    presentation.direction === 'outflow' && styles.historyOutflow,
+                    presentation.direction === 'transfer' && styles.historyTransfer,
+                  ]}
+                >
+                  <View style={styles.historyTop}>
+                    <View style={[
+                      styles.directionPill,
+                      presentation.direction === 'inflow' && styles.directionInflow,
+                      presentation.direction === 'outflow' && styles.directionOutflow,
+                      presentation.direction === 'transfer' && styles.directionTransfer,
+                    ]}>
+                      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72} style={styles.directionText}>{presentation.symbol} {presentation.label}</Text>
+                    </View>
+                    <Text style={[
+                      styles.historyAmount,
+                      presentation.direction === 'inflow' && styles.amountInflow,
+                      presentation.direction === 'outflow' && styles.amountOutflow,
+                    ]}>{formatTransactionAmount(transaction)}</Text>
+                  </View>
+                  <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.78} style={styles.historySource}>{transaction.source}</Text>
+                </View>
+              );
+            })}
             {transactions.length === 0 ? <Text style={styles.empty}>Aún no hay movimientos.</Text> : null}
           </View>
         ) : null}
@@ -115,12 +140,22 @@ const styles = StyleSheet.create({
   title: { color: colors.forestDark, fontSize: 13, lineHeight: 15, fontWeight: '900', marginTop: 2 },
   copy: { color: colors.inkMuted, fontSize: typography.micro, lineHeight: 12, fontWeight: '700', marginTop: 2 },
   actions: { flexDirection: 'row', gap: 5, alignItems: 'center' },
-  history: { minHeight: 68, flexDirection: 'row', flexWrap: 'wrap', gap: 5, alignContent: 'center', paddingTop: 6 },
-  historyRow: { width: '32%', minHeight: 32, borderRadius: 16, backgroundColor: '#EEF6E8', flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7 },
-  coinTiny: { width: 20, height: 20 },
-  historySource: { flex: 1, color: colors.ink, fontSize: typography.micro, lineHeight: 12, fontWeight: '800' },
-  historyAmount: { color: colors.forestDark, fontSize: typography.caption, lineHeight: 13, fontWeight: '900' },
-  empty: { color: colors.inkMuted, fontSize: typography.caption, lineHeight: 13, fontWeight: '700' },
+  history: { minHeight: 70, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'space-between', gap: 5, paddingTop: 6 },
+  historyRow: { flex: 1, minWidth: 0, minHeight: 64, borderRadius: 13, borderWidth: 1, paddingHorizontal: 6, paddingVertical: 5, justifyContent: 'center' },
+  historyInflow: { backgroundColor: '#E5F5DE', borderColor: '#9CCE8D' },
+  historyOutflow: { backgroundColor: '#FFE9DC', borderColor: '#F2B58E' },
+  historyTransfer: { backgroundColor: '#E7F4F7', borderColor: '#A7D4DC' },
+  historyTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 4 },
+  directionPill: { flexShrink: 1, minWidth: 0, borderRadius: radii.pill, paddingHorizontal: 5, paddingVertical: 3 },
+  directionInflow: { backgroundColor: colors.forest },
+  directionOutflow: { backgroundColor: colors.orange },
+  directionTransfer: { backgroundColor: '#397A87' },
+  directionText: { color: colors.white, fontSize: typography.micro, lineHeight: 11, fontWeight: '900' },
+  historySource: { color: colors.inkMuted, fontSize: typography.micro, lineHeight: 12, fontWeight: '700', marginTop: 4 },
+  historyAmount: { color: colors.forestDark, fontSize: typography.caption, lineHeight: 13, fontWeight: '900', flexShrink: 0 },
+  amountInflow: { color: colors.forest },
+  amountOutflow: { color: '#B84D18' },
+  empty: { color: colors.inkMuted, fontSize: typography.caption, lineHeight: 13, fontWeight: '700', alignSelf: 'center' },
   toast: { position: 'absolute', top: 56, alignSelf: 'center', minWidth: 180, borderRadius: radii.pill, paddingHorizontal: 11, paddingVertical: 7, zIndex: 30 },
   toastGood: { backgroundColor: '#72AD54' }, toastBad: { backgroundColor: colors.danger },
   toastText: { color: colors.white, fontSize: typography.caption, lineHeight: 13, fontWeight: '900', textAlign: 'center' },
