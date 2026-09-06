@@ -44,6 +44,7 @@ Run-Step 'Game result resilience guard' { node '.\scripts\check-game-result-resi
 Run-Step 'Financial movement direction guard' { node '.\scripts\check-financial-direction.mjs' }
 Run-Step 'Bounded local change journal guard' { node '.\scripts\check-local-journal.mjs' }
 Run-Step 'Seven-game regression guard' { node '.\scripts\check-seven-game-regression.mjs' }
+Run-Step 'Remediation plan completeness guard' { node '.\scripts\check-remediation-plan-completeness.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan
