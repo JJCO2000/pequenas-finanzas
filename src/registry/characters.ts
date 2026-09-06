@@ -1,6 +1,4 @@
-import { ASSETS } from './assets';
-export const CHARACTERS = {
-  trex: { id: 'trex', name: 'Rex', static: ASSETS.characters.trex },
-  stegosaurus: { id: 'stegosaurus', name: 'Stego', static: ASSETS.characters.stegosaurus },
-  longneck: { id: 'longneck', name: 'Largo', static: ASSETS.characters.longneck },
-} as const;
+import { ACTIVE_THEME } from '@/core/theme';
+
+/** Semantic character roles. Features should depend on roles, not species-specific asset keys. */
+export const CHARACTERS = ACTIVE_THEME.characters;

@@ -1,2 +1,17 @@
-import React from 'react';import{ActivityIndicator,View}from'react-native';import{Redirect}from'expo-router';import{useAppData}from'@/features/session/AppDataProvider';import{colors}from'@/core/theme/tokens';
-export default function Entry(){const{loading,profile}=useAppData();if(loading)return <View style={{flex:1,alignItems:'center',justifyContent:'center',backgroundColor:colors.cream}}><ActivityIndicator size="large" color={colors.forest}/></View>;return <Redirect href={profile?'/(tabs)':'/onboarding'}/>}
+import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { Redirect } from 'expo-router';
+import { useAppData } from '@/features/session/AppDataProvider';
+import { colors } from '@/core/theme/tokens';
+
+export default function Entry() {
+  const { loading, profile } = useAppData();
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cream }}>
+        <ActivityIndicator size="large" color={colors.forest} />
+      </View>
+    );
+  }
+  return <Redirect href={(profile ? '/start' : '/onboarding') as any} />;
+}

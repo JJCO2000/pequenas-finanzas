@@ -1,6 +1,7 @@
-$ErrorActionPreference='Stop'
+$ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
-Write-Host '[INFO] Pequeñas Finanzas - Expo Go + cache limpia' -ForegroundColor Cyan
-Write-Host '[INFO] Equivalente al flujo npx expo start -c usado en UCAPSA, forzando --go porque este proyecto también instala expo-dev-client.' -ForegroundColor DarkGray
-npx expo start --go --clear
-if($LASTEXITCODE -ne 0){exit 1}
+Write-Host '[INFO] Pequenas Finanzas - Development Build with clean cache' -ForegroundColor Cyan
+Write-Host '[INFO] SDK 57 project: development build is the canonical device runtime.' -ForegroundColor DarkGray
+Write-Host '[INFO] First install a development APK with: .\BUILD_ANDROID.ps1 -Profile development' -ForegroundColor Yellow
+npx.cmd expo start --dev-client --clear
+if ($LASTEXITCODE -ne 0) { exit 1 }

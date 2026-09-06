@@ -1,5 +1,5 @@
 # AGENTS — Pequeñas Finanzas
-Antes de modificar código leer `docs/product/PLAN_PEQUENAS_FINANZAS_1_1.md`.
+Antes de modificar código leer `docs/product/PLAN_PEQUENAS_FINANZAS_1_1.md` y `docs/product/PLAN_PEQUENAS_FINANZAS_1_2.md`.
 Reglas duras:
 1) PDF + Canvas prioridad 1 son fuente de producto/diseño.
 2) No duplicar. Referenciar registries/core.

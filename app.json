@@ -1,12 +1,11 @@
 {
   "expo": {
-    "name": "Pequeñas Finanzas",
+    "name": "Peque\u00f1as Finanzas",
     "slug": "pequenas-finanzas",
     "scheme": "pequenasfinanzas",
     "version": "0.1.1",
-    "orientation": "portrait",
+    "orientation": "landscape",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "plugins": [
       "expo-router",
       "expo-sqlite",
@@ -20,7 +19,16 @@
         }
       ],
       "expo-image",
-      "expo-audio"
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true
@@ -35,11 +43,21 @@
         "foregroundImage": "./assets/app/adaptive-icon.png",
         "backgroundColor": "#18452C"
       },
-      "versionCode": 1
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "icon": "./assets/app/icon.png",
     "web": {
       "favicon": "./assets/app/favicon.png"
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "276b4c9a-4ba5-4366-b3e4-219c89fad343"
+      }
+    },
+    "owner": "jjcc2000"
   }
 }

@@ -1,11 +1,18 @@
 {
-  "policy": "Toda imagen debe tener una fuente de verdad. design/=fuente maestra; assets/=derivado optimizado. Verificar derechos antes de publicación pública.",
+  "policy": "Toda imagen debe tener una fuente de verdad. Plan 1.1 conserva design/=fuente maestra y assets/=derivado optimizado. Verificar derechos antes de publicacion publica.",
   "items": [
+    {
+      "id": "canva-master-plan21",
+      "source": "user-provided-canva-design",
+      "designId": "DAHUKFDnL5o",
+      "title": "Copia de Pequenas finanzas",
+      "usage": "Fuente visual maestra del Plan 2.1: shell horizontal, escenarios y personajes"
+    },
     {
       "id": "pdf-base",
       "source": "user-provided",
       "file": "design/reference/pdf/Pequenas-finanzas-original.pdf",
-      "usage": "Referencia visual y de flujo"
+      "usage": "Referencia visual secundaria y de flujo"
     },
     {
       "id": "canvas-priority-1",
@@ -14,28 +21,16 @@
       "usage": "Modelo Canvas de prioridad 1"
     },
     {
-      "id": "dino-sheet",
-      "source": "derived-from-user-pdf",
-      "file": "assets/characters/reference/dino-sheet.png",
-      "usage": "Referencia de personajes"
+      "id": "runtime-dinosaurs-plan21",
+      "source": "derived-from-user-provided-design-assets",
+      "file": "assets/characters/",
+      "usage": "Personajes runtime con transparencia limpiada y sin halo blanco"
     },
     {
-      "id": "trex",
-      "source": "crop-from-user-pdf-resource-sheet",
-      "file": "assets/characters/trex/static/trex.png",
-      "usage": "Mascota MVP"
-    },
-    {
-      "id": "stegosaurus",
-      "source": "crop-from-user-pdf-resource-sheet",
-      "file": "assets/characters/stegosaurus/static/stegosaurus.png",
-      "usage": "Home"
-    },
-    {
-      "id": "longneck",
-      "source": "crop-from-user-pdf-resource-sheet",
-      "file": "assets/characters/longneck/static/longneck.png",
-      "usage": "Mapa"
+      "id": "runtime-landscapes-plan21",
+      "source": "derived-from-user-provided-design-reference",
+      "file": "assets/world/",
+      "usage": "Escenarios horizontales 16:9 del shell de juego"
     }
   ]
 }

@@ -1,5 +1,6 @@
-$ErrorActionPreference='Stop'
+$ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
-Write-Host '[INFO] Expo Go por tunnel. Úsalo si el teléfono no ve Metro por LAN.' -ForegroundColor Cyan
-npx expo start --go --clear --tunnel
-if($LASTEXITCODE -ne 0){exit 1}
+Write-Host '[INFO] Pequenas Finanzas - Development Build through tunnel' -ForegroundColor Cyan
+Write-Host '[INFO] Use this if the phone cannot reach Metro over LAN.' -ForegroundColor DarkGray
+npx.cmd expo start --dev-client --clear --tunnel
+if ($LASTEXITCODE -ne 0) { exit 1 }

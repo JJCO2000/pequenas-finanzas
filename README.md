@@ -1,33 +1,36 @@
-# Pequeñas Finanzas — MVP Plan 1.1 Play Ready
+# Pequenas Finanzas - Plan 1.1 + Plan 2.1
 
-MVP infantil de educación financiera basado en el PDF original: nombre → mapa → tema → actividad → recompensa → gastar/ahorrar/invertir → canje.
+Videojuego infantil de educacion financiera con arquitectura Plan 1.1 y experiencia Plan 2.1.
 
-## Ubicación
-`C:\Users\Omen\Documents\Proyectos\pequenas-finanzas`
+## Regla maestra
 
-Misma raíz de proyectos que `ucapsa-app` y `solo-leveling`.
+- **Plan 1.1 = estructura tecnica:** SSOT, repositorios, SQLite encapsulado, economia/progreso centrales, registries, game runtime y modulos preparados para 20+ videojuegos.
+- **Plan 2.1 = diseno y gameplay:** landscape, portada de juego, mapa infinito por dias, flujo estructurado, inversiones N+4, Arcade - Mis juegos, tienda y persistencia de posicion/progreso.
+
+Plan 2.1 se monta sobre Plan 1.1; no lo reemplaza.
 
 ## Desarrollo
-- `.\START.ps1` — Expo Go + cache limpia.
-- `.\START_TUNNEL.ps1` — Expo Go por tunnel.
-- `.\BUILD_ANDROID.ps1 -Profile development` — development APK.
-- `.\START_DEV.ps1` — Metro para development client.
+
+- `.\START.ps1` - Expo Go con cache limpia.
+- `.\START_TUNNEL.ps1` - Expo Go por tunnel.
+- `.\START_DEV.ps1` - Metro para development client cuando sea necesario.
 
 ## QA
-- `.\VERIFY.ps1` — dependencias + Expo Doctor + TypeScript + config + bundle Android.
-- `.\AUDIT_PLAN_1_1.ps1` — arquitectura/SSOT/anti-duplicados.
-- `.\VERIFY_RELEASE.ps1` — preflight de release siguiendo el patrón robusto usado en UCAPSA.
 
-## Distribución
-- `.\BUILD_ANDROID.ps1 -Profile preview` — APK instalable.
-- `.\BUILD_ANDROID.ps1 -Profile production` — AAB Google Play.
-- `.\SETUP_GOOGLE_PLAY.ps1` — prepara Service Account en EAS.
-- `.\SUBMIT_ANDROID.ps1 -Track internal` — prueba interna.
-- `.\SUBMIT_ANDROID.ps1 -Track production` — producción (con confirmación explícita; release queda draft).
+- `.\VERIFY.ps1` - gates completos Plan 1.1 + Plan 2.1 + Expo Doctor + TypeScript + bundle Android.
+- `.\AUDIT_PLAN_1_1.ps1` - arquitectura/SSOT/limites.
+- `.\AUDIT_PLAN_2_1.ps1` - experiencia/mecanicas/persistencia Plan 2.1.
+- `.\VERIFY_RELEASE.ps1` - preflight de release Android.
 
-## Arquitectura
-`src/core` infraestructura/políticas reutilizables · `src/features` producto/juegos · `src/game-kits` mecánicas · `src/registry` fuentes únicas · `content` fuentes pedagógicas · `design` masters · `assets` runtime.
+## Distribucion
 
-Lee primero:
+- `.\BUILD_ANDROID.ps1 -Profile preview` - APK instalable.
+- `.\BUILD_ANDROID.ps1 -Profile production` - AAB Google Play.
+- `.\SUBMIT_ANDROID.ps1 -Track internal` - prueba interna.
+
+## Documentos principales
+
 - `docs/product/PLAN_PEQUENAS_FINANZAS_1_1.md`
+- `docs/product/PLAN_PEQUENAS_FINANZAS_2_1.md`
+- `docs/architecture/PLAN_1_1_2_1_INTEGRATION.md`
 - `docs/build/EXPO_GO_EAS_GOOGLE_PLAY.md`
