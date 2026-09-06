@@ -35,6 +35,7 @@ Run-Step 'Plan 2.1 runtime invariants' { node '.\scripts\check-plan21-runtime.mj
 Run-Step 'Plan 2.1 policy tests' { node '.\tests\unit\plan21-policies.spec.mjs' }
 Run-Step 'Plan 2.1D playable game catalog' { node '.\scripts\check-games21d-runtime.mjs' }
 Run-Step 'Coin Catcher UI-runtime worklets' { node '.\scripts\check-coin-catcher-worklets.mjs' }
+Run-Step 'Navigation return regression guard' { node '.\scripts\check-navigation-return.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan
