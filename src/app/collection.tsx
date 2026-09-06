@@ -8,7 +8,7 @@ import { ACTIVE_THEME } from '@/core/theme';
 import { useCampBack } from '@/features/shell/navigation/useCampBack';
 import { CollectibleEgg, WorldScene } from '@/features/shell/world';
 import { CompactHeader, GameTile, HudPill } from '@/features/shell/gameui';
-import { colors, radii, shadows } from '@/core/theme/tokens';
+import { colors, radii, shadows, typography } from '@/core/theme/tokens';
 
 const EGG_ACCENTS: Record<string, string> = {
   'egg-forest': '#69A95D', 'egg-sunset': '#E67F50', 'egg-ocean': '#59A7C8', 'egg-volcano': '#B576C2',
@@ -36,8 +36,8 @@ export default function CollectionScreen() {
           return (
             <View key={item.id} style={[styles.egg, !isOwned && styles.locked]}>
               <CollectibleEgg source={item.art} accent={EGG_ACCENTS[item.id] ?? '#72AD54'} size={52} selected={isOwned} />
-              <Text numberOfLines={1} style={styles.eggName}>{isOwned ? item.title.replace('Huevo ', '') : '?'}</Text>
-              <View style={styles.pill}><Text style={styles.pillText}>{isOwned ? 'TUYO' : 'BLOQUEADO'}</Text></View>
+              <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.eggName}>{isOwned ? item.title.replace('Huevo ', '') : '?'}</Text>
+              <View style={styles.pill}><Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.pillText}>{isOwned ? 'TUYO' : 'BLOQUEADO'}</Text></View>
             </View>
           );
         })}
@@ -66,17 +66,17 @@ export default function CollectionScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 10, paddingVertical: 8, gap: 5 },
+  root: { paddingHorizontal: 10, paddingVertical: 8, gap: 6 },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  sectionTitle: { alignSelf: 'flex-start', borderRadius: 12, backgroundColor: 'rgba(4,54,36,0.74)', paddingHorizontal: 9, paddingVertical: 3 },
-  sectionText: { color: colors.white, fontSize: 8.5, fontWeight: '900' },
-  eggs: { height: 92, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
-  egg: { width: 92, height: 84, borderRadius: 16, backgroundColor: 'rgba(255,253,244,0.94)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  sectionTitle: { alignSelf: 'flex-start', borderRadius: 13, backgroundColor: 'rgba(4,54,36,0.78)', paddingHorizontal: 10, paddingVertical: 5 },
+  sectionText: { color: colors.white, fontSize: typography.caption, lineHeight: 13, fontWeight: '900' },
+  eggs: { height: 108, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  egg: { width: 100, height: 100, borderRadius: 17, backgroundColor: 'rgba(255,253,244,0.94)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center', ...shadows.soft },
   locked: { opacity: 0.42 },
-  eggName: { color: colors.forestDark, fontSize: 7.5, fontWeight: '900', maxWidth: 76 },
-  pill: { marginTop: 1, borderRadius: radii.pill, backgroundColor: '#E7F2DE', paddingHorizontal: 5, paddingVertical: 1.5 },
-  pillText: { color: colors.forestDark, fontSize: 4.8, fontWeight: '900' },
+  eggName: { color: colors.forestDark, fontSize: typography.caption, lineHeight: 13, fontWeight: '900', maxWidth: 84 },
+  pill: { marginTop: 3, borderRadius: radii.pill, backgroundColor: '#E7F2DE', paddingHorizontal: 7, paddingVertical: 3 },
+  pillText: { color: colors.forestDark, fontSize: typography.micro, lineHeight: 11, fontWeight: '900', maxWidth: 76 },
   scroll: { flex: 1, minHeight: 0 },
   games: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4, paddingBottom: 3 },
-  gameTile: { width: 112, height: 88 },
+  gameTile: { width: 120, height: 96 },
 });
