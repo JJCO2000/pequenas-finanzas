@@ -5,7 +5,7 @@ import { ACTIVE_THEME } from '@/core/theme';
 import { useCampBack } from '@/features/shell/navigation/useCampBack';
 import { WorldScene } from '@/features/shell/world';
 import { CompactHeader, FloatingCard } from '@/features/shell/gameui';
-import { colors, shadows } from '@/core/theme/tokens';
+import { colors, shadows, typography } from '@/core/theme/tokens';
 
 export default function SettingsScreen() {
   const { settings, updateSetting } = useAppData();
@@ -30,7 +30,7 @@ export default function SettingsScreen() {
 
 function SettingButton({ title, description, value, art, tone, onPress }: { title: string; description: string; value: boolean; art: any; tone: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.setting, { backgroundColor: tone }, value && styles.settingActive, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="switch" accessibilityState={{ checked: value }} onPress={onPress} style={({ pressed }) => [styles.setting, { backgroundColor: tone }, value && styles.settingActive, pressed && styles.pressed]}>
       <Image source={art} style={styles.settingArt} resizeMode="contain" />
       <Text style={styles.settingTitle}>{title}</Text>
       <Text style={styles.settingDesc}>{description}</Text>
@@ -41,20 +41,20 @@ function SettingButton({ title, description, value, art, tone, onPress }: { titl
 
 const styles = StyleSheet.create({
   root: { paddingHorizontal: 10, paddingVertical: 8 },
-  center: { flex: 1, minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, paddingBottom: 66 },
-  setting: { width: 150, height: 138, borderRadius: 22, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center', ...shadows.card },
+  center: { flex: 1, minHeight: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, paddingBottom: 76 },
+  setting: { width: 160, height: 150, borderRadius: 22, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center', ...shadows.card },
   settingActive: { borderColor: '#FFD54F' },
   settingArt: { width: 58, height: 52 },
-  settingTitle: { color: colors.forestDark, fontSize: 11, lineHeight: 13, fontWeight: '900', marginTop: 2 },
-  settingDesc: { color: colors.inkMuted, fontSize: 6, fontWeight: '700', marginTop: 1 },
-  switch: { width: 42, height: 22, borderRadius: 11, backgroundColor: '#B8C2BB', padding: 2.5, marginTop: 6 },
+  settingTitle: { color: colors.forestDark, fontSize: 14, lineHeight: 16, fontWeight: '900', marginTop: 3 },
+  settingDesc: { color: colors.inkMuted, fontSize: typography.caption, lineHeight: 13, fontWeight: '700', marginTop: 2 },
+  switch: { width: 46, height: 24, borderRadius: 12, backgroundColor: '#B8C2BB', padding: 3, marginTop: 7 },
   switchOn: { backgroundColor: colors.forest },
-  knob: { width: 17, height: 17, borderRadius: 9, backgroundColor: colors.white },
+  knob: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.white },
   knobOn: { alignSelf: 'flex-end' },
-  note: { position: 'absolute', left: '24%', right: '24%', bottom: 10, minHeight: 52, paddingHorizontal: 8, flexDirection: 'row', alignItems: 'center', gap: 7 },
-  noteArt: { width: 42, height: 40 },
+  note: { position: 'absolute', left: '22%', right: '22%', bottom: 10, minHeight: 62, paddingHorizontal: 10, paddingVertical: 6, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  noteArt: { width: 44, height: 42 },
   noteCopy: { flex: 1, minWidth: 0 },
-  noteTitle: { color: colors.forestDark, fontSize: 8.5, fontWeight: '900' },
-  noteText: { color: colors.inkMuted, fontSize: 5.7, lineHeight: 7, fontWeight: '700', marginTop: 1 },
+  noteTitle: { color: colors.forestDark, fontSize: typography.label, lineHeight: 14, fontWeight: '900' },
+  noteText: { color: colors.inkMuted, fontSize: typography.micro, lineHeight: 12, fontWeight: '700', marginTop: 2 },
   pressed: { transform: [{ scale: 0.97 }] },
 });
