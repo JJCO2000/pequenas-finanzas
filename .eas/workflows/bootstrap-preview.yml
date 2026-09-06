@@ -1,0 +1,28 @@
+name: Bootstrap Pequeñas Finanzas Preview
+
+on:
+  push:
+    branches:
+      - chore/eas-preview-updates
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  verify:
+    name: Verify Android preview
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - run: npm run typecheck
+      - run: npx expo install --check
+      - run: npx expo export --platform android --output-dir .expo-preview-verify
+
+  build_preview:
+    name: Build Android Preview APK
+    needs: [verify]
+    type: build
+    params:
+      platform: android
+      profile: preview
