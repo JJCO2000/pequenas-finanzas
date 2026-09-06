@@ -13,6 +13,8 @@ La aprobación final sigue requiriendo dos capas que no pueden sustituirse con r
 1. Ejecutar `VERIFY.ps1` en el checkout de desarrollo para validar dependencias Expo, Expo Doctor, TypeScript strict y export Android Metro/Hermes.
 2. Probar en un dispositivo Android real el comportamiento visual, táctil y de audio.
 
+La revisión estática del alcance del PR confirmó que no contiene AAB, APK, carpetas de build Android ni artefactos de publicación. Los cambios están limitados a código fuente, guards de QA, documentación y el asset WAV de SFX.
+
 ## Matriz obligatoria de dispositivo
 
 ### Navegación
