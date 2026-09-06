@@ -43,6 +43,7 @@ Run-Step 'Egg power clarity and invariant guard' { node '.\scripts\check-egg-pow
 Run-Step 'Game result resilience guard' { node '.\scripts\check-game-result-resilience.mjs' }
 Run-Step 'Financial movement direction guard' { node '.\scripts\check-financial-direction.mjs' }
 Run-Step 'Bounded local change journal guard' { node '.\scripts\check-local-journal.mjs' }
+Run-Step 'Seven-game regression guard' { node '.\scripts\check-seven-game-regression.mjs' }
 
 Write-Host ''
 Write-Host '[VERIFY] Expo config sanity' -ForegroundColor Cyan
