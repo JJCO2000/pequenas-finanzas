@@ -1,8 +1,15 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { GameRewardResult, GameRunMode, Investment } from '@/core/domain/types';
-import { applyArcadeRewardPolicy } from '@/core/economy/arcadeRewardPolicy';
+import { applyArcadeRewardPolicy, ARCADE_REWARD_MULTIPLIERS } from '@/core/economy/arcadeRewardPolicy';
 import { completeAdventureDayTx } from './adventureRepository';
 import { enqueueSync, now, txLog } from './repositorySupport';
+
+function inferPersistedMultiplier(baseRewardCents: number, rewardCents: number, mode: GameRunMode) {
+  if (mode !== 'arcade') return rewardCents > 0 ? 1 : 0;
+  const safeBase = Math.max(0, Math.trunc(baseRewardCents));
+  const matched = ARCADE_REWARD_MULTIPLIERS.find((candidate) => Math.round(safeBase * candidate) === rewardCents);
+  return matched ?? (rewardCents > 0 ? 1 : 0);
+}
 
 export async function recordGameResult(
   db: SQLiteDatabase,
@@ -29,11 +36,29 @@ export async function recordGameResult(
   };
 
   await db.withExclusiveTransactionAsync(async (tx) => {
-    const exists = await tx.getFirstAsync<{ session_id: string }>(
-      'SELECT session_id FROM game_sessions WHERE session_id=?',
+    const existing = await tx.getFirstAsync<{ reward_cents: number; mode: GameRunMode; campaign_day: number | null }>(
+      'SELECT reward_cents,mode,campaign_day FROM game_sessions WHERE session_id=?',
       result.sessionId,
     );
-    if (exists) return;
+    if (existing) {
+      let currentDay: number | null = null;
+      if (existing.mode === 'campaign' && existing.campaign_day !== null) {
+        const state = await tx.getFirstAsync<{ current_day: number }>(
+          'SELECT current_day FROM adventure_state WHERE profile_id=?',
+          profileId,
+        );
+        currentDay = state?.current_day ?? null;
+      }
+      outcome = {
+        recorded: false,
+        rewardCents: existing.reward_cents,
+        baseRewardCents,
+        multiplier: inferPersistedMultiplier(baseRewardCents, existing.reward_cents, existing.mode),
+        currentDay,
+        maturedInvestments: [],
+      };
+      return;
+    }
 
     let rewardCents = Math.max(0, Math.trunc(baseRewardCents));
     let multiplier = 1;
