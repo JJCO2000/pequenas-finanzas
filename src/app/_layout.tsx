@@ -1,4 +1,5 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -7,6 +8,8 @@ import { AppDataProvider } from '@/features/session/AppDataProvider';
 import { colors } from '@/core/theme/tokens';
 
 export default function RootLayout() {
+  const immersiveAndroid = Platform.OS === 'android';
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SQLiteProvider databaseName="pequenas-finanzas.db" onInit={migrateDb}>
@@ -17,6 +20,8 @@ export default function RootLayout() {
             headerTintColor: colors.white,
             headerTitleStyle: { fontWeight: '900' },
             animation: 'fade',
+            navigationBarHidden: immersiveAndroid,
+            statusBarHidden: immersiveAndroid,
           }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="start" />
