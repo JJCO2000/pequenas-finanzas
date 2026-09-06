@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAppData } from '@/features/session/AppDataProvider';
+import { useSfx } from '@/features/audio/SfxProvider';
 import { ACTIVE_THEME } from '@/core/theme';
 import { useCampBack } from '@/features/shell/navigation/useCampBack';
 import { WorldScene } from '@/features/shell/world';
@@ -9,6 +10,7 @@ import { colors, shadows, typography } from '@/core/theme/tokens';
 
 export default function SettingsScreen() {
   const { settings, updateSetting } = useAppData();
+  const { play } = useSfx();
   const { goBack } = useCampBack();
   const sound = settings.sound !== 'off';
   const haptics = settings.haptics !== 'off';
@@ -17,8 +19,8 @@ export default function SettingsScreen() {
     <WorldScene background={ACTIVE_THEME.world.shell} tone="none" contentStyle={styles.root}>
       <CompactHeader eyebrow="AJUSTES" title="Cabina" subtitle="Sonido y vibración." hero={ACTIVE_THEME.characters.primary} onBack={goBack} />
       <View style={styles.center}>
-        <SettingButton title="Sonido" description="Música y efectos" value={sound} art={ACTIVE_THEME.characters.quaternary} tone="#DDF4FA" onPress={() => void updateSetting('sound', sound ? 'off' : 'on')} />
-        <SettingButton title="Vibración" description="Respuesta al tocar" value={haptics} art={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} tone="#FFF1BA" onPress={() => void updateSetting('haptics', haptics ? 'off' : 'on')} />
+        <SettingButton title="Sonido" description="Efectos del juego" value={sound} art={ACTIVE_THEME.characters.quaternary} tone="#DDF4FA" onPress={() => { play('tap'); void updateSetting('sound', sound ? 'off' : 'on'); }} />
+        <SettingButton title="Vibración" description="Respuesta al tocar" value={haptics} art={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} tone="#FFF1BA" onPress={() => { play('tap'); void updateSetting('haptics', haptics ? 'off' : 'on'); }} />
       </View>
       <FloatingCard style={styles.note}>
         <Image source={ACTIVE_THEME.decor.savings} style={styles.noteArt} resizeMode="contain" />
