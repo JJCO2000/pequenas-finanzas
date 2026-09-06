@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useAppData } from '@/features/session/AppDataProvider';
+import { useSfx } from '@/features/audio/SfxProvider';
 import { SHOP_ITEMS } from '@/registry/shop';
 import { formatMoney } from '@/core/domain/money';
 import { ACTIVE_THEME } from '@/core/theme';
@@ -18,6 +19,7 @@ const EGG_ACCENTS: Record<string, string> = {
 
 export default function Shop() {
   const { wallet, inventory, buyItem } = useAppData();
+  const { play } = useSfx();
   const owned = useMemo(() => new Set(inventory.filter((item) => item.quantity > 0).map((item) => item.itemId)), [inventory]);
   const [selectedId, setSelectedId] = useState(SHOP_ITEMS[0]?.id ?? '');
   const [message, setMessage] = useState<{ text: string; good: boolean } | null>(null);
@@ -27,8 +29,10 @@ export default function Shop() {
     try {
       await buyItem(id);
       setMessage({ text: 'Mejora desbloqueada.', good: true });
+      play('success');
     } catch (error) {
       setMessage({ text: error instanceof Error ? error.message : 'No se pudo canjear.', good: false });
+      play('error');
     }
   };
 
@@ -49,7 +53,7 @@ export default function Shop() {
             const active = item.id === selected?.id;
             const isOwned = owned.has(item.id);
             return (
-              <Pressable key={item.id} onPress={() => { setSelectedId(item.id); setMessage(null); }} style={({ pressed }) => [styles.pedestalWrap, pressed && styles.pressed]}>
+              <Pressable key={item.id} onPress={() => { play('tap'); setSelectedId(item.id); setMessage(null); }} style={({ pressed }) => [styles.pedestalWrap, pressed && styles.pressed]}>
                 <View style={[styles.pedestal, active && styles.pedestalActive]}>
                   <CollectibleEgg source={item.art} accent={EGG_ACCENTS[item.id] ?? '#72AD54'} size={72} selected={active} />
                   <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.eggName}>{item.title.replace('Huevo ', '')}</Text>
