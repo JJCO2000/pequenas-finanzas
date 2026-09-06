@@ -13,7 +13,7 @@ const TILE_BG = ['#EAF6D8', '#DDF4E5', '#FFF0D9', '#E1F2F8', '#EFE5FF', '#FFE6D9
 
 export default function ArcadeScreen() {
   const { width } = useWindowDimensions();
-  const { goBack } = useCampBack();
+  const { goBack, fromCamp } = useCampBack();
   const columns = width >= 700 ? 4 : width >= 520 ? 3 : 2;
   const gap = 8;
   const maxTile = 150;
@@ -47,7 +47,14 @@ export default function ArcadeScreen() {
                 title={p.title}
                 badge={p.badge}
                 meta={`D${game.minimumDay ?? 1}`}
-                onPress={() => router.push({ pathname: '/game/[gameId]', params: { gameId: game.id, mode: 'arcade' } })}
+                onPress={() => router.push({
+                  pathname: '/game/[gameId]',
+                  params: {
+                    gameId: game.id,
+                    mode: 'arcade',
+                    ...(fromCamp ? { from: 'camp' } : {}),
+                  },
+                })}
                 style={{ width: tileWidth, height: tileHeight }}
               />
             );
