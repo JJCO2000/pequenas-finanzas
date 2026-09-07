@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   controlsOverlay: { position: 'absolute', zIndex: 50, left: 8, right: 8, top: 8, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   floatingBack: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadows.card },
   floatingBackText: { color: colors.white, fontSize: 24, lineHeight: 26, fontWeight: '900' },
-  saveShade: { ...StyleSheet.absoluteFillObject, zIndex: 80, backgroundColor: 'rgba(4,24,16,0.62)', alignItems: 'center', justifyContent: 'center', padding: 16 },
+  saveShade: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, zIndex: 80, backgroundColor: 'rgba(4,24,16,0.62)', alignItems: 'center', justifyContent: 'center', padding: 16 },
   saveCard: { width: '58%', minWidth: 430, maxWidth: 620, minHeight: 170, paddingHorizontal: 18, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
   saveKicker: { color: colors.orange, fontSize: typography.micro, lineHeight: 12, fontWeight: '900', letterSpacing: 0.7 },
   saveTitle: { color: colors.forestDark, fontSize: 18, lineHeight: 21, fontWeight: '900', marginTop: 3, textAlign: 'center' },
