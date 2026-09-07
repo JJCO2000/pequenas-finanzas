@@ -1,4 +1,4 @@
-name: Bootstrap Pequeñas Finanzas Preview
+name: Pequeñas Finanzas Preview Update
 
 on:
   push:
@@ -11,18 +11,20 @@ concurrency:
 
 jobs:
   verify:
-    name: Verify Android preview
+    name: Verify Android preview update
+    environment: preview
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
       - run: npm run typecheck
       - run: npx expo install --check
-      - run: npx expo export --platform android --output-dir .expo-preview-verify
 
-  build_preview:
-    name: Build Android Preview APK
+  publish_preview_update:
+    name: Publish Android Preview Update
     needs: [verify]
-    type: build
+    type: update
+    environment: preview
     params:
+      channel: preview
       platform: android
-      profile: preview
+      message: "Pequeñas Finanzas preview update"
