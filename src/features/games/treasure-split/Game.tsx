@@ -34,6 +34,7 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
   const haptics = session.modifiers.hapticsEnabled !== false;
   const used = allocation.spend + allocation.save + allocation.invest;
   const available = Math.max(0, round.total - used);
+  const planning = phase === 'plan';
 
   const target = useMemo(() => ({ spend: round.spend, save: round.save, invest: round.invest }), [round]);
 
@@ -45,7 +46,7 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
   };
 
   const adjust = (key: TreasureBucket, delta: number) => {
-    if (phase !== 'plan') return;
+    if (!planning) return;
     setAllocation((previous) => {
       if (delta > 0 && Object.values(previous).reduce((a, b) => a + b, 0) >= round.total) return previous;
       const nextValue = Math.max(0, previous[key] + delta);
@@ -55,7 +56,7 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
   };
 
   const simulate = () => {
-    if (used !== round.total || phase !== 'plan') return;
+    if (used !== round.total || !planning) return;
     setPhase('simulate');
     setFeedback(null);
     sim.setValue(0);
@@ -108,23 +109,28 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
           <View style={styles.sourceChest}>
             <View style={styles.sourceChestScale}><TreasureChest count={0} /></View>
           </View>
-          <Text style={styles.sourceCount}>Usa + / − para repartir</Text>
+          <Text style={styles.sourceCount}>{planning ? 'Usa + / − para repartir' : phase === 'simulate' ? 'Reparto bloqueado durante el evento' : 'Resultado fijado para esta ronda'}</Text>
         </View>
 
         <View style={styles.buckets}>
-          {BUCKETS.map((bucket) => (
-            <View key={bucket.key} style={styles.bucket}>
-              <View style={styles.bucketObject}><CoinPile count={Math.max(1, allocation[bucket.key])} max={6} size={25} /></View>
-              <Text style={styles.bucketLabel}>{bucket.label}</Text>
-              <Text style={styles.bucketHint}>{bucket.hint}</Text>
-              <Text style={styles.bucketValue}>{allocation[bucket.key]}</Text>
-              <View style={styles.bucketControls}>
-                <Pressable onPress={() => adjust(bucket.key, -1)} style={styles.control}><Text style={styles.controlText}>−</Text></Pressable>
-                <Pressable onPress={() => adjust(bucket.key, 1)} style={styles.control}><Text style={styles.controlText}>+</Text></Pressable>
+          {BUCKETS.map((bucket) => {
+            const value = allocation[bucket.key];
+            const minusDisabled = !planning || value <= 0;
+            const plusDisabled = !planning || available <= 0;
+            return (
+              <View key={bucket.key} style={styles.bucket}>
+                <View style={styles.bucketObject}><CoinPile count={Math.max(1, value)} max={6} size={25} /></View>
+                <Text style={styles.bucketLabel}>{bucket.label}</Text>
+                <Text style={styles.bucketHint}>{bucket.hint}</Text>
+                <Text style={styles.bucketValue}>{value}</Text>
+                <View style={styles.bucketControls}>
+                  <Pressable accessibilityRole="button" accessibilityLabel={`Quitar uno de ${bucket.label.toLowerCase()}`} accessibilityState={{ disabled: minusDisabled }} disabled={minusDisabled} onPress={() => adjust(bucket.key, -1)} style={({ pressed }) => [styles.control, minusDisabled && styles.controlDisabled, pressed && !minusDisabled && styles.controlPressed]}><Text style={styles.controlText}>−</Text></Pressable>
+                  <Pressable accessibilityRole="button" accessibilityLabel={`Agregar uno a ${bucket.label.toLowerCase()}`} accessibilityState={{ disabled: plusDisabled }} disabled={plusDisabled} onPress={() => adjust(bucket.key, 1)} style={({ pressed }) => [styles.control, plusDisabled && styles.controlDisabled, pressed && !plusDisabled && styles.controlPressed]}><Text style={styles.controlText}>+</Text></Pressable>
+                </View>
+                <CoinPile count={value} max={10} size={18} style={styles.allocatedCoins} />
               </View>
-              <CoinPile count={allocation[bucket.key]} max={10} size={18} style={styles.allocatedCoins} />
-            </View>
-          ))}
+            );
+          })}
         </View>
 
         <View style={styles.eventStage}>
@@ -176,6 +182,8 @@ const styles = StyleSheet.create({
   bucketControls: { flexDirection: 'row', gap: 8, marginTop: 2 },
   allocatedCoins: { minHeight: 20, marginTop: 2 },
   control: { width: 38, height: 28, borderRadius: 23, backgroundColor: colors.forest, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  controlDisabled: { opacity: 0.35 },
+  controlPressed: { transform: [{ scale: 0.95 }] },
   controlText: { color: colors.white, fontSize: 15, lineHeight: 17, fontWeight: '900' },
   eventStage: { width: '16%', minWidth: 120, maxWidth: 180, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 9, gap: 5, ...shadows.card },
   eventMark: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.surfacePurple, color: colors.purple, fontSize: 18, lineHeight: 30, fontWeight: '900', textAlign: 'center' },
