@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GameHost } from '@/features/games/GameHost';
 import { useAppData } from '@/features/session/AppDataProvider';
 import { createGameSession, type GameResult } from '@/core/game-runtime';
@@ -17,6 +18,7 @@ import { colors, shadows } from '@/core/theme/tokens';
 
 export default function GameRoute() {
   const params = useLocalSearchParams<{ gameId: string; mode?: string; day?: string }>();
+  const insets = useSafeAreaInsets();
   const { profile, inventory, settings, submitGameResult } = useAppData();
   const gameId = String(params.gameId);
   const game = getGame(gameId);
@@ -97,11 +99,27 @@ export default function GameRoute() {
     );
   }
 
+  const safeHorizontal = Math.max(8, insets.left, insets.right);
+  const safeTop = Math.max(4, insets.top);
+  const safeBottom = Math.max(4, insets.bottom);
+
   return (
     <View style={styles.gameRoot}>
-      <GameHost componentId={game.componentId} session={session} onFinish={(nextResult: GameResult) => void finish(nextResult)} />
+      <View style={[styles.gameViewport, { paddingLeft: safeHorizontal, paddingRight: safeHorizontal, paddingTop: safeTop, paddingBottom: safeBottom }]}>
+        <GameHost componentId={game.componentId} session={session} onFinish={(nextResult: GameResult) => void finish(nextResult)} />
+      </View>
 
-      <View pointerEvents="box-none" style={styles.controlsOverlay}>
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.controlsOverlay,
+          {
+            left: Math.max(8, insets.left + 4),
+            right: Math.max(8, insets.right + 4),
+            top: Math.max(8, insets.top + 4),
+          },
+        ]}
+      >
         <Pressable accessibilityLabel="Salir del juego" onPress={goBack} style={({ pressed }) => [styles.floatingBack, pressed && styles.pressed]}>
           <Text style={styles.floatingBackText}>←</Text>
         </Pressable>
@@ -135,8 +153,9 @@ const styles = StyleSheet.create({
   missingRoot: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   missing: { color: colors.white, fontSize: 26, fontWeight: '900' },
   introRoot: { flex: 1 },
-  gameRoot: { flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: colors.ink },
-  controlsOverlay: { position: 'absolute', zIndex: 50, left: 8, right: 8, top: 8, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  gameRoot: { flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: colors.forestDark },
+  gameViewport: { flex: 1, minWidth: 0, minHeight: 0 },
+  controlsOverlay: { position: 'absolute', zIndex: 50, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   floatingBack: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadows.card },
   floatingBackText: { color: colors.white, fontSize: 24, lineHeight: 26, fontWeight: '900' },
   pressed: { transform: [{ scale: 0.97 }] },
