@@ -27,5 +27,5 @@ jobs:
       - run: npm run audit:plan7-imports
       - run: npm run audit:plan7-strict
       - run: npm run audit:games:layout-v2
-      - run: npm run audit:navigation:inventory
+      - run: npm run audit:navigation:v1
       - run: npm audit --omit=dev --audit-level=high
