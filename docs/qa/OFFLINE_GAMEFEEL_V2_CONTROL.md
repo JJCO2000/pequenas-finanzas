@@ -65,3 +65,7 @@ No mover a Preview hasta que pasen:
 9. npm audit sin high/critical
 
 Después de CI, la última puerta sigue siendo visual en Android landscape.
+
+## Estado de implementación
+
+Código v2 completo en rama aislada. Este commit existe únicamente para ejecutar la verificación final sobre el HEAD exacto antes de promover a Preview.
