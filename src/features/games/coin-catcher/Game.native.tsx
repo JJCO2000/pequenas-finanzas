@@ -262,6 +262,7 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
           allowDownscaling
           style={styles.background}
         />
+        <View pointerEvents="none" style={styles.skyWash} />
         <View pointerEvents="none" style={styles.hud}>
           <HudChip label="MONEDAS" value={score} tone="light" />
           <HudChip label="RACHA" value={`×${combo}`} tone={combo >= 4 ? 'gold' : 'light'} />
@@ -271,11 +272,16 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
 
         {art ? (
           <>
+            <Animated.View pointerEvents="none" style={[styles.coinAura, coin1Style]} />
+            <Animated.View pointerEvents="none" style={[styles.coinAura, coin2Style]} />
+            <Animated.View pointerEvents="none" style={[styles.bonusAura, bonusStyle]} />
+            <Animated.View pointerEvents="none" style={[styles.hazardAura, hazardStyle]} />
             <Animated.Image source={art.coin} resizeMode="contain" style={[styles.moving, coin1Style]} />
             <Animated.Image source={art.coin} resizeMode="contain" style={[styles.moving, coin2Style]} />
             <Animated.Image source={art.bonus} resizeMode="contain" style={[styles.moving, bonusStyle]} />
             <Animated.Image source={art.hazard} resizeMode="contain" style={[styles.moving, hazardStyle]} />
-            <Animated.Image source={art.basket} resizeMode="contain" style={[styles.moving, basketStyle]} />
+            <Animated.View pointerEvents="none" style={[styles.basketShadow, basketStyle]} />
+            <Animated.Image source={art.basket} resizeMode="contain" style={[styles.moving, styles.basketSprite, basketStyle]} />
           </>
         ) : (
           <>
@@ -299,7 +305,13 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', height: '100%', position: 'relative', overflow: 'hidden', backgroundColor: colors.sky },
   background: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
-  moving: { position: 'absolute', left: 0, top: 0, zIndex: 4 },
+  skyWash: { position: 'absolute', left: 0, right: 0, top: 0, height: '22%', backgroundColor: 'rgba(255,255,255,0.10)' },
+  moving: { position: 'absolute', left: 0, top: 0, zIndex: 5 },
+  coinAura: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(255,220,67,0.26)', borderWidth: 2, borderColor: 'rgba(255,244,171,0.48)', transform: [{ scale: 1.12 }] },
+  bonusAura: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(86,215,255,0.28)', borderWidth: 2, borderColor: 'rgba(218,248,255,0.64)', transform: [{ scale: 1.16 }] },
+  hazardAura: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(255,86,65,0.22)', borderWidth: 2, borderColor: 'rgba(255,193,183,0.54)', transform: [{ scale: 1.12 }] },
+  basketShadow: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(25,33,20,0.24)', transform: [{ translateY: 9 }, { scaleX: 0.72 }, { scaleY: 0.24 }] },
+  basketSprite: { zIndex: 6 },
   hud: { position: 'absolute', zIndex: 8, top: 10, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 },
   progressWrap: { position: 'absolute', zIndex: 7, top: 60, left: '30%', right: '30%' },
   hero: { position: 'absolute', left: 26, bottom: 22, width: 118, height: 118, zIndex: 5 },
