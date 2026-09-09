@@ -55,7 +55,7 @@ function AdventureMapBoot() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.aqua, overflow: 'hidden' },
-  tint: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,88,80,0.14)' },
+  tint: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,88,80,0.14)' },
   volcano: { position: 'absolute', width: 122, height: 92, left: 36, top: 68, opacity: 0.78 },
   islands: { position: 'absolute', width: 180, height: 116, right: 58, bottom: 40, opacity: 0.7 },
   header: { position: 'absolute', top: 10, alignSelf: 'center', alignItems: 'center' },
