@@ -78,7 +78,15 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
             const spot = HOTSPOTS[index] ?? HOTSPOTS[0]!;
             const isSolved = solved.has(index);
             return (
-              <Pressable key={clue.id} onPress={() => { if (!isSolved) { setActive(index); setFeedback(null); if (haptics) void Haptics.selectionAsync(); } }} style={({ pressed }: { pressed: boolean }) => [styles.hotspot, isSolved && styles.hotspotSolved, pressed && !isSolved && styles.pressed]}>
+              <Pressable
+                key={clue.id}
+                accessibilityRole="button"
+                accessibilityLabel={isSolved ? `${spot.label}, pista resuelta` : `Explorar ${spot.label}`}
+                accessibilityState={{ disabled: isSolved }}
+                disabled={isSolved}
+                onPress={() => { setActive(index); setFeedback(null); if (haptics) void Haptics.selectionAsync(); }}
+                style={({ pressed }: { pressed: boolean }) => [styles.hotspot, isSolved && styles.hotspotSolved, pressed && styles.pressed]}
+              >
                 <View style={[styles.landmarkIcon, isSolved && styles.landmarkIconSolved]}><Text style={styles.landmarkGlyph}>{isSolved ? '✓' : spot.icon}</Text></View>
                 <View style={styles.landmarkCopy}>
                   <Text numberOfLines={2} style={styles.hotspotLabel}>{isSolved ? clue.keyWord : spot.label}</Text>
@@ -105,17 +113,17 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
       </View>
 
       {active !== null && activeClue && activeSpot ? (
-        <View style={styles.modalShade}>
+        <View style={styles.modalShade} accessibilityViewIsModal>
           <Animated.View style={[styles.puzzle, { transform: [{ translateX: shake }] }]}>
             <Text style={styles.puzzleKicker}>PISTA {active + 1} · {activeSpot.label.toUpperCase()}</Text>
             <Text style={styles.clue}>{activeClue.clue}</Text>
             <Text style={styles.question}>{activeClue.question}</Text>
             <View style={styles.options}>
               {activeClue.options.map((option, index) => (
-                <Pressable key={option} onPress={() => answer(index)} style={({ pressed }: { pressed: boolean }) => [styles.option, pressed && styles.pressed]}><Text style={styles.optionIndex}>{index + 1}</Text><Text style={styles.optionText}>{option}</Text></Pressable>
+                <Pressable key={option} accessibilityRole="button" accessibilityLabel={`Opción ${index + 1}: ${option}`} onPress={() => answer(index)} style={({ pressed }: { pressed: boolean }) => [styles.option, pressed && styles.pressed]}><Text style={styles.optionIndex}>{index + 1}</Text><Text style={styles.optionText}>{option}</Text></Pressable>
               ))}
             </View>
-            <Pressable onPress={() => setActive(null)} style={styles.close}><Text style={styles.closeText}>SEGUIR EXPLORANDO</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Seguir explorando" onPress={() => setActive(null)} style={({ pressed }) => [styles.close, pressed && styles.pressed]}><Text style={styles.closeText}>SEGUIR EXPLORANDO</Text></Pressable>
           </Animated.View>
         </View>
       ) : null}
@@ -136,7 +144,7 @@ const styles = StyleSheet.create({
   sceneLabelText: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 },
   landmarkField: { position: 'absolute', left: 76, right: '21%', top: 38, bottom: 8, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', alignContent: 'space-around', columnGap: 8, rowGap: 8 },
   hotspot: { width: '42%', maxWidth: 190, minWidth: 122, height: '38%', minHeight: 68, maxHeight: 98, borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.goldSoft, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', padding: 7, gap: 7, ...shadows.card },
-  hotspotSolved: { backgroundColor: colors.surfaceGreen, borderColor: colors.leaf },
+  hotspotSolved: { backgroundColor: colors.surfaceGreen, borderColor: colors.leaf, opacity: 0.78 },
   landmarkIcon: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceGold, borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center' },
   landmarkIconSolved: { backgroundColor: colors.leaf, borderColor: colors.white },
   landmarkGlyph: { color: colors.forestDark, fontSize: 19, lineHeight: 21, fontWeight: '900' },
