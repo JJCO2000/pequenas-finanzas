@@ -100,37 +100,36 @@ export default function GameRoute() {
   }
 
   const safeHorizontal = Math.max(8, insets.left, insets.right);
+  const safeTop = Math.max(4, insets.top);
   const safeBottom = Math.max(4, insets.bottom);
-  const safeTop = Math.max(2, insets.top);
 
   return (
     <View style={styles.gameRoot}>
+      <View style={[styles.gameViewport, { paddingLeft: safeHorizontal, paddingRight: safeHorizontal, paddingTop: safeTop, paddingBottom: safeBottom }]}>
+        <GameHost componentId={game.componentId} session={session} onFinish={(nextResult: GameResult) => void finish(nextResult)} />
+      </View>
+
       <View
+        pointerEvents="box-none"
         style={[
-          styles.gameNav,
+          styles.controlsOverlay,
           {
-            minHeight: 44 + safeTop,
-            paddingTop: safeTop,
-            paddingLeft: safeHorizontal,
-            paddingRight: safeHorizontal,
+            left: Math.max(8, insets.left + 4),
+            right: Math.max(8, insets.right + 4),
+            top: Math.max(8, insets.top + 4),
           },
         ]}
       >
-        <Pressable accessibilityLabel="Salir del juego" onPress={goBack} style={({ pressed }) => [styles.navBack, pressed && styles.pressed]}>
-          <Text style={styles.navBackText}>←</Text>
-          <Text style={styles.navBackLabel}>SALIR</Text>
+        <Pressable accessibilityLabel="Salir del juego" onPress={goBack} style={({ pressed }) => [styles.floatingBack, pressed && styles.pressed]}>
+          <Text style={styles.floatingBackArrow}>←</Text>
+          <Text style={styles.floatingBackLabel}>SALIR</Text>
         </Pressable>
-        <View style={styles.navSpacer} />
         <LearningPeek
           open={learningOpen}
           onToggle={() => setLearningOpen((value) => !value)}
           learningObjective={game.learningObjective}
           financialConcept={game.financialConcept}
         />
-      </View>
-
-      <View style={[styles.gameViewport, { paddingLeft: safeHorizontal, paddingRight: safeHorizontal, paddingBottom: safeBottom }]}>
-        <GameHost componentId={game.componentId} session={session} onFinish={(nextResult: GameResult) => void finish(nextResult)} />
       </View>
 
       <MissionCompleteOverlay
@@ -155,33 +154,11 @@ const styles = StyleSheet.create({
   missingRoot: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   missing: { color: colors.white, fontSize: 26, fontWeight: '900' },
   introRoot: { flex: 1 },
-  gameRoot: { flex: 1, overflow: 'hidden', backgroundColor: colors.forestDark },
-  gameNav: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.forestDark,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.18)',
-    paddingVertical: 4,
-    zIndex: 50,
-  },
+  gameRoot: { flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: colors.forestDark },
   gameViewport: { flex: 1, minWidth: 0, minHeight: 0 },
-  navBack: {
-    minWidth: 84,
-    height: 34,
-    borderRadius: 18,
-    backgroundColor: colors.glassDark,
-    borderWidth: 2,
-    borderColor: colors.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    ...shadows.soft,
-  },
-  navBackText: { color: colors.white, fontSize: 20, lineHeight: 21, fontWeight: '900' },
-  navBackLabel: { color: colors.white, fontSize: 7.5, fontWeight: '900', letterSpacing: 0.6 },
-  navSpacer: { flex: 1 },
+  controlsOverlay: { position: 'absolute', zIndex: 50, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  floatingBack: { minWidth: 92, height: 38, borderRadius: 20, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.white, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 12, ...shadows.card },
+  floatingBackArrow: { color: colors.white, fontSize: 21, lineHeight: 22, fontWeight: '900' },
+  floatingBackLabel: { color: colors.white, fontSize: 8, fontWeight: '900', letterSpacing: 0.7 },
   pressed: { transform: [{ scale: 0.97 }] },
 });
