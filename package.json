@@ -75,7 +75,8 @@
     "audit:games:layout-v2": "node scripts/check-game-layout-v2.mjs",
     "audit:source:hygiene": "node scripts/audit-source-hygiene.mjs",
     "audit:navigation:inventory": "node scripts/audit-navigation-buttons-v1.mjs --inventory",
-    "audit:navigation:v1": "node scripts/audit-navigation-buttons-v1.mjs"
+    "audit:navigation:v1": "node scripts/audit-navigation-buttons-v1.mjs",
+    "audit:control-states:v1": "node scripts/audit-control-states-v1.mjs"
   },
   "private": true
 }
