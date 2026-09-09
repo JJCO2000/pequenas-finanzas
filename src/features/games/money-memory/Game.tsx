@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
   grid: { width: '76%', maxWidth: 790, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 10 },
   cardSlot: { width: '27%', minWidth: 108, maxWidth: 144, height: 102, position: 'relative', ...shadows.card },
   cardOffset: { transform: [{ translateY: 5 }] },
-  flipFace: { ...StyleSheet.absoluteFillObject, borderRadius: 15, backfaceVisibility: 'hidden', overflow: 'hidden', borderWidth: 2, borderColor: colors.white, backgroundColor: colors.glassCream },
+  flipFace: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 15, backfaceVisibility: 'hidden', overflow: 'hidden', borderWidth: 2, borderColor: colors.white, backgroundColor: colors.glassCream },
   flipBack: { backgroundColor: colors.forestDark, borderColor: colors.gold },
   cardFace: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 5 },
   cardBackFace: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.forestDark },
