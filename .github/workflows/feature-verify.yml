@@ -7,6 +7,10 @@ on:
       - fix/game-layout-audit-v2
       - audit/navigation-button-v1
 
+concurrency:
+  group: feature-verify-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
