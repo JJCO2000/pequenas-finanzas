@@ -69,7 +69,8 @@
     "audit:visual:v6": "node scripts/check-plan7-visual-v6.mjs",
     "audit:whole-app:v6": "node scripts/check-whole-app-visual-v6.mjs",
     "audit:world:v7": "node scripts/check-world-library-v7.mjs",
-    "audit:world:v8": "node scripts/check-compact-world-v8.mjs"
+    "audit:world:v8": "node scripts/check-compact-world-v8.mjs",
+    "audit:streak:v1": "node scripts/check-streak-v1.mjs"
   },
   "private": true
 }
