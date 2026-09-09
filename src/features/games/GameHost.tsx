@@ -1,5 +1,5 @@
-import React from 'react';
-import type { GameComponentProps } from '@/core/game-runtime';
+import React, { useCallback, useEffect, useRef } from 'react';
+import type { GameComponentProps, GameResult } from '@/core/game-runtime';
 import { CoinCatcherGame } from './coin-catcher/Game';
 import { BalloonAnswerGame } from './balloon-answer/Game';
 import { TreasureSplitGame } from './treasure-split/Game';
@@ -18,8 +18,20 @@ const COMPONENTS: Record<string, React.ComponentType<GameComponentProps>> = {
   'money-memory-v1': MoneyMemoryGame,
 };
 
-export function GameHost({ componentId, ...props }: GameComponentProps & { componentId: string }) {
+export function GameHost({ componentId, session, onFinish }: GameComponentProps & { componentId: string }) {
   const Component = COMPONENTS[componentId];
+  const finishedSessionRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    finishedSessionRef.current = null;
+  }, [session.sessionId]);
+
+  const guardedFinish = useCallback((result: GameResult) => {
+    if (finishedSessionRef.current === session.sessionId) return;
+    finishedSessionRef.current = session.sessionId;
+    onFinish(result);
+  }, [onFinish, session.sessionId]);
+
   if (!Component) throw new Error(`Game component no registrado: ${componentId}`);
-  return <Component {...props} />;
+  return <Component session={session} onFinish={guardedFinish} />;
 }

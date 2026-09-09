@@ -22,6 +22,7 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
   const [feedback, setFeedback] = useState<{ text: string; good: boolean } | null>(null);
   const startRef = useRef(Date.now());
   const finishedRef = useRef(false);
+  const answerLockedRef = useRef(false);
   const shake = useRef(new Animated.Value(0)).current;
   const haptics = session.modifiers.hapticsEnabled !== false;
   const complete = solved.size;
@@ -36,10 +37,19 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
     onFinish({ gameId: session.gameId, sessionId: session.sessionId, score, durationMs: Date.now() - startRef.current, completed: true, metrics: { keys: solved.size, wrongAnswers: wrong } });
   };
 
+  const openClue = (index: number, isSolved: boolean) => {
+    if (isSolved || finishedRef.current) return;
+    answerLockedRef.current = false;
+    setActive(index);
+    setFeedback(null);
+    if (haptics) void Haptics.selectionAsync();
+  };
+
   const answer = (optionIndex: number) => {
-    if (active === null) return;
+    if (active === null || answerLockedRef.current || finishedRef.current) return;
     const clue = FOSSIL_ESCAPE_CLUES[active];
     if (!clue) return;
+    answerLockedRef.current = true;
     if (optionIndex === clue.correctIndex) {
       setSolved((previous) => new Set(previous).add(active));
       setFeedback({ text: `Llave conseguida: ${clue.keyWord}`, good: true });
@@ -54,9 +64,14 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
         Animated.timing(shake, { toValue: 9, duration: 70, useNativeDriver: true }),
         Animated.timing(shake, { toValue: -6, duration: 60, useNativeDriver: true }),
         Animated.timing(shake, { toValue: 0, duration: 55, useNativeDriver: true }),
-      ]).start();
+      ]).start(() => { answerLockedRef.current = false; });
       if (haptics) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     }
+  };
+
+  const closePuzzle = () => {
+    answerLockedRef.current = false;
+    setActive(null);
   };
 
   return (
@@ -78,7 +93,7 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
           const spot = HOTSPOTS[index] ?? HOTSPOTS[0];
           const isSolved = solved.has(index);
           return (
-            <Pressable key={clue.id} onPress={() => { if (!isSolved) { setActive(index); setFeedback(null); if (haptics) void Haptics.selectionAsync(); } }} style={({ pressed }: { pressed: boolean }) => [styles.hotspot, { left: spot.left, top: spot.top }, isSolved && styles.hotspotSolved, pressed && !isSolved && styles.pressed]}>
+            <Pressable key={clue.id} onPress={() => openClue(index, isSolved)} style={({ pressed }: { pressed: boolean }) => [styles.hotspot, { left: spot.left, top: spot.top }, isSolved && styles.hotspotSolved, pressed && !isSolved && styles.pressed]}>
               <FossilObject label={isSolved ? clue.keyWord : spot.label} solved={isSolved} size={44} />
               {isSolved ? <View style={styles.solvedBadge}><Text style={styles.solvedBadgeText}>✓ PISTA RESUELTA</Text></View> : null}
             </Pressable>
@@ -96,7 +111,7 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
 
       <View style={styles.keyTray}>
         <Text style={styles.keyTrayLabel}>INVENTARIO</Text>
-        {FOSSIL_ESCAPE_CLUES.map((clue, index) => <View key={clue.id} style={[styles.key, solved.has(index) && styles.keyOn]}><Text style={styles.keyText}>{solved.has(index) ? clue.keyWord : '???'}</Text></View>)}
+        {FOSSIL_ESCAPE_CLUES.map((clue, index) => <View key={clue.id} style={[styles.key, solved.has(index) && styles.keyOn]}><Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.keyText}>{solved.has(index) ? clue.keyWord : '???'}</Text></View>)}
         <View style={styles.feedbackSlot}>{feedback ? <FeedbackPill text={feedback.text} good={feedback.good} /> : null}</View>
       </View>
 
@@ -108,10 +123,10 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
             <Text style={styles.question}>{activeClue.question}</Text>
             <View style={styles.options}>
               {activeClue.options.map((option, index) => (
-                <Pressable key={option} onPress={() => answer(index)} style={({ pressed }: { pressed: boolean }) => [styles.option, pressed && styles.pressed]}><Text style={styles.optionIndex}>{index + 1}</Text><Text style={styles.optionText}>{option}</Text></Pressable>
+                <Pressable key={option} onPress={() => answer(index)} style={({ pressed }: { pressed: boolean }) => [styles.option, pressed && !answerLockedRef.current && styles.pressed]}><Text style={styles.optionIndex}>{index + 1}</Text><Text style={styles.optionText}>{option}</Text></Pressable>
               ))}
             </View>
-            <Pressable onPress={() => setActive(null)} style={styles.close}><Text style={styles.closeText}>SEGUIR EXPLORANDO</Text></Pressable>
+            <Pressable onPress={closePuzzle} style={styles.close}><Text style={styles.closeText}>SEGUIR EXPLORANDO</Text></Pressable>
           </Animated.View>
         </View>
       ) : null}
@@ -121,41 +136,41 @@ export function FossilEscapeGame({ session, onFinish }: GameComponentProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', padding: 10, gap: 6, backgroundColor: colors.forestDark },
-  top: { height: 42, flexDirection: 'row', gap: 9, alignItems: 'center' },
+  top: { minHeight: 48, flexDirection: 'row', gap: 9, alignItems: 'center' },
   objective: { flex: 1, minWidth: 0, borderRadius: radii.lg, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: 12, paddingVertical: 6, ...shadows.soft },
-  kicker: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.9 },
+  kicker: { color: colors.gold, fontSize: 10, fontWeight: '900', letterSpacing: 0.9 },
   title: { color: colors.white, fontSize: 15, lineHeight: 17, fontWeight: '900' },
-  sub: { color: colors.cream, fontSize: 8, lineHeight: 10, fontWeight: '700' },
+  sub: { color: colors.cream, fontSize: 10, lineHeight: 13, fontWeight: '700' },
   scene: { flex: 1, minHeight: 0, borderRadius: radii.lg, overflow: 'hidden', borderWidth: 2, borderColor: colors.white, position: 'relative', ...shadows.card },
   sceneImage: { opacity: 1 },
   sceneLabel: { position: 'absolute', top: 12, left: 12, borderRadius: radii.pill, backgroundColor: colors.glassDark, paddingHorizontal: 12, paddingVertical: 6 },
-  sceneLabelText: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 },
-  hotspot: { position: 'absolute', width: 104, minHeight: 58, borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.goldSoft, alignItems: 'center', justifyContent: 'center', padding: 6, ...shadows.card },
+  sceneLabelText: { color: colors.gold, fontSize: 10, fontWeight: '900', letterSpacing: 0.8 },
+  hotspot: { position: 'absolute', width: 112, minHeight: 64, borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.goldSoft, alignItems: 'center', justifyContent: 'center', padding: 6, ...shadows.card },
   hotspotSolved: { backgroundColor: colors.surfaceGreen, borderColor: colors.leaf },
   solvedBadge: { borderRadius: radii.pill, backgroundColor: colors.forest, paddingHorizontal: 8, paddingVertical: 3, marginTop: 2 },
-  solvedBadgeText: { color: colors.white, fontSize: 6, fontWeight: '900', letterSpacing: 0.5 },
-  door: { position: 'absolute', right: '3%', top: '20%', width: 110, minHeight: 126, borderRadius: radii.lg, backgroundColor: colors.glassDark, borderWidth: 3, borderColor: colors.goldSoft, alignItems: 'center', justifyContent: 'center', padding: 8, gap: 4, ...shadows.card },
+  solvedBadgeText: { color: colors.white, fontSize: 10, fontWeight: '900', letterSpacing: 0.3 },
+  door: { position: 'absolute', right: '3%', top: '20%', width: 120, minHeight: 132, borderRadius: radii.lg, backgroundColor: colors.glassDark, borderWidth: 3, borderColor: colors.goldSoft, alignItems: 'center', justifyContent: 'center', padding: 8, gap: 4, ...shadows.card },
   doorOpen: { borderColor: colors.gold, backgroundColor: colors.glassForest },
   doorIcon: { color: colors.gold, fontSize: 28, lineHeight: 31, fontWeight: '900' },
-  doorTitle: { color: colors.white, fontSize: 9.5, lineHeight: 11, fontWeight: '900' },
-  doorMeta: { color: colors.cream, fontSize: 9, fontWeight: '800', marginBottom: 5 },
+  doorTitle: { color: colors.white, fontSize: 10, lineHeight: 12, fontWeight: '900', textAlign: 'center' },
+  doorMeta: { color: colors.cream, fontSize: 10, fontWeight: '800', marginBottom: 5 },
   guide: { position: 'absolute', left: 8, bottom: -3, width: 68, height: 68 },
-  keyTray: { height: 46, borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 10, ...shadows.soft },
-  keyTrayLabel: { color: colors.forestDark, fontSize: 10.5, fontWeight: '900' },
-  key: { flex: 1, minWidth: 76, height: 32, borderRadius: radii.lg, backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: colors.creamStrong, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
+  keyTray: { minHeight: 50, borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 10, ...shadows.soft },
+  keyTrayLabel: { color: colors.forestDark, fontSize: 11, fontWeight: '900' },
+  key: { flex: 1, minWidth: 82, minHeight: 34, borderRadius: radii.lg, backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: colors.creamStrong, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
   keyOn: { backgroundColor: colors.surfaceGold, borderColor: colors.gold },
-  keyText: { color: colors.forestDark, fontSize: 8, fontWeight: '900', textAlign: 'center' },
+  keyText: { color: colors.forestDark, fontSize: 10, fontWeight: '900', textAlign: 'center' },
   feedbackSlot: { flex: 1.5, minWidth: 140, alignItems: 'center', justifyContent: 'center' },
   modalShade: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: colors.glassBlack, alignItems: 'center', justifyContent: 'center', padding: 20 },
-  puzzle: { width: '42%', minWidth: 340, maxWidth: 520, borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.goldSoft, padding: 12, ...shadows.card },
-  puzzleKicker: { color: colors.orange, fontSize: 8, fontWeight: '900', letterSpacing: 0.9 },
-  clue: { color: colors.forestDark, fontSize: 10.5, lineHeight: 13, fontWeight: '900', marginTop: 5 },
-  question: { color: colors.ink, fontSize: 9, lineHeight: 12, fontWeight: '700', marginTop: 6 },
+  puzzle: { width: '44%', minWidth: 360, maxWidth: 540, borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.goldSoft, padding: 12, ...shadows.card },
+  puzzleKicker: { color: colors.orange, fontSize: 10, fontWeight: '900', letterSpacing: 0.7 },
+  clue: { color: colors.forestDark, fontSize: 11, lineHeight: 14, fontWeight: '900', marginTop: 5 },
+  question: { color: colors.ink, fontSize: 10, lineHeight: 13, fontWeight: '700', marginTop: 6 },
   options: { gap: 8, marginTop: 12 },
-  option: { minHeight: 38, borderRadius: radii.lg, backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: colors.creamStrong, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 9 },
-  optionIndex: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.forest, color: colors.white, fontSize: 9, lineHeight: 22, fontWeight: '900', textAlign: 'center' },
-  optionText: { flex: 1, color: colors.forestDark, fontSize: 8.5, lineHeight: 11, fontWeight: '800' },
+  option: { minHeight: 40, borderRadius: radii.lg, backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: colors.creamStrong, flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 9 },
+  optionIndex: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.forest, color: colors.white, fontSize: 10, lineHeight: 24, fontWeight: '900', textAlign: 'center' },
+  optionText: { flex: 1, color: colors.forestDark, fontSize: 10, lineHeight: 13, fontWeight: '800' },
   close: { alignSelf: 'flex-end', marginTop: 12, borderRadius: radii.pill, backgroundColor: colors.forestDark, paddingHorizontal: 16, paddingVertical: 9 },
-  closeText: { color: colors.white, fontSize: 9, fontWeight: '900' },
+  closeText: { color: colors.white, fontSize: 10, fontWeight: '900' },
   pressed: { transform: [{ scale: 0.97 }] },
 });

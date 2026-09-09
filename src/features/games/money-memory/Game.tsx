@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, AppState, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { GameComponentProps } from '@/core/game-runtime';
 import { MONEY_MEMORY_CARDS } from '@/content/games/moneyMemory';
@@ -19,8 +19,10 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
   const [choiceSeconds, setChoiceSeconds] = useState(7);
   const [lastGood, setLastGood] = useState<boolean | null>(null);
   const [lastText, setLastText] = useState('');
+  const [appActive, setAppActive] = useState(AppState.currentState === 'active');
   const startRef = useRef(Date.now());
   const finishedRef = useRef(false);
+  const choiceLockedRef = useRef(false);
   const correctRef = useRef(0);
   const bestStreakRef = useRef(0);
   const fade = useRef(new Animated.Value(1)).current;
@@ -51,10 +53,16 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
   };
 
   useEffect(() => {
-    if (phase !== 'memorize' || finishedRef.current) return;
+    const sub = AppState.addEventListener('change', (state) => setAppActive(state === 'active'));
+    return () => sub.remove();
+  }, []);
+
+  useEffect(() => {
+    if (!appActive || phase !== 'memorize' || finishedRef.current) return;
     fade.setValue(1);
     const timer = setTimeout(() => {
       Animated.timing(fade, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => {
+        choiceLockedRef.current = false;
         setPhase('choose');
         setChoiceSeconds(Math.max(4, 7 - Math.floor(streak / 3)));
         fade.setValue(0);
@@ -62,13 +70,14 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
       });
     }, revealMs);
     return () => clearTimeout(timer);
-  }, [fade, phase, revealMs, round, streak]);
+  }, [appActive, fade, phase, revealMs, round, streak]);
 
   useEffect(() => {
-    if (phase !== 'choose') return;
+    if (!appActive || phase !== 'choose') return;
     const timer = setInterval(() => {
       setChoiceSeconds((value) => {
         if (value > 1) return value - 1;
+        choiceLockedRef.current = true;
         setLastGood(false);
         setLastText(`Tiempo. El elemento nuevo era “${puzzle.newcomer.label}”.`);
         setStreak(0);
@@ -78,10 +87,10 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [haptics, phase, puzzle.newcomer.label]);
+  }, [appActive, haptics, phase, puzzle.newcomer.label]);
 
   useEffect(() => {
-    if (phase !== 'feedback') return;
+    if (!appActive || phase !== 'feedback') return;
     const timer = setTimeout(() => {
       if (round >= TOTAL_ROUNDS - 1) finish();
       else {
@@ -92,10 +101,11 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
       }
     }, 900);
     return () => clearTimeout(timer);
-  }, [phase, round]);
+  }, [appActive, phase, round]);
 
   const choose = (id: string) => {
-    if (phase !== 'choose') return;
+    if (phase !== 'choose' || choiceLockedRef.current || finishedRef.current) return;
+    choiceLockedRef.current = true;
     const good = id === puzzle.newcomer.id;
     if (good) {
       const nextCorrect = correctRef.current + 1;
@@ -139,7 +149,7 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
           {shown.map((item, index) => {
             const isNew = phase === 'feedback' && item.id === puzzle.newcomer.id;
             return (
-              <Pressable key={item.id} disabled={phase !== 'choose'} onPress={() => choose(item.id)} style={({ pressed }: { pressed: boolean }) => [styles.card, index % 3 === 1 && styles.cardAlt, isNew && styles.cardNew, pressed && phase === 'choose' && styles.pressed]}>
+              <Pressable key={item.id} disabled={phase !== 'choose' || choiceLockedRef.current} onPress={() => choose(item.id)} style={({ pressed }: { pressed: boolean }) => [styles.card, index % 3 === 1 && styles.cardAlt, isNew && styles.cardNew, pressed && phase === 'choose' && styles.pressed]}>
                 <MemoryObject pairId={item.pairId} label={item.label} size={46} />
                 {isNew ? <View style={styles.newBadge}><Text style={styles.newBadgeText}>NUEVO</Text></View> : null}
               </Pressable>
@@ -147,6 +157,7 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
           })}
         </Animated.View>
         {phase === 'memorize' ? <View style={styles.memorizeBadge}><Text style={styles.memorizeText}>OBSERVA · NO TOQUES</Text></View> : null}
+        {!appActive ? <View style={styles.pauseBadge}><Text style={styles.pauseText}>PAUSA</Text></View> : null}
       </View>
       <View style={styles.feedback}>{phase === 'feedback' ? <FeedbackPill text={lastText} good={Boolean(lastGood)} /> : <Text style={styles.tip}>La dificultad sube: más elementos y menos tiempo.</Text>}</View>
     </ImageBackground>
@@ -155,23 +166,25 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', padding: 10, gap: 6 },
-  top: { height: 42, flexDirection: 'row', gap: 9, alignItems: 'center' },
+  top: { minHeight: 48, flexDirection: 'row', gap: 9, alignItems: 'center' },
   prompt: { flex: 1, minWidth: 0, borderRadius: radii.xl, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: 12, paddingVertical: 6, ...shadows.soft },
-  kicker: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.9 },
+  kicker: { color: colors.gold, fontSize: 10, fontWeight: '900', letterSpacing: 0.9 },
   title: { color: colors.white, fontSize: 12, lineHeight: 14, fontWeight: '900' },
-  sub: { color: colors.cream, fontSize: 8, lineHeight: 10, fontWeight: '700', marginTop: 1 },
+  sub: { color: colors.cream, fontSize: 10, lineHeight: 13, fontWeight: '700', marginTop: 1 },
   stage: { flex: 1, minHeight: 0, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' },
   stageGlow: { position: 'absolute', width: 260, height: 260, borderRadius: 130, backgroundColor: colors.glassForest, opacity: 0.38 },
   hero: { position: 'absolute', left: 12, bottom: -2, width: 64, height: 64 },
   grid: { width: '64%', maxWidth: 680, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 9 },
-  card: { width: '28%', minWidth: 92, maxWidth: 136, height: 82, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', gap: 5, padding: 8, ...shadows.card },
+  card: { width: '28%', minWidth: 92, maxWidth: 136, minHeight: 86, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', gap: 5, padding: 8, ...shadows.card },
   cardAlt: { backgroundColor: colors.surfaceGreen },
   cardNew: { borderColor: colors.gold, backgroundColor: colors.surfaceGold },
   newBadge: { position: 'absolute', right: 8, top: 8, borderRadius: radii.pill, backgroundColor: colors.orange, paddingHorizontal: 7, paddingVertical: 3 },
-  newBadgeText: { color: colors.white, fontSize: 6, fontWeight: '900' },
+  newBadgeText: { color: colors.white, fontSize: 10, fontWeight: '900' },
   memorizeBadge: { position: 'absolute', bottom: 14, borderRadius: radii.pill, backgroundColor: colors.gold, borderWidth: 2, borderColor: colors.goldSoft, paddingHorizontal: 14, paddingVertical: 6, ...shadows.soft },
-  memorizeText: { color: colors.forestDark, fontSize: 8.5, fontWeight: '900', letterSpacing: 0.5 },
-  feedback: { height: 28, alignItems: 'center', justifyContent: 'center' },
-  tip: { color: colors.forestDark, fontSize: 8, fontWeight: '800', backgroundColor: colors.glassCream, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
+  memorizeText: { color: colors.forestDark, fontSize: 10, fontWeight: '900', letterSpacing: 0.5 },
+  pauseBadge: { position: 'absolute', top: 12, borderRadius: radii.pill, backgroundColor: colors.glassDark, paddingHorizontal: 14, paddingVertical: 7 },
+  pauseText: { color: colors.white, fontSize: 10, fontWeight: '900' },
+  feedback: { minHeight: 30, alignItems: 'center', justifyContent: 'center' },
+  tip: { color: colors.forestDark, fontSize: 10, fontWeight: '800', backgroundColor: colors.glassCream, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
   pressed: { transform: [{ scale: 0.96 }] },
 });

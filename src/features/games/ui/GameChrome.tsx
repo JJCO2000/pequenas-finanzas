@@ -1,12 +1,13 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
-import { colors, radii, shadows, spacing } from '@/core/theme/tokens';
+import { useSfx } from '@/features/audio/SfxProvider';
+import { colors, radii, shadows, spacing, typography } from '@/core/theme/tokens';
 
 export function HudChip({ label, value, tone = 'dark' }: { label: string; value: string | number; tone?: 'dark' | 'gold' | 'danger' | 'light' }) {
   return (
     <View style={[styles.chip, tone === 'gold' && styles.chipGold, tone === 'danger' && styles.chipDanger, tone === 'light' && styles.chipLight]}>
-      <Text style={[styles.chipLabel, tone !== 'dark' && styles.darkText]}>{label}</Text>
-      <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.chipValue, tone !== 'dark' && styles.darkText]}>{value}</Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={[styles.chipLabel, tone !== 'dark' && styles.darkText]}>{label}</Text>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={[styles.chipValue, tone !== 'dark' && styles.darkText]}>{value}</Text>
     </View>
   );
 }
@@ -17,17 +18,19 @@ export function GameProgress({ value }: { value: number }) {
 }
 
 export function PrimaryGameButton({ label, onPress, disabled, style }: { label: string; onPress: () => void; disabled?: boolean; style?: StyleProp<ViewStyle> }) {
+  const { play } = useSfx();
   return (
-    <Pressable disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.primary, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
-      <Text style={styles.primaryText}>{label}</Text>
+    <Pressable accessibilityRole="button" disabled={disabled} onPress={() => { play('tap'); onPress(); }} style={({ pressed }) => [styles.primary, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.primaryText}>{label}</Text>
     </Pressable>
   );
 }
 
 export function SecondaryGameButton({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
+  const { play } = useSfx();
   return (
-    <Pressable disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.secondary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
-      <Text style={styles.secondaryText}>{label}</Text>
+    <Pressable accessibilityRole="button" disabled={disabled} onPress={() => { play('tap'); onPress(); }} style={({ pressed }) => [styles.secondary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
+      <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9} style={styles.secondaryText}>{label}</Text>
     </Pressable>
   );
 }
@@ -45,24 +48,24 @@ export function Panel({ children, style }: { children: React.ReactNode; style?: 
 }
 
 const styles = StyleSheet.create({
-  chip: { minWidth: 60, minHeight: 32, borderRadius: radii.lg, backgroundColor: colors.glassDark, borderWidth: 1, borderColor: colors.leafSoft, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  chip: { minWidth: 68, minHeight: 38, borderRadius: radii.lg, backgroundColor: colors.glassDark, borderWidth: 1, borderColor: colors.leafSoft, paddingHorizontal: 9, paddingVertical: 4, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
   chipGold: { backgroundColor: colors.surfaceGold, borderColor: colors.goldSoft },
   chipDanger: { backgroundColor: colors.surfaceDanger, borderColor: colors.orangeSoft },
   chipLight: { backgroundColor: colors.glassCream, borderColor: colors.creamStrong },
-  chipLabel: { color: colors.cream, fontSize: 7, lineHeight: 9, fontWeight: '900', letterSpacing: 0.7 },
-  chipValue: { color: colors.white, fontSize: 13, lineHeight: 15, fontWeight: '900' },
+  chipLabel: { color: colors.cream, fontSize: typography.micro, lineHeight: 12, fontWeight: '900', letterSpacing: 0.45 },
+  chipValue: { color: colors.white, fontSize: 14, lineHeight: 16, fontWeight: '900' },
   darkText: { color: colors.forestDark },
-  progressTrack: { height: 6, borderRadius: radii.pill, backgroundColor: colors.glassBlack, overflow: 'hidden' },
+  progressTrack: { height: 7, borderRadius: radii.pill, backgroundColor: colors.glassBlack, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: radii.pill, backgroundColor: colors.gold },
-  primary: { minHeight: 34, borderRadius: radii.pill, backgroundColor: colors.gold, borderWidth: 2, borderColor: colors.goldSoft, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
-  primaryText: { color: colors.forestDark, fontSize: 9, fontWeight: '900', letterSpacing: 0.3 },
-  secondary: { minHeight: 30, borderRadius: radii.pill, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: spacing.md, alignItems: 'center', justifyContent: 'center' },
-  secondaryText: { color: colors.forestDark, fontSize: 8, fontWeight: '900' },
+  primary: { minHeight: 40, borderRadius: radii.pill, backgroundColor: colors.gold, borderWidth: 2, borderColor: colors.goldSoft, paddingHorizontal: 15, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  primaryText: { color: colors.forestDark, fontSize: typography.label, lineHeight: 14, fontWeight: '900', letterSpacing: 0.2 },
+  secondary: { minHeight: 38, borderRadius: radii.pill, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: spacing.md, alignItems: 'center', justifyContent: 'center' },
+  secondaryText: { color: colors.forestDark, fontSize: typography.caption, lineHeight: 13, fontWeight: '900' },
   disabled: { opacity: 0.42 },
   pressed: { transform: [{ scale: 0.97 }] },
-  feedback: { alignSelf: 'center', borderRadius: radii.pill, backgroundColor: colors.glassDark, borderWidth: 1, borderColor: colors.leafSoft, paddingHorizontal: 10, paddingVertical: 4, ...shadows.soft },
+  feedback: { alignSelf: 'center', borderRadius: radii.pill, backgroundColor: colors.glassDark, borderWidth: 1, borderColor: colors.leafSoft, paddingHorizontal: 11, paddingVertical: 6, ...shadows.soft },
   feedbackGood: { backgroundColor: colors.forest },
   feedbackBad: { backgroundColor: colors.danger },
-  feedbackText: { color: colors.white, fontSize: 7.5, lineHeight: 9.5, fontWeight: '900', textAlign: 'center' },
+  feedbackText: { color: colors.white, fontSize: typography.caption, lineHeight: 14, fontWeight: '900', textAlign: 'center' },
   panel: { borderRadius: radii.lg, backgroundColor: colors.glassCream, borderWidth: 1, borderColor: colors.creamStrong, padding: spacing.sm, ...shadows.soft },
 });
