@@ -29,9 +29,6 @@ export function DecisionQuiz({
   const check = async () => {
     if (!selected || busy) return;
     const correct = options.find((option) => option.id === selected)?.correct === true;
-
-    // Feedback belongs to the quiz itself so the learner sees a result immediately,
-    // before persistence/rewards/overlays finish their async work.
     setFeedback({ correct });
     setBusy(true);
     try {
@@ -41,13 +38,15 @@ export function DecisionQuiz({
     }
   };
 
+  const checkDisabled = !selected || busy;
+
   return (
     <View style={styles.wrap}>
       <View style={styles.situationBox}>
         <Text style={styles.situationLabel}>SITUACIÓN</Text>
         <Text numberOfLines={3} adjustsFontSizeToFit style={styles.situation}>{situation}</Text>
       </View>
-      <View style={styles.optionsGrid}>
+      <View style={styles.optionsGrid} accessibilityRole="radiogroup">
         {options.map((option, index) => {
           const active = selected === option.id;
           const selectedCorrect = active && feedback?.correct === true;
@@ -55,6 +54,9 @@ export function DecisionQuiz({
           return (
             <Pressable
               key={option.id}
+              accessibilityRole="radio"
+              accessibilityLabel={`Opción ${index + 1}: ${option.label}`}
+              accessibilityState={{ checked: active, disabled: busy }}
               disabled={busy}
               onPress={() => choose(option.id)}
               style={({ pressed }) => [
@@ -63,6 +65,7 @@ export function DecisionQuiz({
                 active && styles.optionActive,
                 selectedCorrect && styles.optionCorrect,
                 selectedIncorrect && styles.optionIncorrect,
+                busy && styles.optionDisabled,
                 pressed && !busy && styles.optionPressed,
               ]}
             >
@@ -81,11 +84,11 @@ export function DecisionQuiz({
       </View>
 
       {feedback ? (
-        <View style={[styles.feedback, feedback.correct ? styles.feedbackCorrect : styles.feedbackIncorrect]}>
+        <View accessibilityLiveRegion="polite" style={[styles.feedback, feedback.correct ? styles.feedbackCorrect : styles.feedbackIncorrect]}>
           <Text style={[styles.feedbackTitle, feedback.correct ? styles.feedbackTitleCorrect : styles.feedbackTitleIncorrect]}>
             {feedback.correct ? '✓ ¡Correcto!' : '✕ Aún no'}
           </Text>
-          <Text accessibilityLiveRegion="polite" numberOfLines={2} adjustsFontSizeToFit style={styles.feedbackText}>
+          <Text numberOfLines={2} adjustsFontSizeToFit style={styles.feedbackText}>
             {feedback.correct
               ? (explanation ?? 'Esa decisión aplica correctamente la idea del reto.')
               : (explanation ? `${explanation} Prueba otra opción.` : 'Revisa las opciones y prueba otra vez.')}
@@ -94,9 +97,12 @@ export function DecisionQuiz({
       ) : null}
 
       <Pressable
-        disabled={!selected || busy}
+        accessibilityRole="button"
+        accessibilityLabel={busy ? 'Revisando respuesta' : 'Comprobar respuesta'}
+        accessibilityState={{ disabled: checkDisabled }}
+        disabled={checkDisabled}
         onPress={() => void check()}
-        style={({ pressed }) => [styles.check, (!selected || busy) && styles.checkDisabled, pressed && selected && !busy && styles.optionPressed]}
+        style={({ pressed }) => [styles.check, checkDisabled && styles.checkDisabled, pressed && !checkDisabled && styles.optionPressed]}
       >
         <Text style={styles.checkText}>{busy ? 'REVISANDO…' : 'COMPROBAR'}</Text>
       </Pressable>
@@ -115,6 +121,7 @@ const styles = StyleSheet.create({
   optionActive: { backgroundColor: '#FFE38A', borderColor: '#F5B83A' },
   optionCorrect: { backgroundColor: '#DDF4D9', borderColor: '#4B9B62' },
   optionIncorrect: { backgroundColor: '#FFE2D7', borderColor: '#D87555' },
+  optionDisabled: { opacity: 0.7 },
   optionPressed: { transform: [{ scale: 0.98 }] },
   optionIndex: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#DDEED4', alignItems: 'center', justifyContent: 'center' },
   optionIndexActive: { backgroundColor: '#0B5C40' },
