@@ -1,0 +1,34 @@
+name: Pequeñas Finanzas Preview Update
+
+on:
+  push:
+    branches:
+      - feature/racha-financiera-v1
+
+concurrency:
+  cancel_in_progress: true
+  group: ${{ workflow.filename }}-${{ github.ref }}
+
+jobs:
+  verify:
+    name: Verify Android preview update
+    environment: preview
+    steps:
+      - uses: eas/checkout
+      - uses: eas/install_node_modules
+      - run: npm run typecheck
+      - run: npx expo install --check
+      - run: npm run audit:streak:v1
+      - run: npm run audit:plan7-rn086
+      - run: npm run audit:plan7-imports
+      - run: npm run audit:plan7-strict
+
+  publish_preview_update:
+    name: Publish Android Preview Update
+    needs: [verify]
+    type: update
+    environment: preview
+    params:
+      channel: preview
+      platform: android
+      message: "Pequeñas Finanzas — Racha Financiera v1 + visual polish"
