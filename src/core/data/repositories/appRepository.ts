@@ -7,3 +7,4 @@ export * from './adventureRepository';
 export * from './inventoryRepository';
 export * from './gameRepository';
 export * from './settingsRepository';
+export * from './streakRepository';
