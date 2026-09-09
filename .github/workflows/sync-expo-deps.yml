@@ -1,0 +1,39 @@
+name: Sync Expo Dependencies
+
+on:
+  push:
+    branches:
+      - feature/racha-financiera-v1
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: contains(github.event.head_commit.message, '[sync-expo-deps]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/racha-financiera-v1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Align Expo SDK dependencies
+        run: npx expo install --fix
+      - run: npx expo install --check
+      - run: npm run typecheck
+      - name: Commit dependency alignment
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "No dependency changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "fix(preview): align Expo SDK 57 dependencies"
+          git push origin HEAD:feature/racha-financiera-v1
