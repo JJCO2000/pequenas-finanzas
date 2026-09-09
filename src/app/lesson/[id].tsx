@@ -22,7 +22,6 @@ export default function Lesson() {
   const [mode, setMode] = useState<Mode>('info');
   const [busy, setBusy] = useState(false);
   const [completion, setCompletion] = useState<CompletionState | null>(null);
-  const [retryFeedback, setRetryFeedback] = useState(false);
   const dayNumber = Number(params.day ?? 0);
   const isCampaign = Number.isInteger(dayNumber) && dayNumber > 0;
 
@@ -35,11 +34,7 @@ export default function Lesson() {
   }
 
   const done = async (score: number) => {
-    if (score < 100 || busy) {
-      if (score < 100) setRetryFeedback(true);
-      return;
-    }
-    setRetryFeedback(false);
+    if (score < 100 || busy) return;
     setBusy(true);
     try {
       if (isCampaign) {
@@ -82,16 +77,14 @@ export default function Lesson() {
         </View>
         <Image source={ACTIVE_THEME.decor.trail} style={styles.tracks} resizeMode="contain" />
         <View style={styles.activityContent}>
-          <DecisionQuiz situation={level.situation} options={level.options} onComplete={done} />
+          <DecisionQuiz
+            situation={level.situation}
+            options={level.options}
+            explanation={level.explanation}
+            onComplete={done}
+          />
         </View>
         <Image source={ACTIVE_THEME.characters.quaternary} style={styles.activityCharacter} resizeMode="contain" />
-        {retryFeedback ? (
-          <FloatingCard style={styles.retryPanel}>
-            <Text style={styles.retryTitle}>Prueba otra vez</Text>
-            <Text style={styles.retryText}>Revisa las opciones y vuelve a decidir.</Text>
-            <ActionPill label="ENTENDIDO" onPress={() => setRetryFeedback(false)} />
-          </FloatingCard>
-        ) : null}
 
         <MissionCompleteOverlay
           visible={Boolean(completion)}
@@ -161,7 +154,4 @@ const styles = StyleSheet.create({
   activityContent: { flex: 1, paddingHorizontal: 36, paddingTop: 40, paddingBottom: 6, zIndex: 3 },
   tracks: { position: 'absolute', width: 54, height: 40, left: 4, top: 52, opacity: 0.55 },
   activityCharacter: { position: 'absolute', width: 72, height: 62, right: 2, bottom: -4 },
-  retryPanel: { position: 'absolute', right: 12, bottom: 10, width: 210, padding: 8, zIndex: 8, gap: 5 },
-  retryTitle: { color: colors.forestDark, fontSize: 10, fontWeight: '900' },
-  retryText: { color: colors.inkMuted, fontSize: 7.5, lineHeight: 10, fontWeight: '700' },
 });
