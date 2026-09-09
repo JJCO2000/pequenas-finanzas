@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/racha-financiera-v1
+      - feature/offline-gamefeel-v2
 
 concurrency:
   cancel_in_progress: true
@@ -27,4 +28,4 @@ jobs:
     params:
       channel: preview
       platform: android
-      message: "Pequeñas Finanzas — Racha Financiera v1 + visual polish"
+      message: "Pequeñas Finanzas — Offline + Gamefeel v2 + resultados"
