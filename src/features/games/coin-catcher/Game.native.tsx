@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, Image, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { AppState, Image, StyleSheet, Text, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useFrameCallback, useSharedValue, type SharedValue } from 'react-native-reanimated';
@@ -63,8 +63,11 @@ function BasketObject() {
 }
 
 export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
-  const { width, height } = useWindowDimensions();
-  const worldLayout = getWorldLayout(width, height);
+  const windowSize = useWindowDimensions();
+  const [canvasSize, setCanvasSize] = useState<{ width: number; height: number } | null>(null);
+  const measuredWidth = canvasSize?.width ?? windowSize.width;
+  const measuredHeight = canvasSize?.height ?? windowSize.height;
+  const worldLayout = getWorldLayout(measuredWidth, measuredHeight);
   const canvasScale = worldLayout.scale;
   const stageWidth = worldLayout.logicalWidth;
   const stageHeight = worldLayout.logicalHeight;
@@ -100,6 +103,15 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
   const [hazards, setHazards] = useState(0);
   const [seconds, setSeconds] = useState(totalSeconds);
   const [countdown, setCountdown] = useState(3);
+
+  const onCanvasLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    if (width <= 0 || height <= 0) return;
+    setCanvasSize((previous) => {
+      if (previous && Math.abs(previous.width - width) < 1 && Math.abs(previous.height - height) < 1) return previous;
+      return { width, height };
+    });
+  };
 
   useEffect(() => {
     basketX.value = clamp(basketX.value, 0, Math.max(0, stageWidth - basketWidth));
@@ -269,7 +281,7 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
 
   return (
     <GestureDetector gesture={pan}>
-      <View style={styles.root}>
+      <View style={styles.root} onLayout={onCanvasLayout}>
         <ExpoImage
           source={ACTIVE_THEME.world.coinField ?? ACTIVE_THEME.world.activity}
           contentFit="cover"
