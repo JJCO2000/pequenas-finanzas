@@ -73,6 +73,7 @@ assert.match(king, /pointerTip/, 'king roulette needs a fixed result pointer');
 for (const glyph of ['🐷', '🎯', '🧾', '📋', '💧', '❤️', '🌱', '📈']) {
   assert.ok(memory.includes(glyph), `memory visual missing distinct glyph ${glyph}`);
 }
-assert.match(memory, /Cada concepto tiene una imagen distinta/, 'memory instructions must explain the stronger visual cue');
+assert.match(memory, /Voltean · se mezclan · aparece una más/, 'memory instructions must explain the flip-shuffle-new-card loop');
+assert.match(memory, /rotateY/, 'memory cards must visibly flip instead of only swapping content');
 
 console.log('PASS check-streak-v1: streak rules and current game visual regression guards are wired.');
