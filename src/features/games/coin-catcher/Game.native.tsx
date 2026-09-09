@@ -57,7 +57,6 @@ function BasketObject() {
         <View style={styles.weaveVerticalTwo} />
         <View style={styles.weaveVerticalThree} />
       </View>
-      <View style={styles.basketLabel}><Text style={styles.basketLabelText}>CANASTA</Text></View>
     </View>
   );
 }
@@ -351,8 +350,6 @@ const styles = StyleSheet.create({
   weaveVerticalOne: { position: 'absolute', top: 0, bottom: 0, left: '25%', width: 3, backgroundColor: 'rgba(239,171,92,0.48)' },
   weaveVerticalTwo: { position: 'absolute', top: 0, bottom: 0, left: '50%', width: 3, backgroundColor: 'rgba(239,171,92,0.48)' },
   weaveVerticalThree: { position: 'absolute', top: 0, bottom: 0, left: '75%', width: 3, backgroundColor: 'rgba(239,171,92,0.48)' },
-  basketLabel: { position: 'absolute', bottom: '18%', borderRadius: 8, backgroundColor: '#FFF2C6', borderWidth: 1, borderColor: '#6F3D22', paddingHorizontal: 8, paddingVertical: 2, zIndex: 4 },
-  basketLabelText: { color: '#5B351F', fontSize: 6.5, fontWeight: '900', letterSpacing: 0.7 },
   hud: { position: 'absolute', zIndex: 12, top: 8, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 },
   progressWrap: { position: 'absolute', zIndex: 11, top: 56, left: '30%', right: '30%' },
   hero: { position: 'absolute', left: 26, bottom: 14, width: 108, height: 108, zIndex: 5 },
