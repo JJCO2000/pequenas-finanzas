@@ -8,7 +8,7 @@ import { formatMoney, pesos } from '@/core/domain/money';
 import { ACTIVE_THEME } from '@/core/theme';
 import { useCampBack } from '@/features/shell/navigation/useCampBack';
 import { WorldScene } from '@/features/shell/world';
-import { ActionPill, CompactHeader, FloatingCard, HudPill } from '@/features/shell/gameui';
+import { ActionPill, CompactHeader, HudPill } from '@/features/shell/gameui';
 import { colors, radii, shadows } from '@/core/theme/tokens';
 
 const INVEST_AMOUNTS = [10, 20, 50] as const;
@@ -64,23 +64,23 @@ export default function InvestmentsScreen() {
       <View style={styles.portfolio}><InvestmentPortfolio investments={investments} currentDay={currentDay} /></View>
 
       <Modal transparent visible={investOpen} animationType="fade" onRequestClose={() => setInvestOpen(false)}>
-        <Pressable style={styles.modalShade} onPress={() => setInvestOpen(false)}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Cerrar ventana de inversión" style={styles.modalShade} onPress={() => setInvestOpen(false)}>
           <Pressable style={styles.modalCard} onPress={(event) => event.stopPropagation()}>
             <View style={styles.modalTop}>
               <Image source={ACTIVE_THEME.characters.secondary} style={styles.modalHero} resizeMode="contain" />
               <View style={styles.modalCopy}><Text style={styles.modalKicker}>D{currentDay} → D{targetDay}</Text><Text style={styles.modalTitle}>¿Cuánto enviamos?</Text><Text style={styles.modalSub}>El regreso está fijado en +50%.</Text></View>
-              <Pressable onPress={() => setInvestOpen(false)} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setInvestOpen(false)} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
             </View>
             <View style={styles.amounts}>
               {INVEST_AMOUNTS.map((candidate) => {
                 const disabled = (wallet?.availableCents ?? 0) < pesos(candidate);
                 const selected = amount === candidate;
-                return <Pressable key={candidate} disabled={disabled} onPress={() => { setAmount(candidate); setMessage(null); }} style={[styles.amount, selected && styles.amountSelected, disabled && styles.disabled]}><Image source={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} style={styles.amountCoin} resizeMode="contain" /><Text style={styles.amountText}>${candidate}</Text></Pressable>;
+                return <Pressable key={candidate} accessibilityRole="button" accessibilityLabel={`Invertir ${candidate} pesos`} accessibilityState={{ disabled, selected }} disabled={disabled} onPress={() => { setAmount(candidate); setMessage(null); }} style={[styles.amount, selected && styles.amountSelected, disabled && styles.disabled]}><Image source={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} style={styles.amountCoin} resizeMode="contain" /><Text style={styles.amountText}>${candidate}</Text></Pressable>;
               })}
             </View>
             <View style={styles.preview}><Text style={styles.previewText}>{formatMoney(amountCents)}  →  {formatMoney(payout)}</Text></View>
-            {message ? <View style={[styles.message, message.good ? styles.messageGood : styles.messageBad]}><Text style={styles.messageText}>{message.text}</Text></View> : null}
-            <ActionPill label={working ? 'ENVIANDO…' : `ENVIAR ${formatMoney(amountCents)}  →`} onPress={() => void doInvest()} tone={canInvest ? 'gold' : 'light'} style={styles.confirm} />
+            {message ? <View accessibilityLiveRegion="polite" style={[styles.message, message.good ? styles.messageGood : styles.messageBad]}><Text style={styles.messageText}>{message.text}</Text></View> : null}
+            <ActionPill label={working ? 'ENVIANDO…' : `ENVIAR ${formatMoney(amountCents)}  →`} onPress={() => void doInvest()} disabled={!canInvest} tone={canInvest ? 'gold' : 'light'} style={styles.confirm} />
           </Pressable>
         </Pressable>
       </Modal>
