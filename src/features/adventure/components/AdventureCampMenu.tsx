@@ -1,8 +1,12 @@
 import React from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
 import { AdventureStageProgress } from './AdventureStageProgress';
 import { ACTIVE_THEME } from '@/core/theme';
 import { ActionPill, FloatingCard, HudPill, IconButton, SceneHotspot } from '@/features/shell/gameui';
+import { useAppData } from '@/features/session/AppDataProvider';
+import { StreakCard } from '@/features/streak/StreakCard';
+import { getGamePresentation } from '@/registry/gamePresentation';
 import { colors } from '@/core/theme/tokens';
 
 export type CampRoute = '/wallet' | '/investments' | '/progress' | '/collection' | '/arcade' | '/parents' | '/settings';
@@ -30,6 +34,15 @@ function moduleArt(key: (typeof MENU_ITEMS)[number]['art']) {
 export function AdventureCampMenu({ visible, profileName, currentDay, onClose, onNavigate }: {
   visible: boolean; profileName: string; currentDay: number; onClose: () => void; onNavigate: (route: CampRoute) => void;
 }) {
+  const { streak } = useAppData();
+  const challengeTitle = streak ? getGamePresentation(streak.challengeGameId).title : '';
+
+  const openDailyChallenge = () => {
+    if (!streak) return;
+    onClose();
+    router.push({ pathname: '/game/[gameId]', params: { gameId: streak.challengeGameId, mode: 'arcade' } });
+  };
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.shade} onPress={onClose}>
@@ -49,6 +62,12 @@ export function AdventureCampMenu({ visible, profileName, currentDay, onClose, o
               <Text style={styles.progressLabel}>ETAPA</Text>
               <View style={styles.progress}><AdventureStageProgress dayNumber={currentDay} compact /></View>
             </View>
+
+            {streak ? (
+              <View style={styles.streakRow}>
+                <StreakCard snapshot={streak} challengeTitle={challengeTitle} onPress={openDailyChallenge} />
+              </View>
+            ) : null}
 
             <View style={styles.destinations}>
               {MENU_ITEMS.map((item) => (
@@ -82,6 +101,7 @@ const styles = StyleSheet.create({
   progressRow: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: 4 },
   progressLabel: { color: '#DDEED8', fontSize: 5.8, fontWeight: '900' },
   progress: { flex: 1, minWidth: 0 },
+  streakRow: { paddingHorizontal: 3 },
   destinations: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 5, paddingHorizontal: 3, paddingVertical: 2 },
   continue: { alignSelf: 'center', minWidth: 130 },
 });
