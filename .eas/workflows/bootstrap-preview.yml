@@ -10,32 +10,18 @@ concurrency:
   group: ${{ workflow.filename }}-${{ github.ref }}
 
 jobs:
-  verify_install:
-    name: Verify install
-    environment: preview
-    steps:
-      - uses: eas/checkout
-      - uses: eas/install_node_modules
-
-  verify_typecheck:
-    name: Verify typecheck
+  verify:
+    name: Verify Android preview update
     environment: preview
     steps:
       - uses: eas/checkout
       - uses: eas/install_node_modules
       - run: npm run typecheck
-
-  verify_expo_dependencies:
-    name: Verify Expo dependencies
-    environment: preview
-    steps:
-      - uses: eas/checkout
-      - uses: eas/install_node_modules
       - run: npx expo install --check
 
   publish_preview_update:
     name: Publish Android Preview Update
-    needs: [verify_install, verify_typecheck, verify_expo_dependencies]
+    needs: [verify]
     type: update
     environment: preview
     params:
