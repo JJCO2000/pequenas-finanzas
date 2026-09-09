@@ -37,21 +37,40 @@ assert.match(mapMission, /<StreakCard/, 'map streak CTA missing');
 assert.match(camp, /<StreakCard/, 'camp streak integration missing');
 
 assert.match(gameRoute, /useSafeAreaInsets/, 'game route safe-area integration missing');
+assert.match(gameRoute, /styles\.gameNav/, 'game navigation must reserve its own row');
+assert.doesNotMatch(gameRoute, /controlsOverlay/, 'back/help controls must not overlay gameplay');
 assert.match(gameRoute, /paddingLeft: safeHorizontal/, 'game viewport horizontal safe area missing');
 
 assert.match(objects, /balloonHighlightWide/, 'balloon depth treatment missing');
-assert.match(objects, /chestGlow/, 'treasure chest glow missing');
+assert.match(objects, /chestGlow/, 'treasure chest treatment missing');
 assert.match(objects, /fossilGlow/, 'fossil pulse missing');
-assert.match(objects, /memoryMedallion/, 'memory visual upgrade missing');
 assert.match(balloons, /popBurst/, 'balloon pop burst missing');
-assert.match(coinCatcher, /basketShadow/, 'coin catcher basket depth missing');
+
+assert.match(coinCatcher, /function BasketObject/, 'coin catcher must render a guaranteed basket object');
+assert.match(coinCatcher, /basketBody/, 'coin catcher basket body missing');
+assert.match(coinCatcher, /basketY = stageHeight - 92/, 'coin catcher basket must stay inside the visible field');
 assert.match(coinCatcher, /bonusAura/, 'coin catcher bonus cue missing');
-assert.match(treasure, /TreasureChest/, 'treasure game must use the chest object');
+
+assert.match(treasure, /availableCoinTray/, 'treasure free coins must live outside the chest');
+assert.match(treasure, /<TreasureChest count=\{0\}/, 'treasure chest must be decorative and not cover the free-coin pile');
+
+assert.match(market, /DEBES LLEVAR:/, 'market must explicitly label required categories');
+assert.match(market, /cartChecklist/, 'market cart must repeat the mission checklist');
+assert.match(market, /getMarketFallbackGlyph/, 'market missing-art products need recognizable fallbacks');
 assert.match(market, /checkoutScan/, 'market checkout scan feedback missing');
 assert.match(market, /shelfRail/, 'market shelf depth missing');
-assert.match(fossil, /FossilObject/, 'fossil game must use fossil object art');
-assert.match(king, /pointerPulse/, 'king wheel pointer animation missing');
-assert.match(king, /wheelInnerRing/, 'king wheel physical rim missing');
-assert.match(memory, /MemoryObject/, 'memory game must use enhanced memory objects');
 
-console.log('PASS check-streak-v1: streak rules, safe-area and visual polish hooks for all seven games are wired.');
+assert.match(fossil, /FossilObject/, 'fossil game must use fossil object art');
+
+assert.match(king, /Animated\.timing\(wheelRotation/, 'king roulette must physically rotate');
+assert.match(king, /Easing\.out\(Easing\.cubic\)/, 'king roulette must decelerate like a wheel');
+assert.match(king, /outcomeIndex/, 'king roulette result selection must be explicit');
+assert.doesNotMatch(king, /setInterval\(\(\) => setActive/, 'king roulette must not fake spinning by cycling active cards');
+assert.match(king, /pointerTip/, 'king roulette needs a fixed result pointer');
+
+for (const glyph of ['🐷', '🎯', '🧾', '📋', '💧', '❤️', '🌱', '📈']) {
+  assert.ok(memory.includes(glyph), `memory visual missing distinct glyph ${glyph}`);
+}
+assert.match(memory, /Cada concepto tiene una imagen distinta/, 'memory instructions must explain the stronger visual cue');
+
+console.log('PASS check-streak-v1: streak rules plus navigation, basket, treasure, market, roulette and memory regressions are guarded.');
