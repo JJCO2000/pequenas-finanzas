@@ -12,6 +12,12 @@ const camp = read('src/features/adventure/components/AdventureCampMenu.tsx');
 const gameRoute = read('src/app/game/[gameId].tsx');
 const objects = read('src/features/games/ui/GameObjects.tsx');
 const balloons = read('src/features/games/balloon-answer/Game.tsx');
+const coinCatcher = read('src/features/games/coin-catcher/Game.native.tsx');
+const treasure = read('src/features/games/treasure-split/Game.tsx');
+const market = read('src/features/games/dino-market/Game.tsx');
+const fossil = read('src/features/games/fossil-escape/Game.tsx');
+const king = read('src/features/games/king-greedy/Game.tsx');
+const memory = read('src/features/games/money-memory/Game.tsx');
 
 assert.match(migrations, /const VERSION = 5;/, 'migration version must be 5');
 assert.match(migrations, /CREATE TABLE IF NOT EXISTS streak_state/, 'streak_state table missing');
@@ -38,5 +44,14 @@ assert.match(objects, /chestGlow/, 'treasure chest glow missing');
 assert.match(objects, /fossilGlow/, 'fossil pulse missing');
 assert.match(objects, /memoryMedallion/, 'memory visual upgrade missing');
 assert.match(balloons, /popBurst/, 'balloon pop burst missing');
+assert.match(coinCatcher, /basketShadow/, 'coin catcher basket depth missing');
+assert.match(coinCatcher, /bonusAura/, 'coin catcher bonus cue missing');
+assert.match(treasure, /TreasureChest/, 'treasure game must use the chest object');
+assert.match(market, /checkoutScan/, 'market checkout scan feedback missing');
+assert.match(market, /shelfRail/, 'market shelf depth missing');
+assert.match(fossil, /FossilObject/, 'fossil game must use fossil object art');
+assert.match(king, /pointerPulse/, 'king wheel pointer animation missing');
+assert.match(king, /wheelInnerRing/, 'king wheel physical rim missing');
+assert.match(memory, /MemoryObject/, 'memory game must use enhanced memory objects');
 
-console.log('PASS check-streak-v1: persistence, qualification, UI, safe-area and shared visual upgrades are wired.');
+console.log('PASS check-streak-v1: streak rules, safe-area and visual polish hooks for all seven games are wired.');
