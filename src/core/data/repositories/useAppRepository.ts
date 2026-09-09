@@ -17,9 +17,11 @@ import {
   getInvestments,
   getProgress,
   getSettings,
+  getStreakState,
   getTransactions,
   getWallet,
   purchaseItem,
+  qualifyDailyStreak,
   recordGameResult,
   saveMapOffset,
   setSetting,
@@ -59,6 +61,8 @@ export function useAppRepository() {
       purchaseItem: bind(purchaseItem),
       getSettings: bind(getSettings),
       setSetting: bind(setSetting),
+      getStreakState: bind(getStreakState),
+      qualifyDailyStreak: bind(qualifyDailyStreak),
     };
   }, [db]);
 }
