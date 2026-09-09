@@ -88,7 +88,7 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
       <View style={styles.top}>
         <View style={styles.story}>
           <Text style={styles.kicker}>EXPEDICIÓN {roundIndex + 1}/{TREASURE_SPLIT_ROUNDS.length}</Text>
-          <Text style={styles.storyTitle}>{phase === 'plan' ? round.story : phase === 'simulate' ? 'El mundo responde a tu decisión…' : EVENTS[roundIndex]?.title}</Text>
+          <Text numberOfLines={2} style={styles.storyTitle}>{phase === 'plan' ? round.story : phase === 'simulate' ? 'El mundo responde a tu decisión…' : EVENTS[roundIndex]?.title}</Text>
           <Text style={styles.storyText}>{phase === 'result' ? EVENTS[roundIndex]?.copy : 'Tú decides primero. El evento se revela después.'}</Text>
         </View>
         <HudChip label="TESORO" value={round.total} tone="gold" />
@@ -102,13 +102,13 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
           <Image source={ACTIVE_THEME.characters.primary} resizeMode="contain" style={styles.sourceHero} />
           <Text style={styles.sourceLabel}>TU TESORO</Text>
           <View style={styles.availableCoinTray}>
-            <CoinPile count={available} max={10} size={20} />
+            <CoinPile count={available} max={10} size={18} />
           </View>
           <Text style={styles.availableLabel}>{available} LIBRES</Text>
           <View style={styles.sourceChest}>
-            <TreasureChest count={0} />
+            <View style={styles.sourceChestScale}><TreasureChest count={0} /></View>
           </View>
-          <Text style={styles.sourceCount}>Arrastra el valor con + / −</Text>
+          <Text style={styles.sourceCount}>Usa + / − para repartir</Text>
         </View>
 
         <View style={styles.buckets}>
@@ -153,33 +153,34 @@ export function TreasureSplitGame({ session, onFinish }: GameComponentProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', padding: 10, gap: 6 },
-  top: { height: 42, flexDirection: 'row', alignItems: 'center', gap: 9 },
-  story: { flex: 1, minWidth: 0, borderRadius: radii.xl, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: 12, paddingVertical: 6, ...shadows.soft },
+  top: { minHeight: 42, flexDirection: 'row', alignItems: 'center', gap: 9, paddingLeft: 100, paddingRight: 48 },
+  story: { flex: 1, minWidth: 0, borderRadius: radii.xl, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: 12, paddingVertical: 5, ...shadows.soft },
   kicker: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 },
-  storyTitle: { color: colors.white, fontSize: 12, lineHeight: 14, fontWeight: '900' },
-  storyText: { color: colors.cream, fontSize: 8, lineHeight: 10, fontWeight: '700', marginTop: 1 },
+  storyTitle: { color: colors.white, fontSize: 11.5, lineHeight: 13, fontWeight: '900' },
+  storyText: { color: colors.cream, fontSize: 7.8, lineHeight: 9.5, fontWeight: '700', marginTop: 1 },
   board: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 8 },
-  treasureSource: { width: '15%', minWidth: 126, maxWidth: 158, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 6, ...shadows.card },
-  sourceHero: { width: 48, height: 40, marginBottom: -3 },
-  sourceLabel: { color: colors.forestDark, fontSize: 10, fontWeight: '900' },
-  availableCoinTray: { width: '92%', minHeight: 42, borderRadius: 13, backgroundColor: colors.surfaceGold, borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: 4, paddingHorizontal: 3, paddingVertical: 3, zIndex: 8 },
-  availableLabel: { color: colors.orange, fontSize: 8, fontWeight: '900', letterSpacing: 0.8, marginTop: 2 },
-  sourceChest: { height: 72, width: 112, alignItems: 'center', justifyContent: 'flex-start', overflow: 'hidden', transform: [{ scale: 0.72 }], marginTop: -5, marginBottom: -15 },
-  sourceCount: { color: colors.inkMuted, fontSize: 7.5, lineHeight: 9.5, fontWeight: '800', textAlign: 'center' },
+  treasureSource: { width: '15%', minWidth: 126, maxWidth: 158, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 6, paddingTop: 5, paddingBottom: 4, ...shadows.card },
+  sourceHero: { width: 42, height: 34, marginBottom: -3 },
+  sourceLabel: { color: colors.forestDark, fontSize: 9.5, lineHeight: 11, fontWeight: '900' },
+  availableCoinTray: { width: '92%', minHeight: 38, borderRadius: 12, backgroundColor: colors.surfaceGold, borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: 3, paddingHorizontal: 3, paddingVertical: 2, zIndex: 8 },
+  availableLabel: { color: colors.orange, fontSize: 7.5, lineHeight: 9, fontWeight: '900', letterSpacing: 0.8, marginTop: 1 },
+  sourceChest: { width: 92, height: 74, alignItems: 'center', justifyContent: 'center', overflow: 'visible', marginTop: 1 },
+  sourceChestScale: { width: 142, height: 130, alignItems: 'center', justifyContent: 'center', transform: [{ scale: 0.56 }] },
+  sourceCount: { color: colors.inkMuted, fontSize: 7.3, lineHeight: 9, fontWeight: '900', textAlign: 'center', marginTop: -2 },
   buckets: { flex: 1, flexDirection: 'row', gap: 9 },
-  bucket: { flex: 1, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 1, borderColor: colors.creamStrong, alignItems: 'center', padding: 7, ...shadows.soft },
-  bucketObject: { height: 36, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
+  bucket: { flex: 1, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 1, borderColor: colors.creamStrong, alignItems: 'center', justifyContent: 'center', padding: 6, ...shadows.soft },
+  bucketObject: { minHeight: 30, alignItems: 'center', justifyContent: 'center', marginBottom: 1 },
   bucketLabel: { color: colors.forestDark, fontSize: 10, lineHeight: 12, fontWeight: '900' },
-  bucketHint: { color: colors.inkMuted, fontSize: 8, fontWeight: '700', marginTop: 2 },
-  bucketValue: { color: colors.forestDark, fontSize: 18, lineHeight: 21, fontWeight: '900', marginTop: 4 },
-  bucketControls: { flexDirection: 'row', gap: 8, marginTop: 3 },
-  allocatedCoins: { minHeight: 22, marginTop: 3 },
+  bucketHint: { color: colors.inkMuted, fontSize: 7.7, lineHeight: 9, fontWeight: '700', marginTop: 1 },
+  bucketValue: { color: colors.forestDark, fontSize: 18, lineHeight: 20, fontWeight: '900', marginTop: 3 },
+  bucketControls: { flexDirection: 'row', gap: 8, marginTop: 2 },
+  allocatedCoins: { minHeight: 20, marginTop: 2 },
   control: { width: 38, height: 28, borderRadius: 23, backgroundColor: colors.forest, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
   controlText: { color: colors.white, fontSize: 15, lineHeight: 17, fontWeight: '900' },
-  eventStage: { width: '16%', minWidth: 120, maxWidth: 180, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 10, gap: 6, ...shadows.card },
+  eventStage: { width: '16%', minWidth: 120, maxWidth: 180, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 9, gap: 5, ...shadows.card },
   eventMark: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.surfacePurple, color: colors.purple, fontSize: 18, lineHeight: 30, fontWeight: '900', textAlign: 'center' },
   eventTitle: { color: colors.forestDark, fontSize: 10, lineHeight: 12, fontWeight: '900', textAlign: 'center' },
-  eventCopy: { color: colors.inkMuted, fontSize: 8.5, lineHeight: 11, fontWeight: '700', textAlign: 'center' },
+  eventCopy: { color: colors.inkMuted, fontSize: 8.3, lineHeight: 10.5, fontWeight: '700', textAlign: 'center' },
   simCard: { alignItems: 'center', justifyContent: 'center', gap: 8 },
   simIcon: { color: colors.gold, fontSize: 30, lineHeight: 32 },
   resultScore: { color: colors.orange, fontSize: 24, lineHeight: 26, fontWeight: '900' },
