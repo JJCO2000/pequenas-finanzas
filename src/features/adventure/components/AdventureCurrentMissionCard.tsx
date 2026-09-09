@@ -52,9 +52,9 @@ export function AdventureCurrentMissionCard({ day, title, onPress }: { day: Adve
 }
 
 const styles = StyleSheet.create({
-  dock: { position: 'absolute', left: '18%', right: '18%', bottom: 6, minHeight: 58, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'center', gap: 7 },
-  streakWrap: { width: 236, justifyContent: 'center' },
-  root: { flex: 1, minWidth: 300, minHeight: 58, borderRadius: 15, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.forestDark, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7, paddingVertical: 6, gap: 7, ...shadows.card },
+  dock: { position: 'absolute', left: '12%', right: '12%', bottom: 6, minHeight: 58, flexDirection: 'row', alignItems: 'stretch', justifyContent: 'center', gap: 7 },
+  streakWrap: { width: '36%', minWidth: 168, maxWidth: 236, justifyContent: 'center' },
+  root: { flex: 1, minWidth: 0, minHeight: 58, borderRadius: 15, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.forestDark, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 7, paddingVertical: 6, gap: 7, ...shadows.card },
   artWell: { width: 46, height: 42, borderRadius: 11, overflow: 'hidden', backgroundColor: '#DFF4D7', borderWidth: 2, borderColor: '#A8D79F' },
   guide: { width: '100%', height: '100%' },
   copy: { flex: 1, minWidth: 0 },
@@ -62,10 +62,10 @@ const styles = StyleSheet.create({
   title: { color: colors.forestDark, fontSize: 10.5, fontWeight: '900', marginTop: 1 },
   concept: { color: colors.inkMuted, fontSize: 7, fontWeight: '700', marginTop: 1 },
   progress: { width: '90%', marginTop: 3 },
-  action: { width: 76, alignItems: 'stretch' },
+  action: { width: 72, alignItems: 'stretch' },
   rewardLabel: { color: colors.inkMuted, fontSize: 6, fontWeight: '900', letterSpacing: 0.6, textAlign: 'center' },
   reward: { color: colors.orange, fontSize: 9, fontWeight: '900', textAlign: 'center', marginBottom: 4 },
-  play: { minWidth: 68, height: 28, borderRadius: radii.pill, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
-  playText: { color: colors.forestDark, fontSize: 7, fontWeight: '900', letterSpacing: 0.6 },
+  play: { minWidth: 64, height: 28, borderRadius: radii.pill, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
+  playText: { color: colors.forestDark, fontSize: 7, fontWeight: '900', letterSpacing: 0.5 },
   pressed: { transform: [{ scale: 0.97 }] },
 });
