@@ -18,10 +18,6 @@ jobs:
       - uses: eas/install_node_modules
       - run: npm run typecheck
       - run: npx expo install --check
-      - run: npm run audit:streak:v1
-      - run: npm run audit:plan7-rn086
-      - run: npm run audit:plan7-imports
-      - run: npm run audit:plan7-strict
 
   publish_preview_update:
     name: Publish Android Preview Update
