@@ -1,3 +1,4 @@
+# one-shot preview publication trigger
 name: Publish Preview Once
 
 on:
