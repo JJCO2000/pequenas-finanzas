@@ -21,7 +21,7 @@ No cuenta abrir la app, cobrar monedas, entrar al campamento ni repetir una tran
 4. `encore-ai-labs/react-native-confetti-explosion`: física/rotación breve para feedback de éxito sin bloquear interacción.
 5. `salman-ibrahim/react-native-prize-wheel`: feedback de rueda con movimiento continuo y separación clara entre estado activo y resultado.
 
-No se copiaron assets externos ni se añadieron dependencias nuevas en esta iteración.
+No se copiaron assets externos ni se añadieron dependencias nuevas en esta iteración. Se adaptaron principios visuales sobre los assets y primitivas que ya existen en Pequeñas Finanzas.
 
 ## Comparación contra estado anterior
 
@@ -34,11 +34,14 @@ No se copiaron assets externos ni se añadieron dependencias nuevas en esta iter
 | Campamento | Sin estado de hábito | Fogata/racha + seguro + CTA al reto | PASS |
 | Mapa | Solo misión del día | Misión + racha visible | PASS |
 | Safe area | Controles podían invadir barras laterales | Viewport y controles respetan insets | PASS estático |
-| Globos | Formas planas | Volumen, brillo, etiqueta y explosión POP | PASS |
-| Tesoro | Cofre plano | Madera, herrajes, brillo y apertura idle | PASS |
+| Atrapa Monedas | Sprites correctos pero poco separados del fondo | Aura de moneda/bonus/peligro + sombra de canasta + mayor profundidad | PASS |
+| Globos | Formas planas | Volumen, brillo, nudo/cuerda, etiqueta y explosión POP | PASS |
+| Tesoro | Cofre plano | Madera, herrajes, brillo, monedas, destellos y apertura idle | PASS |
+| Mercado Dino | Tarjetas de producto | Estantes físicos, señalética, etiquetas y escáner animado al pagar | PASS |
 | Fósiles | Imagen estática | Halo/pulso y piedra visual | PASS |
+| Rey Codicioso | Selector funcional pero plano | Rueda con aro, remaches, puntero animado, relieve y cofres de riesgo/seguro | PASS |
 | Memoria | Icono simple | Medallón con profundidad/brillo | PASS |
-| Runtime físico | Sin validación en este control | Requiere dispositivo/emulador | PENDIENTE |
+| Runtime físico | Sin validación visual en este control | Requiere dispositivo/emulador | PENDIENTE |
 
 ## Reglas SSOT de racha
 
@@ -75,6 +78,7 @@ No se consideran logradas hasta medir usuarios reales.
 - Usuarios con racha >= 7 días: objetivo inicial >= 20% de usuarios D7 activos.
 - Rechazo de urgencia: no usar popups intrusivos durante gameplay; 0 interrupciones forzadas por racha.
 - Duración del reto diario: objetivo 60–180 s.
+- Legibilidad visual: los 7 juegos deben conservar objeto principal, HUD y acción primaria dentro de safe area en Android landscape.
 
 ## Control técnico
 
@@ -84,5 +88,5 @@ No se consideran logradas hasta medir usuarios reales.
 
 ## Gate de cierre
 
-- PASS para revisión de código: persistencia, reglas, integración y UI presentes.
-- NO PASS para merge final hasta ejecutar typecheck/auditorías y una revisión visual real en al menos un Android landscape con barra lateral/gestual.
+- PASS para revisión de código: persistencia, reglas, integración, safe-area y mejoras visuales de los 7 juegos presentes.
+- NO PASS para merge final hasta que el último commit pase typecheck/auditorías y exista una revisión visual real en al menos un Android landscape con barra lateral/gestual.
