@@ -6,6 +6,7 @@ on:
       - feature/racha-financiera-v1
       - fix/game-layout-audit-v2
       - audit/navigation-button-v1
+      - feature/offline-gamefeel-v2
 
 concurrency:
   group: feature-verify-${{ github.ref }}
@@ -14,7 +15,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,6 +27,8 @@ jobs:
       - run: npx expo install --check
       - run: npx expo-doctor@latest
       - run: npm run audit:source:hygiene
+      - run: npm run audit:offline
+      - run: npm run audit:offline-gamefeel:v2
       - run: npm run audit:streak:v1
       - run: npm run audit:plan7-rn086
       - run: npm run audit:plan7-imports
