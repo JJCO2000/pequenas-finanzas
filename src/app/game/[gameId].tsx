@@ -16,6 +16,41 @@ import { GameIntroScreen, LearningPeek } from '@/features/games/ui/GameIntroScre
 import { ScenicBackdrop } from '@/features/shell/components/PFVisual';
 import { colors, shadows } from '@/core/theme/tokens';
 
+type ResultStat = { label: string; value: string };
+
+const METRIC_LABELS: Record<string, string> = {
+  coins: 'MONEDAS',
+  correct: 'ACIERTOS',
+  wrong: 'ERRORES',
+  bestCombo: 'MEJOR RACHA',
+  bonusCaught: 'BONUS',
+  hazards: 'PELIGROS',
+  livesLeft: 'VIDAS',
+  rounds: 'RONDAS',
+  averageResilience: 'RESILIENCIA',
+  missions: 'MISIONES',
+  mistakes: 'ERRORES',
+  averageScore: 'PROMEDIO',
+  keys: 'LLAVES',
+  banked: 'PROTEGIDO',
+  cashouts: 'ASEGURADAS',
+  bombs: 'CODICIA',
+  spins: 'GIROS',
+};
+
+function resultStats(result: GameResult): ResultStat[] {
+  const metrics = result.metrics ?? {};
+  const preferred = [
+    'coins', 'correct', 'wrong', 'bestCombo', 'bonusCaught', 'hazards', 'livesLeft', 'rounds',
+    'averageResilience', 'missions', 'mistakes', 'averageScore', 'keys', 'banked', 'cashouts', 'bombs', 'spins',
+  ];
+  const entries = Object.entries(metrics as Record<string, unknown>)
+    .filter(([key, value]) => preferred.includes(key) && (typeof value === 'number' || typeof value === 'string'))
+    .sort(([a], [b]) => preferred.indexOf(a) - preferred.indexOf(b))
+    .slice(0, 4);
+  return entries.map(([key, value]) => ({ label: METRIC_LABELS[key] ?? key.toUpperCase(), value: String(value) }));
+}
+
 export default function GameRoute() {
   const params = useLocalSearchParams<{ gameId: string; mode?: string; day?: string }>();
   const insets = useSafeAreaInsets();
@@ -31,6 +66,7 @@ export default function GameRoute() {
   const [result, setResult] = useState<GameResult | null>(null);
   const [reward, setReward] = useState<{ rewardCents: number; multiplier: number; maturedCount: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const modifiers = useMemo(() => ({
     ...deriveGameModifiers(inventory),
@@ -47,16 +83,24 @@ export default function GameRoute() {
     return <ScenicBackdrop source={ACTIVE_THEME.world.shell} overlay="dark" contentStyle={styles.missingRoot}><Text style={styles.missing}>Juego no encontrado.</Text></ScenicBackdrop>;
   }
 
-  const finish = async (nextResult: GameResult) => {
-    if (submitting || result) return;
+  const persistResult = async (nextResult: GameResult) => {
+    if (submitting) return;
     setSubmitting(true);
+    setSaveError(null);
     try {
-      setResult(nextResult);
       const outcome = await submitGameResult(nextResult, { mode, campaignDay });
       setReward({ rewardCents: outcome.rewardCents, multiplier: outcome.multiplier, maturedCount: outcome.maturedInvestments.length });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'No se pudo guardar el resultado.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const finish = (nextResult: GameResult) => {
+    if (result) return;
+    setResult(nextResult);
+    void persistResult(nextResult);
   };
 
   const returnPath = mode === 'campaign' ? '/play' : '/arcade';
@@ -72,8 +116,10 @@ export default function GameRoute() {
   const resultSubtitle = reward?.maturedCount
     ? `${reward.maturedCount} inversión(es) también llegaron a su fecha de cobro.`
     : mode === 'campaign'
-      ? 'El siguiente punto de la expedición ya está listo en el mapa.'
-      : `Tu resultado quedó guardado. Multiplicador de hoy: ×${reward?.multiplier ?? 1}.`;
+      ? 'Tu resultado quedó registrado. El siguiente punto de la expedición queda listo al continuar.'
+      : reward
+        ? `Resultado guardado · multiplicador ×${reward.multiplier}.`
+        : 'Tu partida terminó. Revisa cómo te fue mientras guardamos la recompensa.';
 
   if (!started) {
     return (
@@ -106,7 +152,7 @@ export default function GameRoute() {
   return (
     <View style={styles.gameRoot}>
       <View style={[styles.gameViewport, { paddingLeft: safeHorizontal, paddingRight: safeHorizontal, paddingTop: safeTop, paddingBottom: safeBottom }]}>
-        <GameHost componentId={game.componentId} session={session} onFinish={(nextResult: GameResult) => void finish(nextResult)} />
+        <GameHost componentId={game.componentId} session={session} onFinish={finish} />
       </View>
 
       <View
@@ -133,12 +179,16 @@ export default function GameRoute() {
       </View>
 
       <MissionCompleteOverlay
-        visible={Boolean(result && reward)}
+        visible={Boolean(result)}
         eyebrow={mode === 'campaign' ? `DÍA ${campaignDay ?? ''} SUPERADO` : 'PARTIDA COMPLETADA'}
-        title={mode === 'campaign' ? '¡Misión cumplida!' : '¡Buen trabajo!'}
+        title={result?.completed ? '¡Lo lograste!' : 'Partida terminada'}
         subtitle={resultSubtitle}
         scoreText={result ? String(result.score) : undefined}
         rewardText={reward ? formatMoney(reward.rewardCents) : undefined}
+        stats={result ? resultStats(result) : []}
+        saving={submitting}
+        saveError={saveError}
+        onRetrySave={result ? () => void persistResult(result) : undefined}
         primaryLabel={mode === 'campaign' ? 'CONTINUAR AVENTURA →' : 'VOLVER A ARCADE'}
         onPrimary={returnToJourney}
         secondaryLabel="VER MI DINERO"
