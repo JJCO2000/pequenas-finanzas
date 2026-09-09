@@ -44,4 +44,5 @@ jobs:
             exit 1
           fi
       - name: Publish OTA to preview
-        run: npx eas-cli@latest update --channel preview --environment preview --message "Preview: navigation audit, egg shop improvements, basket cleanup and control-state guards" --non-interactive
+        run: |
+          npx eas-cli@latest update --channel preview --environment preview --message "Preview: navigation audit, egg shop improvements, basket cleanup and control-state guards" --non-interactive
