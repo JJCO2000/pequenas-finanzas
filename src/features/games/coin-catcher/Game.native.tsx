@@ -14,7 +14,6 @@ import { colors, radii, shadows } from '@/core/theme/tokens';
 import { getWorldLayout } from '@/features/shell/world';
 import { GameProgress, HudChip } from '@/features/games/ui/GameChrome';
 
-// Gameplay constants intentionally match the accepted v5 mechanics.
 const COIN_R = 16;
 const BONUS_R = 18;
 const HAZARD_R = 20;
@@ -43,10 +42,28 @@ function useCenteredSpriteStyle(
   }));
 }
 
+function BasketObject() {
+  return (
+    <View pointerEvents="none" style={styles.basketVisual}>
+      <View style={styles.basketGroundShadow} />
+      <View style={styles.basketHandle} />
+      <View style={styles.basketRim}>
+        <View style={styles.basketRimHighlight} />
+      </View>
+      <View style={styles.basketBody}>
+        <View style={styles.weaveHorizontalOne} />
+        <View style={styles.weaveHorizontalTwo} />
+        <View style={styles.weaveVerticalOne} />
+        <View style={styles.weaveVerticalTwo} />
+        <View style={styles.weaveVerticalThree} />
+      </View>
+      <View style={styles.basketLabel}><Text style={styles.basketLabelText}>CANASTA</Text></View>
+    </View>
+  );
+}
+
 export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
   const { width, height } = useWindowDimensions();
-
-  // Uniform reference-canvas scaling: aspect-ratio differences reveal more world; they never stretch gameplay.
   const worldLayout = getWorldLayout(width, height);
   const canvasScale = worldLayout.scale;
   const stageWidth = worldLayout.logicalWidth;
@@ -58,7 +75,7 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
   const scoreBonusEvery = numericModifier(session.modifiers.scoreBonusEvery);
   const hapticsEnabled = session.modifiers.hapticsEnabled !== false;
   const basketWidth = BASE_BASKET_WIDTH + basketWidthBonus;
-  const basketY = stageHeight - 72;
+  const basketY = stageHeight - 92;
   const totalSeconds = BASE_SECONDS + extraSeconds;
   const art = ACTIVE_THEME.coinCatcherArt;
 
@@ -236,18 +253,17 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
       basketX.value = clamp(logicalX - basketWidth / 2, 0, stageWidth - basketWidth);
     }), [basketWidth, basketX, canvasScale, stageWidth]);
 
-  // Visual art can be richer/larger than the unchanged v5 collision geometry.
   const coin1Style = useCenteredSpriteStyle(coin1X, coin1Y, 56, 64, canvasScale);
   const coin2Style = useCenteredSpriteStyle(coin2X, coin2Y, 56, 64, canvasScale);
   const bonusStyle = useCenteredSpriteStyle(bonusX, bonusY, 62, 70, canvasScale);
   const hazardStyle = useCenteredSpriteStyle(hazardX, hazardY, 72, 78, canvasScale);
-  const basketVisualWidth = basketWidth + 64;
+  const basketVisualWidth = basketWidth + 48;
   const basketStyle = useAnimatedStyle(() => ({
     width: basketVisualWidth * canvasScale,
-    height: 76 * canvasScale,
+    height: 70 * canvasScale,
     transform: [
       { translateX: (basketX.value - (basketVisualWidth - basketWidth) / 2) * canvasScale },
-      { translateY: (basketY - 30) * canvasScale },
+      { translateY: (basketY - 34) * canvasScale },
     ],
   }));
 
@@ -280,8 +296,6 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
             <Animated.Image source={art.coin} resizeMode="contain" style={[styles.moving, coin2Style]} />
             <Animated.Image source={art.bonus} resizeMode="contain" style={[styles.moving, bonusStyle]} />
             <Animated.Image source={art.hazard} resizeMode="contain" style={[styles.moving, hazardStyle]} />
-            <Animated.View pointerEvents="none" style={[styles.basketShadow, basketStyle]} />
-            <Animated.Image source={art.basket} resizeMode="contain" style={[styles.moving, styles.basketSprite, basketStyle]} />
           </>
         ) : (
           <>
@@ -289,9 +303,12 @@ export function CoinCatcherGame({ session, onFinish }: GameComponentProps) {
             <Animated.View style={[styles.fallbackCoin, coin2Style]}><Text style={styles.fallbackGlyph}>$</Text></Animated.View>
             <Animated.View style={[styles.fallbackBonus, bonusStyle]}><Text style={styles.fallbackGlyph}>★</Text></Animated.View>
             <Animated.View style={[styles.fallbackHazard, hazardStyle]}><Text style={styles.fallbackGlyph}>!</Text></Animated.View>
-            <Animated.View style={[styles.fallbackBasket, basketStyle]} />
           </>
         )}
+
+        <Animated.View pointerEvents="none" style={[styles.basketObject, basketStyle]}>
+          <BasketObject />
+        </Animated.View>
 
         <Image source={art?.hero ?? ACTIVE_THEME.characters.primary} style={styles.hero} resizeMode="contain" />
         <View pointerEvents="none" style={styles.dragHint}><Text style={styles.dragHintText}>☝  Arrastra la canasta</Text></View>
@@ -310,21 +327,32 @@ const styles = StyleSheet.create({
   coinAura: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(255,220,67,0.26)', borderWidth: 2, borderColor: 'rgba(255,244,171,0.48)', transform: [{ scale: 1.12 }] },
   bonusAura: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(86,215,255,0.28)', borderWidth: 2, borderColor: 'rgba(218,248,255,0.64)', transform: [{ scale: 1.16 }] },
   hazardAura: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(255,86,65,0.22)', borderWidth: 2, borderColor: 'rgba(255,193,183,0.54)', transform: [{ scale: 1.12 }] },
-  basketShadow: { position: 'absolute', left: 0, top: 0, zIndex: 3, borderRadius: 999, backgroundColor: 'rgba(25,33,20,0.24)', transform: [{ translateY: 9 }, { scaleX: 0.72 }, { scaleY: 0.24 }] },
-  basketSprite: { zIndex: 6 },
-  hud: { position: 'absolute', zIndex: 8, top: 10, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 },
-  progressWrap: { position: 'absolute', zIndex: 7, top: 60, left: '30%', right: '30%' },
-  hero: { position: 'absolute', left: 26, bottom: 22, width: 118, height: 118, zIndex: 5 },
-  dragHint: { position: 'absolute', bottom: 10, alignSelf: 'center', minWidth: 180, minHeight: 34, borderRadius: radii.pill, backgroundColor: 'rgba(4,73,49,0.93)', borderWidth: 1, borderColor: '#85C77B', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, ...shadows.card },
-  dragHintText: { color: colors.white, fontSize: 9.5, fontWeight: '900' },
-  countdown: { position: 'absolute', alignSelf: 'center', top: '34%', width: 108, height: 108, borderRadius: 54, backgroundColor: 'rgba(255,253,243,0.96)', borderWidth: 3, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', ...shadows.card },
+  basketObject: { position: 'absolute', left: 0, top: 0, zIndex: 9 },
+  basketVisual: { flex: 1, width: '100%', height: '100%', alignItems: 'center', justifyContent: 'flex-end', position: 'relative' },
+  basketGroundShadow: { position: 'absolute', bottom: 0, width: '76%', height: '14%', borderRadius: 999, backgroundColor: 'rgba(25,33,20,0.30)' },
+  basketHandle: { position: 'absolute', top: '4%', width: '64%', height: '58%', borderTopLeftRadius: 60, borderTopRightRadius: 60, borderWidth: 5, borderBottomWidth: 0, borderColor: '#6F3D22', backgroundColor: 'transparent' },
+  basketRim: { position: 'absolute', top: '32%', width: '92%', height: '18%', borderRadius: 16, backgroundColor: '#D89142', borderWidth: 3, borderColor: '#66391F', overflow: 'hidden', zIndex: 3 },
+  basketRimHighlight: { position: 'absolute', left: 6, right: 6, top: 3, height: 4, borderRadius: 4, backgroundColor: 'rgba(255,225,164,0.65)' },
+  basketBody: { width: '82%', height: '52%', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, borderTopLeftRadius: 8, borderTopRightRadius: 8, backgroundColor: '#B96E32', borderWidth: 3, borderColor: '#60371F', overflow: 'hidden', zIndex: 2 },
+  weaveHorizontalOne: { position: 'absolute', left: 0, right: 0, top: '30%', height: 3, backgroundColor: 'rgba(91,49,26,0.55)' },
+  weaveHorizontalTwo: { position: 'absolute', left: 0, right: 0, top: '62%', height: 3, backgroundColor: 'rgba(91,49,26,0.55)' },
+  weaveVerticalOne: { position: 'absolute', top: 0, bottom: 0, left: '25%', width: 3, backgroundColor: 'rgba(239,171,92,0.48)' },
+  weaveVerticalTwo: { position: 'absolute', top: 0, bottom: 0, left: '50%', width: 3, backgroundColor: 'rgba(239,171,92,0.48)' },
+  weaveVerticalThree: { position: 'absolute', top: 0, bottom: 0, left: '75%', width: 3, backgroundColor: 'rgba(239,171,92,0.48)' },
+  basketLabel: { position: 'absolute', bottom: '18%', borderRadius: 8, backgroundColor: '#FFF2C6', borderWidth: 1, borderColor: '#6F3D22', paddingHorizontal: 8, paddingVertical: 2, zIndex: 4 },
+  basketLabelText: { color: '#5B351F', fontSize: 6.5, fontWeight: '900', letterSpacing: 0.7 },
+  hud: { position: 'absolute', zIndex: 12, top: 8, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center', gap: 6 },
+  progressWrap: { position: 'absolute', zIndex: 11, top: 56, left: '30%', right: '30%' },
+  hero: { position: 'absolute', left: 26, bottom: 14, width: 108, height: 108, zIndex: 5 },
+  dragHint: { position: 'absolute', bottom: 5, alignSelf: 'center', minWidth: 180, minHeight: 30, borderRadius: radii.pill, backgroundColor: 'rgba(4,73,49,0.93)', borderWidth: 1, borderColor: '#85C77B', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12, ...shadows.card, zIndex: 10 },
+  dragHintText: { color: colors.white, fontSize: 9, fontWeight: '900' },
+  countdown: { position: 'absolute', alignSelf: 'center', top: '34%', width: 108, height: 108, borderRadius: 54, backgroundColor: 'rgba(255,253,243,0.96)', borderWidth: 3, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', ...shadows.card, zIndex: 15 },
   countdownNumber: { color: colors.forestDark, fontSize: 44, lineHeight: 46, fontWeight: '900' },
   countdownText: { color: colors.orange, fontSize: 8, fontWeight: '900', letterSpacing: 1 },
-  comboBurst: { position: 'absolute', right: 42, top: 68, borderRadius: radii.pill, backgroundColor: '#FF8C45', borderWidth: 2, borderColor: '#FFD0AE', paddingHorizontal: 10, paddingVertical: 5, ...shadows.soft },
+  comboBurst: { position: 'absolute', right: 42, top: 62, borderRadius: radii.pill, backgroundColor: '#FF8C45', borderWidth: 2, borderColor: '#FFD0AE', paddingHorizontal: 10, paddingVertical: 5, ...shadows.soft, zIndex: 12 },
   comboBurstText: { color: colors.white, fontSize: 10.5, fontWeight: '900' },
   fallbackCoin: { position: 'absolute', left: 0, top: 0, zIndex: 4, borderRadius: 999, backgroundColor: '#FFD54F', borderWidth: 3, borderColor: '#FFF3A5', alignItems: 'center', justifyContent: 'center' },
   fallbackBonus: { position: 'absolute', left: 0, top: 0, zIndex: 4, borderRadius: 999, backgroundColor: '#4DBCE8', borderWidth: 3, borderColor: '#D8F6FF', alignItems: 'center', justifyContent: 'center' },
   fallbackHazard: { position: 'absolute', left: 0, top: 0, zIndex: 4, borderRadius: 999, backgroundColor: '#E85A45', borderWidth: 3, borderColor: '#FFD2C9', alignItems: 'center', justifyContent: 'center' },
-  fallbackBasket: { position: 'absolute', left: 0, top: 0, zIndex: 4, borderRadius: 18, backgroundColor: '#B66C37', borderWidth: 3, borderColor: '#F0B06B' },
   fallbackGlyph: { color: '#083E2C', fontWeight: '900', fontSize: 20 },
 });
