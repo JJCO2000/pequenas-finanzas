@@ -68,4 +68,4 @@ Después de CI, la última puerta sigue siendo visual en Android landscape.
 
 ## Estado de implementación
 
-Código v2 completo en rama aislada. Este commit existe únicamente para ejecutar la verificación final sobre el HEAD exacto antes de promover a Preview.
+Código v2 completo en rama aislada. TypeScript detectó dos usos de una propiedad de StyleSheet no soportada por los tipos de RN 0.86; ambos fueron reemplazados por posicionamiento absoluto explícito. Este commit vuelve a ejecutar la verificación completa sobre el HEAD corregido antes de promover a Preview.
