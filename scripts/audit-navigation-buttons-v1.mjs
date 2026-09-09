@@ -34,8 +34,26 @@ function routeFromFile(file) {
 const files = walk(srcRoot);
 const tsxFiles = files.filter((file) => file.endsWith('.tsx'));
 const appFiles = walk(appRoot).filter((file) => file.endsWith('.tsx'));
-const routes = [...new Set(appFiles.map(routeFromFile).filter(Boolean))].sort();
+const routeDefinitions = appFiles
+  .map((file) => ({ file, route: routeFromFile(file) }))
+  .filter((item) => item.route !== null);
+const routes = [...new Set(routeDefinitions.map((item) => item.route))].sort();
 const routeSet = new Set(routes);
+
+const routeFiles = new Map();
+for (const item of routeDefinitions) {
+  const list = routeFiles.get(item.route) ?? [];
+  list.push(rel(item.file));
+  routeFiles.set(item.route, list);
+}
+const duplicateRoutes = [...routeFiles.entries()]
+  .filter(([, definitions]) => definitions.length > 1)
+  .map(([route, definitions]) => ({ route, definitions }));
+assert.deepEqual(
+  duplicateRoutes,
+  [],
+  `Duplicate Expo URLs are forbidden unless deliberately modeled as shared routes:\n${duplicateRoutes.map((item) => `${item.route}: ${item.definitions.join(', ')}`).join('\n')}`,
+);
 
 function read(relativePath) {
   return fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -54,6 +72,7 @@ function validRoute(target) {
 }
 
 const literalTargets = [];
+const selfRedirects = [];
 for (const file of tsxFiles) {
   const source = fs.readFileSync(file, 'utf8');
   const patterns = [
@@ -67,10 +86,20 @@ for (const file of tsxFiles) {
       if (target?.startsWith('/') && !target.includes('${')) literalTargets.push({ file: rel(file), target });
     }
   }
+  if (file.startsWith(appRoot)) {
+    const ownRoute = routeFromFile(file);
+    if (ownRoute) {
+      for (const match of source.matchAll(/<Redirect\b[^>]*href=\{?\s*['"`]([^'"`]+)['"`]/g)) {
+        const target = match[1]?.split('?')[0].split('#')[0];
+        if (target === ownRoute) selfRedirects.push({ file: rel(file), route: ownRoute });
+      }
+    }
+  }
 }
 
 const invalidTargets = literalTargets.filter(({ target }) => !validRoute(target));
 assert.deepEqual(invalidTargets, [], `Navigation targets must resolve to real Expo routes:\n${invalidTargets.map((item) => `${item.file} -> ${item.target}`).join('\n')}`);
+assert.deepEqual(selfRedirects, [], `A route must never Redirect to its own URL:\n${selfRedirects.map((item) => `${item.file} -> ${item.route}`).join('\n')}`);
 
 const expectations = [
   ['start Arcade', 'src/app/start.tsx', /label="Arcade"[\s\S]{0,180}router\.push\('\/arcade'/],
@@ -94,7 +123,10 @@ const expectations = [
   ['wallet investment detail', 'src/app/wallet.tsx', /label="VER TODAS"[\s\S]{0,120}router\.push\('\/investments'/],
   ['shop unavailable CTA is disabled', 'src/app/shop.tsx', /disabled=\{selectedOwned \|\| !selectedCanBuy\}/],
   ['investment confirm is disabled', 'src/app/investments.tsx', /disabled=\{!canInvest\}/],
-  ['shared ActionPill supports disabled', 'src/features/shell/gameui/GameSurface.tsx', /export function ActionPill[\s\S]{0,900}disabled=\{disabled\}/],
+  ['shared ActionPill supports disabled', 'src/features/shell/gameui/GameSurface.tsx', /export function ActionPill[\s\S]{0,1200}disabled=\{disabled\}/],
+  ['onboarding cannot submit blank name', 'src/app/onboarding.tsx', /disabled=\{!canContinue\}/],
+  ['wallet save respects balance', 'src/app/wallet.tsx', /disabled=\{!canSaveTen\}/],
+  ['wallet withdrawal respects savings balance', 'src/app/wallet.tsx', /disabled=\{!canUnsaveTen\}/],
   ['basket label removed', 'src/features/games/coin-catcher/Game.native.tsx', /function BasketObject/],
   ['egg depth treatment', 'src/features/shell/world/WorldDecor.tsx', /eggRing[\s\S]*eggShine[\s\S]*eggStageSelected/],
 ];
@@ -144,4 +176,4 @@ assert.deepEqual(routes, baseline.routes, 'Route inventory changed. Review every
 assert.deepEqual(interactionByFile, baseline.interactionByFile, 'Button/tab interaction inventory changed. Review the changed controls and update the approved baseline only after they pass.');
 assert.equal(totalInteractions, baseline.totalInteractions, 'Interaction total changed without an approved audit baseline update.');
 
-console.log(`PASS audit-navigation-buttons-v1 strict: ${routes.length} routes and ${totalInteractions} approved interactions; route semantics and disabled-state guards passed.`);
+console.log(`PASS audit-navigation-buttons-v1 strict: ${routes.length} unique routes, 0 duplicate URLs, ${totalInteractions} approved interactions; route semantics, self-redirect and disabled-state guards passed.`);
