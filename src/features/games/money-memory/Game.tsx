@@ -2,13 +2,37 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Image, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { GameComponentProps } from '@/core/game-runtime';
-import { MONEY_MEMORY_CARDS } from '@/content/games/moneyMemory';
+import { MONEY_MEMORY_CARDS, type MoneyMemoryCard } from '@/content/games/moneyMemory';
 import { ACTIVE_THEME } from '@/core/theme';
 import { colors, radii, shadows } from '@/core/theme/tokens';
 import { FeedbackPill, GameProgress, HudChip } from '@/features/games/ui/GameChrome';
-import { MemoryObject } from '@/features/games/ui/GameObjects';
 
 const TOTAL_ROUNDS = 6;
+
+const MEMORY_VISUALS: Record<string, { glyph: string; caption: string; tone: string }> = {
+  'saving-concept': { glyph: '🐷', caption: 'GUARDAR', tone: '#FFF0C4' },
+  'saving-action': { glyph: '🎯', caption: 'META', tone: '#E2F4D7' },
+  'budget-concept': { glyph: '🧾', caption: 'CUENTAS', tone: '#E0F1FA' },
+  'budget-action': { glyph: '📋', caption: 'PLAN', tone: '#EFE6FF' },
+  'need-concept': { glyph: '💧', caption: 'ESENCIAL', tone: '#DCF4F8' },
+  'need-action': { glyph: '❤️', caption: 'IMPORTANTE', tone: '#FFE1DE' },
+  'invest-concept': { glyph: '🌱', caption: 'CRECER', tone: '#E0F3D6' },
+  'invest-action': { glyph: '📈', caption: 'FUTURO', tone: '#FFF0D7' },
+};
+
+function MemoryCardVisual({ item }: { item: MoneyMemoryCard }) {
+  const visual = MEMORY_VISUALS[item.id] ?? { glyph: '💰', caption: item.pairId.toUpperCase(), tone: '#FFF0C4' };
+  return (
+    <View style={styles.memoryObject}>
+      <View style={[styles.memoryIllustration, { backgroundColor: visual.tone }]}>
+        <View style={styles.memoryHighlight} />
+        <Text style={styles.memoryGlyph}>{visual.glyph}</Text>
+        <View style={styles.memoryCaptionBadge}><Text style={styles.memoryCaption}>{visual.caption}</Text></View>
+      </View>
+      <Text numberOfLines={2} style={styles.memoryLabel}>{item.label}</Text>
+    </View>
+  );
+}
 
 export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
   const [round, setRound] = useState(0);
@@ -90,7 +114,7 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
         setLastGood(null);
         setLastText('');
       }
-    }, 900);
+    }, 1050);
     return () => clearTimeout(timer);
   }, [phase, round]);
 
@@ -124,8 +148,8 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
       <View style={styles.top}>
         <View style={styles.prompt}>
           <Text style={styles.kicker}>MEMORIA INVERSA · RONDA {round + 1}/{TOTAL_ROUNDS}</Text>
-          <Text style={styles.title}>{phase === 'memorize' ? 'Memoriza lo que ves' : phase === 'choose' ? '¿Qué apareció que NO estaba?' : lastGood ? '¡Racha en marcha!' : 'Mira la diferencia'}</Text>
-          <Text style={styles.sub}>{phase === 'memorize' ? `Tienes ${(revealMs / 1000).toFixed(1)}s. Después aparecerá un elemento extra.` : 'No busques parejas: detecta el intruso nuevo.'}</Text>
+          <Text style={styles.title}>{phase === 'memorize' ? 'Memoriza dibujos + palabras' : phase === 'choose' ? '¿Qué tarjeta apareció que NO estaba?' : lastGood ? '¡Racha en marcha!' : 'Mira la diferencia'}</Text>
+          <Text style={styles.sub}>{phase === 'memorize' ? `Tienes ${(revealMs / 1000).toFixed(1)}s. Cada concepto tiene una imagen distinta.` : 'Recuerda color, dibujo y palabra: detecta el intruso nuevo.'}</Text>
         </View>
         <HudChip label="RACHA" value={`×${streak}`} tone={streak >= 3 ? 'gold' : 'dark'} />
         <HudChip label="MEJOR" value={bestStreak} />
@@ -140,15 +164,15 @@ export function MoneyMemoryGame({ session, onFinish }: GameComponentProps) {
             const isNew = phase === 'feedback' && item.id === puzzle.newcomer.id;
             return (
               <Pressable key={item.id} disabled={phase !== 'choose'} onPress={() => choose(item.id)} style={({ pressed }: { pressed: boolean }) => [styles.card, index % 3 === 1 && styles.cardAlt, isNew && styles.cardNew, pressed && phase === 'choose' && styles.pressed]}>
-                <MemoryObject pairId={item.pairId} label={item.label} size={46} />
+                <MemoryCardVisual item={item} />
                 {isNew ? <View style={styles.newBadge}><Text style={styles.newBadgeText}>NUEVO</Text></View> : null}
               </Pressable>
             );
           })}
         </Animated.View>
-        {phase === 'memorize' ? <View style={styles.memorizeBadge}><Text style={styles.memorizeText}>OBSERVA · NO TOQUES</Text></View> : null}
+        {phase === 'memorize' ? <View style={styles.memorizeBadge}><Text style={styles.memorizeText}>👀 OBSERVA · NO TOQUES</Text></View> : null}
       </View>
-      <View style={styles.feedback}>{phase === 'feedback' ? <FeedbackPill text={lastText} good={Boolean(lastGood)} /> : <Text style={styles.tip}>La dificultad sube: más elementos y menos tiempo.</Text>}</View>
+      <View style={styles.feedback}>{phase === 'feedback' ? <FeedbackPill text={lastText} good={Boolean(lastGood)} /> : <Text style={styles.tip}>La dificultad sube: más tarjetas y menos tiempo.</Text>}</View>
     </ImageBackground>
   );
 }
@@ -163,13 +187,20 @@ const styles = StyleSheet.create({
   stage: { flex: 1, minHeight: 0, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' },
   stageGlow: { position: 'absolute', width: 260, height: 260, borderRadius: 130, backgroundColor: colors.glassForest, opacity: 0.38 },
   hero: { position: 'absolute', left: 12, bottom: -2, width: 64, height: 64 },
-  grid: { width: '64%', maxWidth: 680, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 9 },
-  card: { width: '28%', minWidth: 92, maxWidth: 136, height: 82, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', gap: 5, padding: 8, ...shadows.card },
+  grid: { width: '72%', maxWidth: 760, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 9 },
+  card: { width: '28%', minWidth: 102, maxWidth: 142, height: 96, borderRadius: radii.xl, backgroundColor: colors.glassCream, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', padding: 5, ...shadows.card },
   cardAlt: { backgroundColor: colors.surfaceGreen },
   cardNew: { borderColor: colors.gold, backgroundColor: colors.surfaceGold },
-  newBadge: { position: 'absolute', right: 8, top: 8, borderRadius: radii.pill, backgroundColor: colors.orange, paddingHorizontal: 7, paddingVertical: 3 },
+  memoryObject: { alignItems: 'center', justifyContent: 'center', width: '100%' },
+  memoryIllustration: { width: 62, height: 54, borderRadius: 18, borderWidth: 2, borderColor: 'rgba(255,255,255,0.96)', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', ...shadows.soft },
+  memoryHighlight: { position: 'absolute', left: 5, top: 4, width: 28, height: 10, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.50)', transform: [{ rotate: '-14deg' }] },
+  memoryGlyph: { fontSize: 27, lineHeight: 31 },
+  memoryCaptionBadge: { position: 'absolute', bottom: 3, borderRadius: 7, backgroundColor: 'rgba(10,62,43,0.88)', paddingHorizontal: 5, paddingVertical: 1 },
+  memoryCaption: { color: colors.white, fontSize: 5, fontWeight: '900', letterSpacing: 0.55 },
+  memoryLabel: { color: colors.forestDark, fontSize: 8.5, lineHeight: 10, fontWeight: '900', textAlign: 'center', marginTop: 3, maxWidth: 118 },
+  newBadge: { position: 'absolute', right: 7, top: 7, borderRadius: radii.pill, backgroundColor: colors.orange, paddingHorizontal: 7, paddingVertical: 3 },
   newBadgeText: { color: colors.white, fontSize: 6, fontWeight: '900' },
-  memorizeBadge: { position: 'absolute', bottom: 14, borderRadius: radii.pill, backgroundColor: colors.gold, borderWidth: 2, borderColor: colors.goldSoft, paddingHorizontal: 14, paddingVertical: 6, ...shadows.soft },
+  memorizeBadge: { position: 'absolute', bottom: 8, borderRadius: radii.pill, backgroundColor: colors.gold, borderWidth: 2, borderColor: colors.goldSoft, paddingHorizontal: 14, paddingVertical: 6, ...shadows.soft },
   memorizeText: { color: colors.forestDark, fontSize: 8.5, fontWeight: '900', letterSpacing: 0.5 },
   feedback: { height: 28, alignItems: 'center', justifyContent: 'center' },
   tip: { color: colors.forestDark, fontSize: 8, fontWeight: '800', backgroundColor: colors.glassCream, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
