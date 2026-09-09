@@ -20,9 +20,12 @@ const FALLBACK_GLYPHS: Record<string, string> = {
   bandage: '🩹', flashlight: '🔦', candy2: '🍬', eraser: '✏️', soda: '🥤',
 };
 
+type MarketFilter = 'all' | MarketCategory;
+
 export function DinoMarketGame({ session, onFinish }: GameComponentProps) {
   const [missionIndex, setMissionIndex] = useState(0);
   const [cart, setCart] = useState<string[]>([]);
+  const [filter, setFilter] = useState<MarketFilter>('all');
   const [feedback, setFeedback] = useState<{ text: string; good: boolean } | null>(null);
   const [mistakes, setMistakes] = useState(0);
   const [roundScores, setRoundScores] = useState<number[]>([]);
@@ -33,6 +36,7 @@ export function DinoMarketGame({ session, onFinish }: GameComponentProps) {
   const haptics = session.modifiers.hapticsEnabled !== false;
 
   const selectedItems = useMemo(() => mission ? mission.items.filter((item) => cart.includes(item.id)) : [], [cart, mission]);
+  const displayedItems = useMemo(() => mission ? mission.items.filter((item) => filter === 'all' || item.category === filter) : [], [filter, mission]);
   const spend = selectedItems.reduce((sum, item) => sum + item.price, 0);
   const remaining = Math.max(0, (mission?.budget ?? 0) - spend);
   const covered = new Set(selectedItems.map((item) => item.category));
@@ -50,6 +54,11 @@ export function DinoMarketGame({ session, onFinish }: GameComponentProps) {
   const toggle = (item: MarketItem) => {
     setFeedback(null);
     setCart((previous) => previous.includes(item.id) ? previous.filter((id) => id !== item.id) : [...previous, item.id]);
+    if (haptics) void Haptics.selectionAsync();
+  };
+
+  const changeFilter = (next: MarketFilter) => {
+    setFilter(next);
     if (haptics) void Haptics.selectionAsync();
   };
 
@@ -78,6 +87,7 @@ export function DinoMarketGame({ session, onFinish }: GameComponentProps) {
       else {
         setMissionIndex((value) => value + 1);
         setCart([]);
+        setFilter('all');
         setFeedback(null);
         scan.setValue(0);
       }
@@ -115,15 +125,15 @@ export function DinoMarketGame({ session, onFinish }: GameComponentProps) {
         <View style={styles.aisles}>
           <View style={styles.storeSign}><Text style={styles.storeSignText}>MERCADO DINO · CUMPLE TU LISTA SIN PASARTE DEL LÍMITE</Text></View>
           <View style={styles.tabs}>
-            <View style={[styles.tab, styles.tabActive]}><Text style={styles.tabTextActive}>Todos</Text></View>
+            <Pressable onPress={() => changeFilter('all')} style={[styles.tab, filter === 'all' && styles.tabActive]}><Text style={filter === 'all' ? styles.tabTextActive : styles.tabText}>Todos</Text></Pressable>
             {mission.requiredCategories.map((category) => (
-              <View key={category} style={styles.tab}><Text style={styles.tabText}>{CATEGORY[category].label}</Text></View>
+              <Pressable key={category} onPress={() => changeFilter(category)} style={[styles.tab, filter === category && styles.tabActive]}><Text style={filter === category ? styles.tabTextActive : styles.tabText}>{CATEGORY[category].label}</Text></Pressable>
             ))}
           </View>
           <View style={styles.shelves}>
             <View pointerEvents="none" style={[styles.shelfRail, styles.shelfRailTop]} />
             <View pointerEvents="none" style={[styles.shelfRail, styles.shelfRailBottom]} />
-            {mission.items.map((item) => {
+            {displayedItems.map((item) => {
               const selected = cart.includes(item.id);
               const itemArt = getMarketArt(item.id);
               const required = mission.requiredCategories.includes(item.category);
@@ -133,7 +143,7 @@ export function DinoMarketGame({ session, onFinish }: GameComponentProps) {
                     {itemArt ? <Image source={itemArt} resizeMode="contain" style={styles.itemImage} /> : <Text style={styles.itemEmoji}>{getMarketFallbackGlyph(item)}</Text>}
                   </View>
                   <Text numberOfLines={1} style={styles.itemLabel}>{item.label}</Text>
-                  <Text style={styles.itemCategory}>{CATEGORY[item.category].label}{required ? ' · EN TU LISTA' : ' · OPCIONAL'}</Text>
+                  <Text numberOfLines={1} style={styles.itemCategory}>{CATEGORY[item.category].label}{required ? ' · EN TU LISTA' : ' · OPCIONAL'}</Text>
                   <View style={styles.price}><Text style={styles.priceText}>${item.price}</Text></View>
                   {selected ? <View style={styles.inCart}><Text style={styles.inCartText}>✓ CARRITO</Text></View> : null}
                 </Pressable>
@@ -188,7 +198,7 @@ function getMarketFallbackGlyph(item: MarketItem) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', padding: 8, gap: 6 },
-  top: { minHeight: 46, flexDirection: 'row', alignItems: 'center', gap: 9 },
+  top: { minHeight: 46, flexDirection: 'row', alignItems: 'center', gap: 9, paddingLeft: 100, paddingRight: 48 },
   missionCard: { flex: 1, minWidth: 0, borderRadius: radii.xl, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, paddingHorizontal: 9, paddingVertical: 5, ...shadows.soft },
   kicker: { color: colors.gold, fontSize: 7, fontWeight: '900', letterSpacing: 0.9 },
   missionTitle: { color: colors.white, fontSize: 10.5, lineHeight: 12, fontWeight: '900' },
@@ -200,30 +210,30 @@ const styles = StyleSheet.create({
   requirementIcon: { color: colors.gold, fontSize: 8, fontWeight: '900' },
   requirementText: { color: colors.white, fontSize: 7, fontWeight: '900' },
   market: { flex: 1, minHeight: 0, flexDirection: 'row', gap: 8 },
-  aisles: { flex: 1, minWidth: 0, borderRadius: radii.lg, backgroundColor: 'rgba(255,253,243,0.90)', borderWidth: 2, borderColor: colors.white, padding: 6, ...shadows.card },
+  aisles: { flex: 1, minWidth: 0, borderRadius: radii.lg, backgroundColor: 'rgba(255,253,243,0.90)', borderWidth: 2, borderColor: colors.white, padding: 6, overflow: 'hidden', ...shadows.card },
   storeSign: { position: 'absolute', left: 8, right: 8, top: 5, height: 17, borderRadius: 8, backgroundColor: 'rgba(23,78,50,0.92)', alignItems: 'center', justifyContent: 'center', zIndex: 2 },
   storeSignText: { color: colors.gold, fontSize: 6.5, fontWeight: '900', letterSpacing: 0.55 },
-  tabs: { height: 26, flexDirection: 'row', gap: 6, alignItems: 'center', marginTop: 18, marginBottom: 5 },
-  tab: { minWidth: 68, height: 25, borderRadius: radii.pill, backgroundColor: colors.surfaceGreen, borderWidth: 1, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 9 },
+  tabs: { height: 25, flexDirection: 'row', gap: 5, alignItems: 'center', marginTop: 18, marginBottom: 4 },
+  tab: { minWidth: 62, height: 24, borderRadius: radii.pill, backgroundColor: colors.surfaceGreen, borderWidth: 1, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
   tabActive: { backgroundColor: colors.gold, borderColor: colors.goldSoft },
-  tabText: { color: colors.forestDark, fontSize: 8, fontWeight: '900' },
-  tabTextActive: { color: colors.forestDark, fontSize: 8.5, fontWeight: '900' },
-  shelves: { flex: 1, minHeight: 0, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignContent: 'space-between', rowGap: 10, position: 'relative', paddingVertical: 2 },
-  shelfRail: { position: 'absolute', left: 0, right: 0, height: 11, borderRadius: 5, backgroundColor: '#8B5A37', borderWidth: 2, borderColor: '#5E3925', zIndex: 0, ...shadows.soft },
-  shelfRailTop: { top: '45%' },
+  tabText: { color: colors.forestDark, fontSize: 7.5, fontWeight: '900' },
+  tabTextActive: { color: colors.forestDark, fontSize: 8, fontWeight: '900' },
+  shelves: { flex: 1, minHeight: 0, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignContent: 'space-between', columnGap: 7, rowGap: 7, position: 'relative', paddingVertical: 2 },
+  shelfRail: { position: 'absolute', left: 0, right: 0, height: 10, borderRadius: 5, backgroundColor: '#8B5A37', borderWidth: 2, borderColor: '#5E3925', zIndex: 0, ...shadows.soft },
+  shelfRailTop: { top: '47%' },
   shelfRailBottom: { bottom: -2 },
-  item: { width: '24%', height: '44%', minHeight: 78, borderRadius: radii.lg, backgroundColor: 'rgba(255,251,237,0.98)', borderWidth: 2, borderColor: '#E8D8B6', alignItems: 'center', justifyContent: 'center', padding: 6, position: 'relative', zIndex: 1, ...shadows.soft },
+  item: { width: '32%', height: '46%', minHeight: 70, borderRadius: radii.lg, backgroundColor: 'rgba(255,251,237,0.98)', borderWidth: 2, borderColor: '#E8D8B6', alignItems: 'center', justifyContent: 'center', padding: 5, position: 'relative', zIndex: 1, ...shadows.soft },
   itemRelevant: { borderColor: '#B9DDAE' },
   itemSelected: { backgroundColor: colors.surfaceGreen, borderColor: colors.gold, transform: [{ translateY: -2 }] },
-  itemImage: { width: 52, height: 34 },
-  itemIcon: { width: 58, height: 46, borderRadius: 16, backgroundColor: '#EDF6EA', borderWidth: 1, borderColor: '#D7E7D0', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  itemEmoji: { fontSize: 25, lineHeight: 30 },
-  itemLabel: { color: colors.forestDark, fontSize: 8.5, lineHeight: 10, fontWeight: '900', marginTop: 3 },
-  itemCategory: { color: colors.inkMuted, fontSize: 5.9, fontWeight: '900', textAlign: 'center' },
-  price: { position: 'absolute', top: 6, right: 6, borderRadius: 8, backgroundColor: colors.orange, borderWidth: 1, borderColor: '#FFD6BE', paddingHorizontal: 7, paddingVertical: 3, transform: [{ rotate: '2deg' }] },
-  priceText: { color: colors.white, fontSize: 9, fontWeight: '900' },
-  inCart: { position: 'absolute', left: 7, bottom: 7, borderRadius: radii.pill, backgroundColor: colors.forest, paddingHorizontal: 7, paddingVertical: 3 },
-  inCartText: { color: colors.white, fontSize: 6, fontWeight: '900' },
+  itemImage: { width: 46, height: 31 },
+  itemIcon: { width: 52, height: 40, borderRadius: 14, backgroundColor: '#EDF6EA', borderWidth: 1, borderColor: '#D7E7D0', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  itemEmoji: { fontSize: 23, lineHeight: 27 },
+  itemLabel: { color: colors.forestDark, fontSize: 8.2, lineHeight: 9.5, fontWeight: '900', marginTop: 2 },
+  itemCategory: { color: colors.inkMuted, fontSize: 5.7, lineHeight: 7, fontWeight: '900', textAlign: 'center', maxWidth: '94%' },
+  price: { position: 'absolute', top: 5, right: 5, borderRadius: 8, backgroundColor: colors.orange, borderWidth: 1, borderColor: '#FFD6BE', paddingHorizontal: 6, paddingVertical: 2 },
+  priceText: { color: colors.white, fontSize: 8.5, fontWeight: '900' },
+  inCart: { position: 'absolute', left: 6, bottom: 5, borderRadius: radii.pill, backgroundColor: colors.forest, paddingHorizontal: 6, paddingVertical: 2 },
+  inCartText: { color: colors.white, fontSize: 5.8, fontWeight: '900' },
   cartPanel: { width: '20%', minWidth: 172, maxWidth: 224, borderRadius: radii.xl, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, padding: 9, overflow: 'hidden', ...shadows.card },
   checkoutScan: { position: 'absolute', top: 0, bottom: 0, width: 22, backgroundColor: 'rgba(99,244,200,0.36)', borderLeftWidth: 1, borderRightWidth: 1, borderColor: 'rgba(217,255,239,0.72)', zIndex: 8 },
   cartHead: { minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: 9 },
@@ -234,20 +244,20 @@ const styles = StyleSheet.create({
   cartCheck: { color: colors.cream, fontSize: 6.5, fontWeight: '900' },
   cartCheckDone: { color: '#9BE18A' },
   cartList: { flex: 1, minHeight: 0 },
-  cartContent: { gap: 6, paddingVertical: 6 },
-  cartRow: { minHeight: 30, borderRadius: radii.md, backgroundColor: colors.glassCream, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 9, gap: 5 },
-  cartRowLabel: { flex: 1, color: colors.forestDark, fontSize: 8.5, fontWeight: '900' },
-  cartRowPrice: { color: colors.orange, fontSize: 8.5, fontWeight: '900' },
+  cartContent: { gap: 5, paddingVertical: 5 },
+  cartRow: { minHeight: 28, borderRadius: radii.md, backgroundColor: colors.glassCream, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, gap: 5 },
+  cartRowLabel: { flex: 1, color: colors.forestDark, fontSize: 8.2, fontWeight: '900' },
+  cartRowPrice: { color: colors.orange, fontSize: 8.2, fontWeight: '900' },
   remove: { color: colors.danger, fontSize: 13, fontWeight: '900' },
-  emptyCart: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 6 },
-  cartHero: { width: 54, height: 48 },
-  cartEmptyTitle: { color: colors.white, fontSize: 9.5, lineHeight: 11, fontWeight: '900', textAlign: 'center' },
-  cartEmpty: { color: colors.cream, fontSize: 7.5, lineHeight: 10, fontWeight: '700', textAlign: 'center', marginTop: 3 },
-  totalRow: { height: 32, borderTopWidth: 1, borderTopColor: colors.glassWhite, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  emptyCart: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 5 },
+  cartHero: { width: 48, height: 42 },
+  cartEmptyTitle: { color: colors.white, fontSize: 9, lineHeight: 10.5, fontWeight: '900', textAlign: 'center' },
+  cartEmpty: { color: colors.cream, fontSize: 7.2, lineHeight: 9, fontWeight: '700', textAlign: 'center', marginTop: 2 },
+  totalRow: { height: 30, borderTopWidth: 1, borderTopColor: colors.glassWhite, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   totalLabel: { color: colors.cream, fontSize: 8.5, fontWeight: '900' },
   totalValue: { color: colors.gold, fontSize: 13, fontWeight: '900' },
   totalDanger: { color: colors.danger },
-  limit: { color: colors.cream, fontSize: 7.5, textAlign: 'right', marginBottom: 5 },
-  feedback: { height: 24, alignItems: 'center', justifyContent: 'center' },
+  limit: { color: colors.cream, fontSize: 7.2, textAlign: 'right', marginBottom: 4 },
+  feedback: { height: 22, alignItems: 'center', justifyContent: 'center' },
   pressed: { transform: [{ scale: 0.97 }] },
 });
