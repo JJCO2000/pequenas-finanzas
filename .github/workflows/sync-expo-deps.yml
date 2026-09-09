@@ -1,5 +1,6 @@
 name: Sync Expo Dependencies
 
+# One-time guarded workflow used to align SDK patch versions safely.
 on:
   push:
     branches:
