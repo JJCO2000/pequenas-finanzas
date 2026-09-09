@@ -214,7 +214,7 @@ function FloatingBalloon({ item, index, popped, onPress }: { item: BalloonBudget
 
 const styles = StyleSheet.create({
   root: { flex: 1, width: '100%', padding: 10, gap: 6 },
-  top: { height: 42, flexDirection: 'row', gap: 9, alignItems: 'center' },
+  top: { height: 42, flexDirection: 'row', gap: 9, alignItems: 'center', paddingLeft: 100, paddingRight: 48 },
   targetBox: { flex: 1, minWidth: 0, borderRadius: radii.lg, backgroundColor: 'rgba(5,75,51,0.90)', borderWidth: 1, borderColor: colors.leafSoft, paddingHorizontal: 12, paddingVertical: 6, ...shadows.soft },
   round: { color: colors.gold, fontSize: 8, fontWeight: '900', letterSpacing: 0.9 },
   target: { color: colors.white, fontSize: 12, lineHeight: 14, fontWeight: '900' },
