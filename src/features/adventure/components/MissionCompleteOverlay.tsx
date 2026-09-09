@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Image, Modal, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { ACTIVE_THEME } from '@/core/theme';
-import { colors, radii, shadows, spacing } from '@/core/theme/tokens';
+import { colors, radii, shadows } from '@/core/theme/tokens';
 
 type Props = {
   visible: boolean;
@@ -36,9 +36,11 @@ export function MissionCompleteOverlay({
   const scale = useRef(new Animated.Value(0.88)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   const particles = useMemo(() => Array.from({ length: 12 }, (_, index) => index), []);
+  const [actionLocked, setActionLocked] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
+    setActionLocked(false);
     scale.setValue(0.88);
     opacity.setValue(0);
     Animated.parallel([
@@ -48,9 +50,15 @@ export function MissionCompleteOverlay({
     if (hapticsEnabled) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }, [hapticsEnabled, opacity, scale, visible]);
 
+  const runAction = (action: () => void) => {
+    if (actionLocked) return;
+    setActionLocked(true);
+    action();
+  };
+
   return (
     <Modal visible={visible} transparent animationType="fade" statusBarTranslucent>
-      <View style={styles.shade}>
+      <View style={styles.shade} accessibilityViewIsModal>
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>
           {particles.map((index) => (
             <View
@@ -84,11 +92,11 @@ export function MissionCompleteOverlay({
               {scoreText ? <ResultPill label="PUNTAJE" value={scoreText} /> : null}
               {rewardText ? <ResultPill label="RECOMPENSA" value={rewardText} /> : null}
             </View>
-            <Pressable onPress={onPrimary} style={({ pressed }) => [styles.primary, pressed && styles.pressed]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} accessibilityState={{ disabled: actionLocked }} disabled={actionLocked} onPress={() => runAction(onPrimary)} style={({ pressed }) => [styles.primary, actionLocked && styles.disabled, pressed && !actionLocked && styles.pressed]}>
               <Text style={styles.primaryText}>{primaryLabel}</Text>
             </Pressable>
             {secondaryLabel && onSecondary ? (
-              <Pressable onPress={onSecondary} style={({ pressed }) => [styles.secondary, pressed && styles.pressed]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={secondaryLabel} accessibilityState={{ disabled: actionLocked }} disabled={actionLocked} onPress={() => runAction(onSecondary)} style={({ pressed }) => [styles.secondary, actionLocked && styles.disabled, pressed && !actionLocked && styles.pressed]}>
                 <Text style={styles.secondaryText}>{secondaryLabel}</Text>
               </Pressable>
             ) : null}
@@ -132,5 +140,6 @@ const styles = StyleSheet.create({
   particleGold: { backgroundColor: colors.gold },
   particleLeaf: { backgroundColor: colors.leaf },
   particleOrange: { backgroundColor: colors.orange },
+  disabled: { opacity: 0.45 },
   pressed: { transform: [{ scale: 0.98 }] },
 });
