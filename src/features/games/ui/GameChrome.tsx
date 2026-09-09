@@ -13,20 +13,20 @@ export function HudChip({ label, value, tone = 'dark' }: { label: string; value:
 
 export function GameProgress({ value }: { value: number }) {
   const pct = Math.max(0, Math.min(1, value));
-  return <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${pct * 100}%` }]} /></View>;
+  return <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: Math.round(pct * 100) }} style={styles.progressTrack}><View style={[styles.progressFill, { width: `${pct * 100}%` }]} /></View>;
 }
 
-export function PrimaryGameButton({ label, onPress, disabled, style }: { label: string; onPress: () => void; disabled?: boolean; style?: StyleProp<ViewStyle> }) {
+export function PrimaryGameButton({ label, onPress, disabled = false, style }: { label: string; onPress: () => void; disabled?: boolean; style?: StyleProp<ViewStyle> }) {
   return (
-    <Pressable disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.primary, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.primary, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
       <Text style={styles.primaryText}>{label}</Text>
     </Pressable>
   );
 }
 
-export function SecondaryGameButton({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
+export function SecondaryGameButton({ label, onPress, disabled = false }: { label: string; onPress: () => void; disabled?: boolean }) {
   return (
-    <Pressable disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.secondary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.secondary, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
       <Text style={styles.secondaryText}>{label}</Text>
     </Pressable>
   );
@@ -34,7 +34,7 @@ export function SecondaryGameButton({ label, onPress, disabled }: { label: strin
 
 export function FeedbackPill({ text, good }: { text: string; good?: boolean }) {
   return (
-    <View pointerEvents="none" style={[styles.feedback, good === true && styles.feedbackGood, good === false && styles.feedbackBad]}>
+    <View pointerEvents="none" accessibilityLiveRegion="polite" style={[styles.feedback, good === true && styles.feedbackGood, good === false && styles.feedbackBad]}>
       <Text numberOfLines={2} style={styles.feedbackText}>{text}</Text>
     </View>
   );
