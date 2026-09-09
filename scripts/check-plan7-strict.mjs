@@ -25,7 +25,7 @@ expect(!/<(?:Animated\.)?Image\b[^>]*\bpointerEvents=/.test(joined), 'RN 0.86: p
 expect(files.coin.includes('useSharedValue<number>(178)'), 'Coin Catcher shared speed is explicitly number-typed.');
 expect(files.treasure.includes('TREASURE_SPLIT_ROUNDS[roundIndex] ?? TREASURE_SPLIT_ROUNDS[0]!'), 'Treasure Split guards strict indexed round access.');
 expect(files.escape.includes('const activeClue = active === null ? null : (FOSSIL_ESCAPE_CLUES[active] ?? null)') && files.escape.includes('const activeSpot = active === null ? null : (HOTSPOTS[active] ?? null)') && files.escape.includes('if (!clue) return;'), 'Fossil Escape guards active clue/hotspot indexes.');
-expect(files.king.includes('const outcome = SPACES[active];') && files.king.includes('if (!outcome) return;'), 'King Greedy guards selected outcome index.');
+expect(files.king.includes('const outcome = SPACES[index];') && files.king.includes('if (!outcome) return;') && files.king.includes('SPACES[active]?.label'), 'King Greedy guards computed and displayed roulette outcome indexes.');
 expect(files.balloon.includes('if (!round)') && files.market.includes('if (!mission) return null;'), 'Balloon and Market guard dynamic round/mission indexes.');
 expect(files.memory.includes('const newcomer = pool[newcomerIndex]!') && files.memory.includes('MONEY_MEMORY_CARDS'), 'Money Memory marks deterministic non-empty pool accesses explicitly.');
 expect(files.route.includes('onFinish={(nextResult: GameResult)'), 'Game route has an explicit GameResult callback boundary.');
