@@ -149,7 +149,9 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
 function FloatingBalloon({ item, index, popped, onPress }: { item: BalloonBudgetItem; index: number; popped: boolean; onPress: () => void }) {
   const bob = useRef(new Animated.Value(0)).current;
   const sway = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(1)).current;
+  const balloonScale = useRef(new Animated.Value(1)).current;
+  const burst = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     const a = Animated.loop(Animated.sequence([
       Animated.timing(bob, { toValue: -13 - (index % 3) * 3, duration: 850 + index * 70, useNativeDriver: true }),
@@ -162,21 +164,50 @@ function FloatingBalloon({ item, index, popped, onPress }: { item: BalloonBudget
     a.start(); b.start();
     return () => { a.stop(); b.stop(); };
   }, [bob, index, sway]);
+
   useEffect(() => {
-    if (popped) Animated.sequence([
-      Animated.spring(scale, { toValue: 1.24, useNativeDriver: true }),
-      Animated.timing(scale, { toValue: 0, duration: 150, useNativeDriver: true }),
-    ]).start();
-    else scale.setValue(1);
-  }, [popped, scale]);
+    if (popped) {
+      burst.setValue(0);
+      Animated.parallel([
+        Animated.sequence([
+          Animated.spring(balloonScale, { toValue: 1.22, useNativeDriver: true }),
+          Animated.timing(balloonScale, { toValue: 0, duration: 135, useNativeDriver: true }),
+        ]),
+        Animated.timing(burst, { toValue: 1, duration: 330, useNativeDriver: true }),
+      ]).start();
+    } else {
+      balloonScale.setValue(1);
+      burst.setValue(0);
+    }
+  }, [balloonScale, burst, popped]);
+
   const row = Math.floor(index / 3);
   const col = index % 3;
   const tone = (['orange', 'gold', 'aqua', 'green', 'purple'] as const)[index % 5] ?? 'orange';
   return (
-    <Animated.View style={[styles.balloonWrap, { left: `${23 + col * 22}%`, top: row === 0 ? '5%' : '46%', transform: [{ translateX: sway }, { translateY: bob }, { scale }] }]}>
-      <Pressable disabled={popped} onPress={onPress} style={({ pressed }: { pressed: boolean }) => [pressed && styles.pressed]}>
-        <BalloonObject label={item.label} tone={tone} />
-      </Pressable>
+    <Animated.View style={[styles.balloonWrap, { left: `${22 + col * 23}%`, top: row === 0 ? '3%' : '47%', transform: [{ translateX: sway }, { translateY: bob }] }]}>
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          styles.popBurst,
+          {
+            opacity: burst.interpolate({ inputRange: [0, 0.18, 1], outputRange: [0, 1, 0] }),
+            transform: [{ scale: burst.interpolate({ inputRange: [0, 1], outputRange: [0.25, 1.7] }) }],
+          },
+        ]}
+      >
+        <View style={[styles.popParticle, styles.p1]} />
+        <View style={[styles.popParticle, styles.p2]} />
+        <View style={[styles.popParticle, styles.p3]} />
+        <View style={[styles.popParticle, styles.p4]} />
+        <View style={[styles.popParticle, styles.p5]} />
+        <View style={[styles.popParticle, styles.p6]} />
+      </Animated.View>
+      <Animated.View style={{ transform: [{ scale: balloonScale }] }}>
+        <Pressable disabled={popped} onPress={onPress} style={({ pressed }: { pressed: boolean }) => [pressed && styles.pressed]}>
+          <BalloonObject label={item.label} tone={tone} />
+        </Pressable>
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -190,9 +221,12 @@ const styles = StyleSheet.create({
   instruction: { color: colors.cream, fontSize: 8, lineHeight: 10, fontWeight: '700', marginTop: 1 },
   sky: { flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' },
   hero: { position: 'absolute', left: 14, bottom: 4, width: 70, height: 70 },
-  balloonWrap: { position: 'absolute', width: 84, height: 122 },
-  ground: { position: 'absolute', bottom: 5, alignSelf: 'center', left: '39%', right: '39%', minHeight: 24, borderRadius: radii.pill, backgroundColor: colors.glassDark, borderWidth: 1, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center' },
-  groundText: { color: colors.white, fontSize: 8.5, fontWeight: '900' },
+  balloonWrap: { position: 'absolute', width: 88, height: 128, alignItems: 'center', justifyContent: 'center' },
+  popBurst: { position: 'absolute', width: 72, height: 72, left: 8, top: 15, zIndex: 5 },
+  popParticle: { position: 'absolute', width: 9, height: 9, borderRadius: 5, backgroundColor: colors.gold, borderWidth: 1, borderColor: colors.white },
+  p1: { left: 3, top: 29 }, p2: { right: 3, top: 29 }, p3: { left: 30, top: 2 }, p4: { left: 30, bottom: 2 }, p5: { left: 10, top: 9 }, p6: { right: 9, bottom: 10 },
+  ground: { position: 'absolute', bottom: 5, alignSelf: 'center', left: '36%', right: '36%', minHeight: 24, borderRadius: radii.pill, backgroundColor: colors.glassDark, borderWidth: 1, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
+  groundText: { color: colors.white, fontSize: 8.5, fontWeight: '900', textAlign: 'center' },
   feedbackRow: { minHeight: 26, alignItems: 'center', justifyContent: 'center' },
   tip: { color: colors.forestDark, fontSize: 8, fontWeight: '800', backgroundColor: colors.glassCream, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
   pressed: { transform: [{ scale: 0.95 }] },
