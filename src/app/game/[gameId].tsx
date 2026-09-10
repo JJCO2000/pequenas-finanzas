@@ -110,7 +110,7 @@ export default function GameRoute() {
       router.replace({ pathname: '/play', params: { completed: String(campaignDay) } } as any);
       return;
     }
-    router.replace(returnPath as any);
+    router.replace({ pathname: '/arcade', params: { from: 'game-result' } } as any);
   };
 
   const resultSubtitle = reward?.maturedCount
