@@ -205,6 +205,11 @@ function RisingBalloon({ item, icon, lane, duration, resolved, onPress, onEscape
   const scale = useRef(new Animated.Value(1)).current;
   const burst = useRef(new Animated.Value(0)).current;
   const escapedRef = useRef(false);
+  const onEscapeRef = useRef(onEscape);
+
+  useEffect(() => {
+    onEscapeRef.current = onEscape;
+  }, [onEscape]);
 
   useEffect(() => {
     escapedRef.current = false;
@@ -220,11 +225,11 @@ function RisingBalloon({ item, icon, lane, duration, resolved, onPress, onEscape
     rise.start(({ finished }) => {
       if (finished && !escapedRef.current) {
         escapedRef.current = true;
-        onEscape();
+        onEscapeRef.current();
       }
     });
     return () => { rise.stop(); swayLoop.stop(); };
-  }, [burst, duration, item.id, onEscape, scale, sway, travel]);
+  }, [burst, duration, item.id, scale, sway, travel]);
 
   useEffect(() => {
     if (!resolved) return;
