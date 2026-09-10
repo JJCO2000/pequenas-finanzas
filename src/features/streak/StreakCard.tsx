@@ -58,73 +58,73 @@ export function StreakCard({
     return 'Completa el reto de hoy.';
   }, [minutesLeft, snapshot.completedToday, snapshot.currentStreak, urgency]);
 
-  if (compact) {
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Racha de hoy. ${urgencyText} Reto: ${challengeTitle}`}
-        onPress={onPress}
-        style={({ pressed }) => [styles.compactCard, safe && styles.cardSafe, danger && styles.cardDanger, pressed && styles.pressed]}
-      >
-        <View style={[styles.compactFlame, safe && styles.flameSafe, danger && styles.flameDanger]}>
-          <Text style={styles.compactFlameGlyph}>{safe ? '✓' : '●'}</Text>
-        </View>
-        <View style={styles.compactCopy}>
-          <View style={styles.compactTop}>
-            <Text style={styles.compactEyebrow}>RACHA</Text>
-            <Text style={[styles.compactDays, danger && styles.statusDanger]}>{snapshot.currentStreak}d</Text>
-          </View>
-          <Text numberOfLines={1} style={styles.compactChallenge}>{safe ? 'A salvo hoy' : challengeTitle}</Text>
-        </View>
-        <View style={[styles.compactCta, safe && styles.ctaSafe, danger && styles.ctaDanger]}>
-          <Text style={styles.compactCtaText}>{safe ? 'LISTO' : 'JUGAR'}</Text>
-        </View>
-      </Pressable>
-    );
-  }
-
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Racha de hoy. ${urgencyText} Reto: ${challengeTitle}`}
       onPress={onPress}
-      style={({ pressed }) => [styles.card, safe && styles.cardSafe, danger && styles.cardDanger, pressed && styles.pressed]}
+      style={({ pressed }) => [
+        compact ? styles.compactCard : styles.card,
+        safe && styles.cardSafe,
+        danger && styles.cardDanger,
+        pressed && styles.pressed,
+      ]}
     >
-      <View style={styles.flameWell}>
-        <Animated.View
-          style={[
-            styles.flame,
-            safe && styles.flameSafe,
-            danger && styles.flameDanger,
-            {
-              transform: [
-                { scale: flamePulse.interpolate({ inputRange: [0, 1], outputRange: [0.98, danger ? 1.13 : 1.07] }) },
-                { rotate: flamePulse.interpolate({ inputRange: [0, 1], outputRange: ['-2deg', '2deg'] }) },
-              ],
-            },
-          ]}
-        >
-          <View style={styles.flameInner} />
-        </Animated.View>
-        <View style={styles.dayBubble}><Text style={styles.dayBubbleText}>{snapshot.currentStreak}</Text></View>
-      </View>
+      {compact ? (
+        <>
+          <View style={[styles.compactFlame, safe && styles.flameSafe, danger && styles.flameDanger]}>
+            <Text style={styles.compactFlameGlyph}>{safe ? '✓' : '●'}</Text>
+          </View>
+          <View style={styles.compactCopy}>
+            <View style={styles.compactTop}>
+              <Text style={styles.compactEyebrow}>RACHA</Text>
+              <Text style={[styles.compactDays, danger && styles.statusDanger]}>{snapshot.currentStreak}d</Text>
+            </View>
+            <Text numberOfLines={1} style={styles.compactChallenge}>{safe ? 'A salvo hoy' : challengeTitle}</Text>
+          </View>
+          <View style={[styles.compactCta, safe && styles.ctaSafe, danger && styles.ctaDanger]}>
+            <Text style={styles.compactCtaText}>{safe ? 'LISTO' : 'JUGAR'}</Text>
+          </View>
+        </>
+      ) : (
+        <>
+          <View style={styles.flameWell}>
+            <Animated.View
+              style={[
+                styles.flame,
+                safe && styles.flameSafe,
+                danger && styles.flameDanger,
+                {
+                  transform: [
+                    { scale: flamePulse.interpolate({ inputRange: [0, 1], outputRange: [0.98, danger ? 1.13 : 1.07] }) },
+                    { rotate: flamePulse.interpolate({ inputRange: [0, 1], outputRange: ['-2deg', '2deg'] }) },
+                  ],
+                },
+              ]}
+            >
+              <View style={styles.flameInner} />
+            </Animated.View>
+            <View style={styles.dayBubble}><Text style={styles.dayBubbleText}>{snapshot.currentStreak}</Text></View>
+          </View>
 
-      <View style={styles.copy}>
-        <Text style={styles.eyebrow}>{safe ? 'RACHA COMPLETADA' : 'RETO DE HOY'}</Text>
-        <Text numberOfLines={1} style={styles.challengeTitle}>{challengeTitle}</Text>
-        <Text numberOfLines={1} style={[styles.status, danger && styles.statusDanger]}>{urgencyText}</Text>
+          <View style={styles.copy}>
+            <Text style={styles.eyebrow}>{safe ? 'RACHA COMPLETADA' : 'RETO DE HOY'}</Text>
+            <Text numberOfLines={1} style={styles.challengeTitle}>{challengeTitle}</Text>
+            <Text numberOfLines={1} style={[styles.status, danger && styles.statusDanger]}>{urgencyText}</Text>
 
-        <View style={styles.statRow}>
-          <Stat label="RACHA" value={`${snapshot.currentStreak} día${snapshot.currentStreak === 1 ? '' : 's'}`} />
-          <Stat label="SEGUROS" value={`${snapshot.freezesAvailable}/2`} />
-          <Stat label="MEJOR" value={`${snapshot.bestStreak}`} />
-        </View>
-      </View>
+            <View style={styles.statRow}>
+              <Stat label="RACHA" value={`${snapshot.currentStreak} día${snapshot.currentStreak === 1 ? '' : 's'}`} />
+              <Stat label="SEGUROS" value={`${snapshot.freezesAvailable}/2`} />
+              <Stat label="MEJOR" value={`${snapshot.bestStreak}`} />
+            </View>
+          </View>
 
-      <View style={[styles.cta, safe && styles.ctaSafe, danger && styles.ctaDanger]}>
-        <Text style={styles.ctaKicker}>{safe ? 'HOY' : 'SIGUIENTE'}</Text>
-        <Text style={styles.ctaText}>{safe ? 'LISTO ✓' : 'JUGAR →'}</Text>
-      </View>
+          <View style={[styles.cta, safe && styles.ctaSafe, danger && styles.ctaDanger]}>
+            <Text style={styles.ctaKicker}>{safe ? 'HOY' : 'SIGUIENTE'}</Text>
+            <Text style={styles.ctaText}>{safe ? 'LISTO ✓' : 'JUGAR →'}</Text>
+          </View>
+        </>
+      )}
     </Pressable>
   );
 }
