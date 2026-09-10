@@ -17,6 +17,10 @@ const files = {
   memory: read('src/features/games/money-memory/Game.tsx'),
   route: read('src/app/game/[gameId].tsx'),
   arcade: read('src/app/arcade.tsx'),
+  play: read('src/app/play.tsx'),
+  result: read('src/features/adventure/components/MissionCompleteOverlay.tsx'),
+  collection: read('src/app/collection.tsx'),
+  investments: read('src/app/investments.tsx'),
 };
 const joined = Object.values(files).join('\n');
 
@@ -26,15 +30,22 @@ expect(files.coin.includes('useSharedValue<number>(178)'), 'Coin Catcher shared 
 expect(files.treasure.includes('TREASURE_SPLIT_ROUNDS[roundIndex] ?? TREASURE_SPLIT_ROUNDS[0]!'), 'Treasure Split guards strict indexed round access.');
 expect(files.escape.includes('const activeClue = active === null ? null : (FOSSIL_ESCAPE_CLUES[active] ?? null)') && files.escape.includes('const activeSpot = active === null ? null : (HOTSPOTS[active] ?? null)') && files.escape.includes('if (!clue) return;'), 'Fossil Escape guards active clue/hotspot indexes.');
 expect(files.king.includes('const outcome = SPACES[index];') && files.king.includes('if (!outcome) return;') && files.king.includes('SPACES[active]?.label'), 'King Greedy guards computed and displayed roulette outcome indexes.');
-expect(files.balloon.includes('if (!round)') && files.market.includes('if (!mission) return null;'), 'Balloon and Market guard dynamic round/mission indexes.');
+expect(files.balloon.includes('if (!round || waveItems.length === 0)') && files.market.includes('if (!mission) return null;'), 'Balloon and Market guard dynamic round/mission indexes.');
 expect(files.memory.includes('const newcomer = pool[newcomerIndex]!') && files.memory.includes('MONEY_MEMORY_CARDS'), 'Money Memory marks deterministic non-empty pool accesses explicitly.');
-expect(files.route.includes('onFinish={(nextResult: GameResult)'), 'Game route has an explicit GameResult callback boundary.');
+expect(files.route.includes('const finish = (nextResult: GameResult)') && files.route.includes('onFinish={finish}'), 'Game route has an explicit typed GameResult callback boundary.');
+
 const arcadeIsFreePlay =
   files.arcade.includes('GAMES.map') &&
   files.arcade.includes("mode: 'arcade'") &&
   !/gameUnlocks|isUnlocked|lockedPoster|ctaLocked|POR DESCUBRIR/.test(files.arcade) &&
   !/\bdisabled\s*=/.test(files.arcade);
 expect(arcadeIsFreePlay, 'Arcade is 7/7 free-play without campaign unlock gating.');
+
+expect(files.play.includes('adventureDays.length > 0') && files.play.includes('waitedTooLong') && files.play.includes('REINTENTAR MAPA'), 'Adventure map has a bounded local-loading recovery path.');
+expect(!files.result.includes('Boolean(saveError)) && files.result.includes('Guardado pendiente') && files.result.includes('Puedes salir ahora'), 'Result screen never traps navigation behind a secondary save error.');
+expect(files.balloon.includes('const ITEMS_PER_WAVE = 2') && files.balloon.includes('waveItems.map') && files.balloon.includes('ITEM_ICON'), 'Balloon game uses two simultaneous visual choices with item drawings.');
+expect(files.collection.includes('Los 7 juegos son libres') && files.collection.includes('locked={false}') && !files.collection.includes('gameUnlocks'), 'Museum does not mislabel free Arcade games as locked.');
+expect(files.investments.includes('ELIGES') && files.investments.includes('VIAJA') && files.investments.includes('REGRESA') && files.investments.includes('×1.5'), 'Investments explains the full money journey visually.');
 
 if (process.exitCode) process.exit(process.exitCode);
 ok('PLAN 7 strict TypeScript/RN compatibility guard passed.');
