@@ -78,7 +78,8 @@
     "audit:navigation:v1": "node scripts/audit-navigation-buttons-v1.mjs",
     "audit:control-states:v1": "node scripts/audit-control-states-v1.mjs",
     "audit:offline": "node scripts/check-offline-first.mjs",
-    "audit:offline-gamefeel:v2": "node scripts/check-offline-gamefeel-v2.mjs"
+    "audit:offline-gamefeel:v2": "node scripts/check-offline-gamefeel-v2.mjs",
+    "audit:krug:home-camp": "node scripts/check-krug-home-camp-v1.mjs"
   },
   "private": true
 }
