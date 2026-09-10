@@ -163,7 +163,7 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
 
       <View style={styles.sky}>
         <View pointerEvents="none" style={styles.escapeLine}><Text style={styles.escapeText}>↑ ZONA DE ESCAPE</Text></View>
-        <Image pointerEvents="none" source={ACTIVE_THEME.characters.primary} resizeMode="contain" style={styles.hero} />
+        <Image source={ACTIVE_THEME.characters.primary} resizeMode="contain" style={styles.hero} />
         <View pointerEvents="none" style={styles.targetReminder}><Text style={styles.targetReminderSmall}>BUSCA</Text><Text style={styles.targetReminderBig}>{round.target.toUpperCase()}</Text></View>
 
         {waveItems.map((item, index) => (
