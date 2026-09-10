@@ -21,6 +21,8 @@ const files = {
   result: read('src/features/adventure/components/MissionCompleteOverlay.tsx'),
   collection: read('src/app/collection.tsx'),
   investments: read('src/app/investments.tsx'),
+  campBack: read('src/features/shell/navigation/useCampBack.ts'),
+  start: read('src/app/start.tsx'),
 };
 const joined = Object.values(files).join('\n');
 
@@ -44,8 +46,12 @@ expect(arcadeIsFreePlay, 'Arcade is 7/7 free-play without campaign unlock gating
 expect(files.play.includes('adventureDays.length > 0') && files.play.includes('waitedTooLong') && files.play.includes('REINTENTAR MAPA'), 'Adventure map has a bounded local-loading recovery path.');
 expect(!files.result.includes('Boolean(saveError)') && files.result.includes('Guardado pendiente') && files.result.includes('Puedes salir ahora'), 'Result screen never traps navigation behind a secondary save error.');
 expect(files.balloon.includes('const ITEMS_PER_WAVE = 2') && files.balloon.includes('waveItems.map') && files.balloon.includes('ITEM_ICON'), 'Balloon game uses two simultaneous visual choices with item drawings.');
+expect(files.balloon.includes('onPressIn={pop}') && files.balloon.includes('hitSlop={14}') && files.balloon.includes('pressedRef.current'), 'Balloon taps fire on touch-down with an enlarged guarded hit target.');
 expect(files.collection.includes('Los 7 juegos son libres') && files.collection.includes('locked={false}') && !files.collection.includes('gameUnlocks'), 'Museum does not mislabel free Arcade games as locked.');
+expect(files.collection.includes('Hallazgos ocultos') && files.collection.includes('HIDDEN_FINDS') && files.collection.includes('museum.find.'), 'Museum includes a future-ready hidden finds subsection with persisted discovery keys.');
 expect(files.investments.includes('ELIGES') && files.investments.includes('VIAJA') && files.investments.includes('REGRESA') && files.investments.includes('×1.5'), 'Investments explains the full money journey visually.');
+expect(files.route.includes("params: { from: 'game-result' }") && files.campBack.includes("const fromGameResult = from === 'game-result'") && files.campBack.includes("router.replace('/play' as any)"), 'Post-game Arcade back returns deterministically to the adventure map instead of a stale result route.');
+expect(files.start.includes('hotspotPanel') && files.start.includes('CAMPAMENTO') && files.start.includes('missionAccent') && files.start.includes('SceneHotspot'), 'Home preserves its navigation structure while adding deliberate visual hierarchy.');
 
 if (process.exitCode) process.exit(process.exitCode);
 ok('PLAN 7 strict TypeScript/RN compatibility guard passed.');
