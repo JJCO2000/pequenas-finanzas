@@ -61,7 +61,7 @@ export function MissionCompleteOverlay({
   }, [hapticsEnabled, opacity, scale, visible]);
 
   const runAction = (action: () => void) => {
-    if (actionLocked || saving) return;
+    if (actionLocked) return;
     setActionLocked(true);
     action();
   };
@@ -101,7 +101,7 @@ export function MissionCompleteOverlay({
 
             <View style={styles.statsRow}>
               {scoreText ? <ResultPill label="PUNTAJE" value={scoreText} /> : null}
-              <ResultPill label="RECOMPENSA" value={saving ? 'Guardando…' : rewardText ?? '—'} />
+              <ResultPill label="RECOMPENSA" value={saving ? 'Guardando…' : rewardText ?? 'Pendiente'} />
             </View>
 
             {stats.length ? (
@@ -117,7 +117,10 @@ export function MissionCompleteOverlay({
 
             {saveError ? (
               <View style={styles.saveError} accessibilityLiveRegion="assertive">
-                <Text style={styles.saveErrorText}>Tu partida terminó, pero faltó guardar la recompensa.</Text>
+                <View style={styles.saveErrorCopy}>
+                  <Text style={styles.saveErrorTitle}>Guardado pendiente</Text>
+                  <Text style={styles.saveErrorText}>La partida terminó. Puedes salir ahora; reintenta sólo si quieres volver a guardar la recompensa.</Text>
+                </View>
                 {onRetrySave ? (
                   <Pressable accessibilityRole="button" accessibilityLabel="Reintentar guardado" onPress={onRetrySave} style={({ pressed }) => [styles.retry, pressed && styles.pressed]}>
                     <Text style={styles.retryText}>REINTENTAR</Text>
@@ -126,11 +129,11 @@ export function MissionCompleteOverlay({
               </View>
             ) : null}
 
-            <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} accessibilityState={{ disabled: actionLocked || saving || Boolean(saveError) }} disabled={actionLocked || saving || Boolean(saveError)} onPress={() => runAction(onPrimary)} style={({ pressed }) => [styles.primary, (actionLocked || saving || Boolean(saveError)) && styles.disabled, pressed && !actionLocked && !saving && !saveError && styles.pressed]}>
-              <Text style={styles.primaryText}>{saving ? 'GUARDANDO RESULTADO…' : primaryLabel}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} accessibilityState={{ disabled: actionLocked }} disabled={actionLocked} onPress={() => runAction(onPrimary)} style={({ pressed }) => [styles.primary, actionLocked && styles.disabled, pressed && !actionLocked && styles.pressed]}>
+              <Text style={styles.primaryText}>{primaryLabel}</Text>
             </Pressable>
             {secondaryLabel && onSecondary ? (
-              <Pressable accessibilityRole="button" accessibilityLabel={secondaryLabel} accessibilityState={{ disabled: actionLocked || saving }} disabled={actionLocked || saving} onPress={() => runAction(onSecondary)} style={({ pressed }) => [styles.secondary, (actionLocked || saving) && styles.disabled, pressed && !actionLocked && !saving && styles.pressed]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={secondaryLabel} accessibilityState={{ disabled: actionLocked }} disabled={actionLocked} onPress={() => runAction(onSecondary)} style={({ pressed }) => [styles.secondary, actionLocked && styles.disabled, pressed && !actionLocked && styles.pressed]}>
                 <Text style={styles.secondaryText}>{secondaryLabel}</Text>
               </Pressable>
             ) : null}
@@ -170,11 +173,13 @@ const styles = StyleSheet.create({
   detailStat: { flex: 1, minWidth: 0, borderRadius: 9, backgroundColor: colors.surfaceGreen, borderWidth: 1, borderColor: colors.leafSoft, paddingHorizontal: 5, paddingVertical: 4, alignItems: 'center' },
   detailLabel: { color: colors.inkMuted, fontSize: 5.7, fontWeight: '900', letterSpacing: 0.35 },
   detailValue: { color: colors.forestDark, fontSize: 9, fontWeight: '900', marginTop: 1, maxWidth: '100%' },
-  saveError: { marginTop: 6, borderRadius: 9, backgroundColor: '#FFE4DF', borderWidth: 1, borderColor: colors.danger, paddingHorizontal: 7, paddingVertical: 5, flexDirection: 'row', alignItems: 'center', gap: 6 },
-  saveErrorText: { flex: 1, color: colors.danger, fontSize: 6.5, lineHeight: 8, fontWeight: '800' },
-  retry: { borderRadius: radii.pill, backgroundColor: colors.danger, paddingHorizontal: 8, paddingVertical: 4 },
+  saveError: { marginTop: 6, borderRadius: 9, backgroundColor: '#FFF3D8', borderWidth: 1, borderColor: '#E4A936', paddingHorizontal: 7, paddingVertical: 5, flexDirection: 'row', alignItems: 'center', gap: 6 },
+  saveErrorCopy: { flex: 1 },
+  saveErrorTitle: { color: '#8A5A00', fontSize: 7, fontWeight: '900' },
+  saveErrorText: { color: '#6E5931', fontSize: 6.2, lineHeight: 8, fontWeight: '700', marginTop: 1 },
+  retry: { borderRadius: radii.pill, backgroundColor: '#B67A19', paddingHorizontal: 8, paddingVertical: 4 },
   retryText: { color: colors.white, fontSize: 6, fontWeight: '900' },
-  primary: { minHeight: 28, borderRadius: radii.pill, backgroundColor: colors.orange, borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: 7, paddingHorizontal: 16 },
+  primary: { minHeight: 30, borderRadius: radii.pill, backgroundColor: colors.orange, borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', marginTop: 7, paddingHorizontal: 16 },
   primaryText: { color: colors.white, fontSize: 8, fontWeight: '900', letterSpacing: 0.8 },
   secondary: { minHeight: 25, borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   secondaryText: { color: colors.forestDark, fontSize: 7.5, fontWeight: '900' },
