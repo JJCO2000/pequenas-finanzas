@@ -26,7 +26,7 @@ export default function StartScreen() {
       <View pointerEvents="none" style={styles.skyFade} />
       <View pointerEvents="none" style={styles.campGlow} />
       <View pointerEvents="none" style={styles.groundGlow} />
-      <Image pointerEvents="none" source={ACTIVE_THEME.characters.startCast[2]!} resizeMode="contain" style={styles.worldDino} />
+      <Image source={ACTIVE_THEME.characters.startCast[2]!} resizeMode="contain" style={styles.worldDino} />
       <View pointerEvents="none" style={styles.guideBadge}>
         <Text style={styles.guideBadgeKicker}>EXPEDICIÓN EN CURSO</Text>
         <Text style={styles.guideBadgeText}>Día {currentDay} · sigue tu ruta financiera</Text>
