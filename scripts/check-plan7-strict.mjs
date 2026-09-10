@@ -42,7 +42,7 @@ const arcadeIsFreePlay =
 expect(arcadeIsFreePlay, 'Arcade is 7/7 free-play without campaign unlock gating.');
 
 expect(files.play.includes('adventureDays.length > 0') && files.play.includes('waitedTooLong') && files.play.includes('REINTENTAR MAPA'), 'Adventure map has a bounded local-loading recovery path.');
-expect(!files.result.includes('Boolean(saveError)) && files.result.includes('Guardado pendiente') && files.result.includes('Puedes salir ahora'), 'Result screen never traps navigation behind a secondary save error.');
+expect(!files.result.includes('Boolean(saveError)') && files.result.includes('Guardado pendiente') && files.result.includes('Puedes salir ahora'), 'Result screen never traps navigation behind a secondary save error.');
 expect(files.balloon.includes('const ITEMS_PER_WAVE = 2') && files.balloon.includes('waveItems.map') && files.balloon.includes('ITEM_ICON'), 'Balloon game uses two simultaneous visual choices with item drawings.');
 expect(files.collection.includes('Los 7 juegos son libres') && files.collection.includes('locked={false}') && !files.collection.includes('gameUnlocks'), 'Museum does not mislabel free Arcade games as locked.');
 expect(files.investments.includes('ELIGES') && files.investments.includes('VIAJA') && files.investments.includes('REGRESA') && files.investments.includes('×1.5'), 'Investments explains the full money journey visually.');
