@@ -28,6 +28,23 @@ import {
   settleMaturedInvestments,
   unlockGame,
 } from './appRepository';
+import { getDailyChallengeGameId, localDateKey, type StreakSnapshot } from '@/core/progression/streak';
+
+function fallbackStreak(profileId: string): StreakSnapshot {
+  const today = localDateKey();
+  return {
+    profileId,
+    currentStreak: 0,
+    bestStreak: 0,
+    lastQualifiedDate: null,
+    freezesAvailable: 0,
+    lastFreezeAwardStreak: 0,
+    updatedAt: new Date().toISOString(),
+    today,
+    challengeGameId: getDailyChallengeGameId(today),
+    completedToday: false,
+  };
+}
 
 export function useAppRepository() {
   const db = useSQLiteContext();
@@ -61,8 +78,25 @@ export function useAppRepository() {
       purchaseItem: bind(purchaseItem),
       getSettings: bind(getSettings),
       setSetting: bind(setSetting),
-      getStreakState: bind(getStreakState),
-      qualifyDailyStreak: bind(qualifyDailyStreak),
+      getStreakState: async (profileId: string) => {
+        try {
+          return await getStreakState(db, profileId);
+        } catch {
+          return fallbackStreak(profileId);
+        }
+      },
+      qualifyDailyStreak: async (profileId: string, gameId: string) => {
+        try {
+          return await qualifyDailyStreak(db, profileId, gameId);
+        } catch {
+          return {
+            snapshot: fallbackStreak(profileId),
+            qualified: false,
+            extended: false,
+            freezeAwarded: false,
+          };
+        }
+      },
     };
   }, [db]);
 }
