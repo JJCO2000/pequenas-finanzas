@@ -62,9 +62,9 @@ const checks = [
     patterns: [/const checkDisabled = !selected \|\| busy/, /disabled=\{busy\}/, /disabled=\{checkDisabled\}/],
   },
   {
-    label: 'Completion overlay locks after first action',
+    label: 'Completion overlay locks after first navigation action without trapping save errors',
     file: 'src/features/adventure/components/MissionCompleteOverlay.tsx',
-    patterns: [/const \[actionLocked, setActionLocked\] = useState\(false\)/, /if \(actionLocked\) return/, /setActionLocked\(true\)/, /disabled=\{actionLocked\}/],
+    patterns: [/const \[actionLocked, setActionLocked\] = useState\(false\)/, /if \(actionLocked\) return/, /setActionLocked\(true\)/, /disabled=\{actionLocked\}/, /Puedes salir ahora/],
   },
   {
     label: 'Settings expose switch checked state',
@@ -72,14 +72,14 @@ const checks = [
     patterns: [/accessibilityRole="switch"/, /accessibilityState=\{\{ checked: value \}\}/],
   },
   {
-    label: 'Money Memory ignores cards outside choose phase',
+    label: 'Money Memory cards are selectable only during choose phase',
     file: 'src/features/games/money-memory/Game.tsx',
-    patterns: [/disabled=\{phase !== 'choose'\}/],
+    patterns: [/selectable=\{phase === 'choose'\}/, /disabled=\{!selectable\}/, /if \(phase !== 'choose'\) return/],
   },
   {
-    label: 'Balloon game prevents re-popping an object',
+    label: 'Balloon game prevents re-popping resolved objects',
     file: 'src/features/games/balloon-answer/Game.tsx',
-    patterns: [/disabled=\{popped\}/],
+    patterns: [/disabled=\{resolved\}/, /if \(resolved\) return/, /resolvedIds\.includes\(item\.id\)/],
   },
   {
     label: 'Greedy King blocks spin and secure in invalid states',
