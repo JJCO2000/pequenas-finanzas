@@ -77,9 +77,9 @@ const checks = [
     patterns: [/selectable=\{phase === 'choose'\}/, /disabled=\{!selectable\}/, /if \(phase !== 'choose'\) return/],
   },
   {
-    label: 'Balloon game prevents re-popping resolved objects',
+    label: 'Balloon game prevents re-popping resolved or already-pressed objects',
     file: 'src/features/games/balloon-answer/Game.tsx',
-    patterns: [/disabled=\{resolved\}/, /if \(resolved\) return/, /resolvedIds\.includes\(item\.id\)/],
+    patterns: [/disabled=\{resolved\}/, /if \(resolved \|\| pressedRef\.current\) return/, /pressedRef\.current = true/, /resolvedIds\.includes\(item\.id\)/],
   },
   {
     label: 'Greedy King blocks spin and secure in invalid states',
