@@ -19,7 +19,7 @@
     "/start",
     "/wallet"
   ],
-  "totalInteractions": 95,
+  "totalInteractions": 97,
   "interactionByFile": {
     "src/app/arcade.tsx": 1,
     "src/app/collection.tsx": 1,
@@ -27,6 +27,7 @@
     "src/app/investments.tsx": 6,
     "src/app/lesson/[id].tsx": 3,
     "src/app/onboarding.tsx": 3,
+    "src/app/play.tsx": 1,
     "src/app/progress.tsx": 1,
     "src/app/settings.tsx": 1,
     "src/app/shop.tsx": 2,
@@ -36,7 +37,7 @@
     "src/features/adventure/components/AdventureCampMenu.tsx": 7,
     "src/features/adventure/components/AdventureCurrentMissionCard.tsx": 2,
     "src/features/adventure/components/AdventureMapNode.tsx": 1,
-    "src/features/adventure/components/MissionCompleteOverlay.tsx": 2,
+    "src/features/adventure/components/MissionCompleteOverlay.tsx": 3,
     "src/features/games/balloon-answer/Game.tsx": 1,
     "src/features/games/dino-market/Game.tsx": 5,
     "src/features/games/fossil-escape/Game.tsx": 4,
