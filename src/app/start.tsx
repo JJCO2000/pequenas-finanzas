@@ -108,8 +108,8 @@ export default function StartScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, overflow: 'hidden', paddingHorizontal: 14, paddingVertical: 10 },
-  sceneDecor: { ...StyleSheet.absoluteFillObject },
-  skyFade: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(4,45,29,0.05)' },
+  sceneDecor: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
+  skyFade: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(4,45,29,0.05)' },
   sunGlow: { position: 'absolute', left: '28%', top: '9%', width: 315, height: 315, borderRadius: 158, backgroundColor: 'rgba(255,232,126,0.10)' },
   campIsland: { position: 'absolute', left: '29%', top: '17%', width: '34%', height: '52%', borderRadius: 190, backgroundColor: 'rgba(236,228,160,0.11)', borderWidth: 1.5, borderColor: 'rgba(226,242,200,0.12)', transform: [{ rotate: '-7deg' }] },
   groundGlow: { position: 'absolute', left: '34%', bottom: 44, width: '31%', height: 62, borderRadius: 80, backgroundColor: 'rgba(5,53,35,0.22)' },
