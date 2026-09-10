@@ -7,7 +7,7 @@ import { ACTIVE_THEME } from '@/core/theme';
 import { colors, radii, shadows } from '@/core/theme/tokens';
 
 export default function PlayRoute() {
-  const { loading, profile, adventureDays, refresh } = useAppData();
+  const { profile, adventureDays, refresh } = useAppData();
   const [waitedTooLong, setWaitedTooLong] = useState(false);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function PlayRoute() {
   }, [adventureDays.length, profile]);
 
   if (profile && adventureDays.length > 0) return <AdventureMapScreen />;
-  return <AdventureMapBoot stalled={!loading && waitedTooLong} onRetry={() => void refresh()} />;
+  return <AdventureMapBoot stalled={waitedTooLong} onRetry={() => void refresh()} />;
 }
 
 function AdventureMapBoot({ stalled, onRetry }: { stalled: boolean; onRetry: () => void }) {
