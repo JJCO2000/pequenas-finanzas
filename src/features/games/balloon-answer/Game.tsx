@@ -10,6 +10,13 @@ import { BalloonObject } from '@/features/games/ui/GameObjects';
 
 const TOTAL_TARGETS = BALLOON_BUDGET_ROUNDS.reduce((sum, item) => sum + item.items.filter((candidate) => candidate.category === item.target).length, 0);
 const START_LIVES = 3;
+const ITEMS_PER_WAVE = 2;
+
+const ITEM_ICON: Record<string, string> = {
+  water: '💧', notebook: '📒', toy: '🧸', candy: '🍬', goal: '🎯', emergency: '🛟',
+  medicine: '💊', lunch: '🥪', stickers: '✨', game: '🎮', bike: '🚲', trip: '✈️',
+  rent: '🚌', uniform: '👕', plush: '🧸', snack: '🍪', console: '🎮', rainy: '☔',
+};
 
 function orderedItems(items: BalloonBudgetItem[], roundIndex: number) {
   const offset = (roundIndex * 2 + 1) % items.length;
@@ -18,15 +25,15 @@ function orderedItems(items: BalloonBudgetItem[], roundIndex: number) {
 
 export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
   const [roundIndex, setRoundIndex] = useState(0);
-  const [itemIndex, setItemIndex] = useState(0);
+  const [waveIndex, setWaveIndex] = useState(0);
+  const [resolvedIds, setResolvedIds] = useState<string[]>([]);
   const [lives, setLives] = useState(START_LIVES);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [wrong, setWrong] = useState(0);
-  const [seconds, setSeconds] = useState(4);
+  const [seconds, setSeconds] = useState(7);
   const [feedback, setFeedback] = useState<{ text: string; good: boolean } | null>(null);
-  const [resolved, setResolved] = useState(false);
   const startRef = useRef(Date.now());
   const finishedRef = useRef(false);
   const correctRef = useRef(0);
@@ -36,8 +43,8 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
   const haptics = session.modifiers.hapticsEnabled !== false;
   const round = BALLOON_BUDGET_ROUNDS[roundIndex];
   const queue = useMemo(() => round ? orderedItems(round.items, roundIndex) : [], [round, roundIndex]);
-  const activeItem = queue[itemIndex] ?? null;
-  const flightMs = Math.max(2450, 3900 - roundIndex * 380 - bestCombo * 45);
+  const waveItems = useMemo(() => queue.slice(waveIndex * ITEMS_PER_WAVE, waveIndex * ITEMS_PER_WAVE + ITEMS_PER_WAVE), [queue, waveIndex]);
+  const flightMs = Math.max(5200, 6800 - roundIndex * 500 - Math.min(700, bestCombo * 70));
 
   const finish = (didComplete: boolean) => {
     if (finishedRef.current) return;
@@ -58,13 +65,12 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
     });
   };
 
-  const advance = () => {
+  const advanceWave = () => {
     if (finishedRef.current) return;
     setFeedback(null);
-    setResolved(false);
-    setSeconds(Math.max(3, Math.ceil(flightMs / 1000)));
-    if (itemIndex < queue.length - 1) {
-      setItemIndex((value) => value + 1);
+    setResolvedIds([]);
+    if (waveIndex < Math.ceil(queue.length / ITEMS_PER_WAVE) - 1) {
+      setWaveIndex((value) => value + 1);
       return;
     }
     if (roundIndex >= BALLOON_BUDGET_ROUNDS.length - 1) {
@@ -72,22 +78,31 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
       return;
     }
     setRoundIndex((value) => value + 1);
-    setItemIndex(0);
+    setWaveIndex(0);
+  };
+
+  const markResolved = (itemId: string, delay = 520) => {
+    setResolvedIds((previous) => {
+      if (previous.includes(itemId)) return previous;
+      const next = [...previous, itemId];
+      if (next.length >= waveItems.length) setTimeout(advanceWave, delay);
+      return next;
+    });
   };
 
   useEffect(() => {
-    if (!activeItem || resolved || finishedRef.current) return;
-    setSeconds(Math.max(3, Math.ceil(flightMs / 1000)));
+    if (!round || waveItems.length === 0 || finishedRef.current) return;
+    setSeconds(Math.max(5, Math.ceil(flightMs / 1000)));
     const timer = setInterval(() => setSeconds((value) => Math.max(0, value - 1)), 1000);
     return () => clearInterval(timer);
-  }, [activeItem?.id, flightMs, resolved]);
+  }, [flightMs, round?.id, waveIndex, waveItems.length]);
 
-  if (!round || !activeItem) {
+  if (!round || waveItems.length === 0) {
     if (!finishedRef.current) finish(true);
     return null;
   }
 
-  const loseLife = (message: string) => {
+  const loseLife = (message: string, itemId: string) => {
     wrongRef.current += 1;
     setWrong(wrongRef.current);
     setCombo(0);
@@ -96,16 +111,15 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
     setLives(nextLives);
     setFeedback({ text: message, good: false });
     if (haptics) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-    if (nextLives <= 0) setTimeout(() => finish(false), 420);
-    else setTimeout(advance, 520);
+    markResolved(itemId, 650);
+    if (nextLives <= 0) setTimeout(() => finish(false), 520);
   };
 
-  const handlePop = () => {
-    if (resolved || finishedRef.current) return;
-    setResolved(true);
-    const good = activeItem.category === round.target;
+  const handlePop = (item: BalloonBudgetItem) => {
+    if (resolvedIds.includes(item.id) || finishedRef.current) return;
+    const good = item.category === round.target;
     if (!good) {
-      loseLife(`${activeItem.label} es ${activeItem.category.toLowerCase()}. Ese globo debías dejarlo pasar.`);
+      loseLife(`${item.label} es ${item.category.toLowerCase()}. Ese globo debías dejarlo escapar.`, item.id);
       return;
     }
     const nextCombo = combo + 1;
@@ -114,68 +128,73 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
     setCombo(nextCombo);
     bestComboRef.current = Math.max(bestComboRef.current, nextCombo);
     setBestCombo(bestComboRef.current);
-    setFeedback({ text: `¡POP! ${activeItem.label} sí pertenece a ${round.target.toLowerCase()}.`, good: true });
+    setFeedback({ text: `¡POP! ${item.label} sí pertenece a ${round.target.toLowerCase()}.`, good: true });
     if (haptics) void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setTimeout(advance, 430);
+    markResolved(item.id, 440);
   };
 
-  const handleEscape = () => {
-    if (resolved || finishedRef.current) return;
-    setResolved(true);
-    if (activeItem.category === round.target) {
-      loseLife(`Se escapó ${activeItem.label}. Era ${round.target.toLowerCase()} y debías reventarlo.`);
+  const handleEscape = (item: BalloonBudgetItem) => {
+    if (resolvedIds.includes(item.id) || finishedRef.current) return;
+    if (item.category === round.target) {
+      loseLife(`Se escapó ${item.label}. Era ${round.target.toLowerCase()} y debías reventarlo.`, item.id);
       return;
     }
-    setFeedback({ text: `Bien ignorado: ${activeItem.label} es ${activeItem.category.toLowerCase()}.`, good: true });
+    setFeedback({ text: `Bien: dejaste pasar ${item.label}; es ${item.category.toLowerCase()}.`, good: true });
     if (haptics) void Haptics.selectionAsync();
-    setTimeout(advance, 330);
+    markResolved(item.id, 360);
   };
 
-  const completedItems = roundIndex * 6 + itemIndex;
+  const completedItems = roundIndex * 6 + waveIndex * ITEMS_PER_WAVE + resolvedIds.length;
   const totalItems = BALLOON_BUDGET_ROUNDS.length * 6;
 
   return (
     <ImageBackground source={ACTIVE_THEME.world.activity} resizeMode="cover" style={styles.root}>
       <View style={styles.top}>
         <View style={styles.targetBox}>
-          <Text style={styles.round}>GLOBO {itemIndex + 1}/6 · RONDA {roundIndex + 1}/3</Text>
+          <Text style={styles.round}>OLEADA {waveIndex + 1}/3 · RONDA {roundIndex + 1}/3</Text>
           <Text style={styles.target}>REVIENTA SOLO: {round.target.toUpperCase()}</Text>
-          <Text style={styles.instruction}>Si no pertenece a {round.target.toLowerCase()}, déjalo escapar.</Text>
+          <Text style={styles.instruction}>Mira dibujo + palabra. Toca los que sí cumplen; deja escapar los demás.</Text>
         </View>
         <HudChip label="VIDAS" value={'♥'.repeat(lives) || '—'} tone={lives <= 1 ? 'danger' : 'dark'} />
         <HudChip label="RACHA" value={`×${combo}`} tone={combo >= 3 ? 'gold' : 'dark'} />
-        <HudChip label="SUBE EN" value={`${seconds}s`} tone={seconds <= 1 ? 'danger' : 'dark'} />
+        <HudChip label="TIEMPO" value={`${seconds}s`} tone={seconds <= 2 ? 'danger' : 'dark'} />
       </View>
-      <GameProgress value={(completedItems + (resolved ? 0.8 : 0.25)) / totalItems} />
+      <GameProgress value={(completedItems + 0.2) / totalItems} />
 
       <View style={styles.sky}>
         <View style={styles.escapeLine}><Text style={styles.escapeText}>↑ ZONA DE ESCAPE</Text></View>
         <Image source={ACTIVE_THEME.characters.primary} resizeMode="contain" style={styles.hero} />
         <View style={styles.targetReminder}><Text style={styles.targetReminderSmall}>BUSCA</Text><Text style={styles.targetReminderBig}>{round.target.toUpperCase()}</Text></View>
-        <RisingBalloon
-          key={`${round.id}-${activeItem.id}-${itemIndex}`}
-          item={activeItem}
-          index={itemIndex + roundIndex * 2}
-          duration={flightMs}
-          resolved={resolved}
-          onPress={handlePop}
-          onEscape={handleEscape}
-        />
+
+        {waveItems.map((item, index) => (
+          <RisingBalloon
+            key={`${round.id}-${waveIndex}-${item.id}`}
+            item={item}
+            icon={ITEM_ICON[item.id] ?? '💰'}
+            lane={index}
+            duration={flightMs + index * 260}
+            resolved={resolvedIds.includes(item.id)}
+            onPress={() => handlePop(item)}
+            onEscape={() => handleEscape(item)}
+          />
+        ))}
+
         <View style={styles.decisionHint}>
-          <Text style={styles.decisionTitle}>¿PERTENECE A {round.target.toUpperCase()}?</Text>
-          <Text style={styles.decisionCopy}>Sí → revienta · No → no toques</Text>
+          <Text style={styles.decisionTitle}>DOS GLOBOS · UNA DECISIÓN POR CADA UNO</Text>
+          <Text style={styles.decisionCopy}>Sí pertenece → revienta · No pertenece → déjalo subir</Text>
         </View>
       </View>
       <View style={styles.feedbackRow}>
-        {feedback ? <FeedbackPill text={feedback.text} good={feedback.good} /> : <Text style={styles.tip}>Ahora sí importa decidir rápido: los globos realmente escapan.</Text>}
+        {feedback ? <FeedbackPill text={feedback.text} good={feedback.good} /> : <Text style={styles.tip}>Tienes más tiempo y dos objetos a la vez para comparar.</Text>}
       </View>
     </ImageBackground>
   );
 }
 
-function RisingBalloon({ item, index, duration, resolved, onPress, onEscape }: {
+function RisingBalloon({ item, icon, lane, duration, resolved, onPress, onEscape }: {
   item: BalloonBudgetItem;
-  index: number;
+  icon: string;
+  lane: number;
   duration: number;
   resolved: boolean;
   onPress: () => void;
@@ -190,10 +209,12 @@ function RisingBalloon({ item, index, duration, resolved, onPress, onEscape }: {
   useEffect(() => {
     escapedRef.current = false;
     travel.setValue(0);
+    scale.setValue(1);
+    burst.setValue(0);
     const rise = Animated.timing(travel, { toValue: 1, duration, useNativeDriver: true });
     const swayLoop = Animated.loop(Animated.sequence([
-      Animated.timing(sway, { toValue: 1, duration: 520, useNativeDriver: true }),
-      Animated.timing(sway, { toValue: -1, duration: 620, useNativeDriver: true }),
+      Animated.timing(sway, { toValue: 1, duration: 700, useNativeDriver: true }),
+      Animated.timing(sway, { toValue: -1, duration: 820, useNativeDriver: true }),
     ]));
     swayLoop.start();
     rise.start(({ finished }) => {
@@ -203,7 +224,7 @@ function RisingBalloon({ item, index, duration, resolved, onPress, onEscape }: {
       }
     });
     return () => { rise.stop(); swayLoop.stop(); };
-  }, [duration, item.id, onEscape, sway, travel]);
+  }, [burst, duration, item.id, onEscape, scale, sway, travel]);
 
   useEffect(() => {
     if (!resolved) return;
@@ -215,30 +236,30 @@ function RisingBalloon({ item, index, duration, resolved, onPress, onEscape }: {
     escapedRef.current = true;
     Animated.parallel([
       Animated.sequence([
-        Animated.spring(scale, { toValue: 1.22, useNativeDriver: true }),
-        Animated.timing(scale, { toValue: 0, duration: 130, useNativeDriver: true }),
+        Animated.spring(scale, { toValue: 1.18, useNativeDriver: true }),
+        Animated.timing(scale, { toValue: 0, duration: 150, useNativeDriver: true }),
       ]),
-      Animated.timing(burst, { toValue: 1, duration: 320, useNativeDriver: true }),
+      Animated.timing(burst, { toValue: 1, duration: 340, useNativeDriver: true }),
     ]).start();
     onPress();
   };
 
-  const lane = index % 3;
-  const tone = (['orange', 'gold', 'aqua', 'green', 'purple'] as const)[index % 5] ?? 'orange';
+  const tone = lane === 0 ? 'gold' : 'aqua';
   return (
     <Animated.View style={[
       styles.risingWrap,
-      { left: `${34 + lane * 15}%` as `${number}%`, transform: [
-        { translateY: travel.interpolate({ inputRange: [0, 1], outputRange: [190, -165] }) },
-        { translateX: sway.interpolate({ inputRange: [-1, 1], outputRange: [-13, 13] }) },
+      { left: lane === 0 ? '42%' : '66%', transform: [
+        { translateY: travel.interpolate({ inputRange: [0, 1], outputRange: [190, -170] }) },
+        { translateX: sway.interpolate({ inputRange: [-1, 1], outputRange: [-10, 10] }) },
       ] },
     ]}>
       <Animated.View pointerEvents="none" style={[styles.popBurst, { opacity: burst.interpolate({ inputRange: [0, 0.15, 1], outputRange: [0, 1, 0] }), transform: [{ scale: burst.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1.8] }) }] }]}>
         {[0, 1, 2, 3, 4, 5].map((particle) => <View key={particle} style={[styles.popParticle, { transform: [{ rotate: `${particle * 60}deg` }, { translateY: -28 }] }]} />)}
       </Animated.View>
       <Animated.View style={{ transform: [{ scale }] }}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`Globo ${item.label}`} disabled={resolved} onPress={pop} style={({ pressed }) => [pressed && styles.pressed]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Globo ${item.label}`} disabled={resolved} onPress={pop} style={({ pressed }) => [styles.balloonButton, pressed && styles.pressed]}>
           <BalloonObject label={item.label} tone={tone} />
+          <View pointerEvents="none" style={styles.itemIcon}><Text style={styles.itemIconText}>{icon}</Text></View>
         </Pressable>
       </Animated.View>
     </Animated.View>
@@ -253,18 +274,21 @@ const styles = StyleSheet.create({
   target: { color: colors.white, fontSize: 11.5, lineHeight: 13, fontWeight: '900' },
   instruction: { color: colors.cream, fontSize: 7.3, lineHeight: 9, fontWeight: '700', marginTop: 1 },
   sky: { flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' },
-  escapeLine: { position: 'absolute', top: 4, left: '29%', right: '20%', borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.72)', alignItems: 'center' },
+  escapeLine: { position: 'absolute', top: 4, left: '29%', right: '16%', borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.72)', alignItems: 'center' },
   escapeText: { color: colors.white, fontSize: 6, fontWeight: '900', backgroundColor: 'rgba(8,72,50,0.82)', paddingHorizontal: 7, paddingVertical: 2, borderRadius: radii.pill, marginTop: -8 },
   hero: { position: 'absolute', left: 12, bottom: 2, width: 72, height: 72 },
-  targetReminder: { position: 'absolute', left: 86, top: '30%', width: 95, minHeight: 48, borderRadius: 17, backgroundColor: 'rgba(255,253,243,0.93)', borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  targetReminder: { position: 'absolute', left: 86, top: '27%', width: 105, minHeight: 52, borderRadius: 17, backgroundColor: 'rgba(255,253,243,0.95)', borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
   targetReminderSmall: { color: colors.inkMuted, fontSize: 5.5, fontWeight: '900', letterSpacing: 1 },
-  targetReminderBig: { color: colors.forestDark, fontSize: 9.5, fontWeight: '900', marginTop: 1 },
-  risingWrap: { position: 'absolute', bottom: 0, width: 88, height: 128, alignItems: 'center', justifyContent: 'center' },
-  popBurst: { position: 'absolute', width: 74, height: 74, left: 7, top: 16, zIndex: 5 },
+  targetReminderBig: { color: colors.forestDark, fontSize: 10, fontWeight: '900', marginTop: 1 },
+  risingWrap: { position: 'absolute', bottom: 0, width: 96, height: 136, alignItems: 'center', justifyContent: 'center' },
+  balloonButton: { position: 'relative', alignItems: 'center', justifyContent: 'center' },
+  itemIcon: { position: 'absolute', top: 25, alignSelf: 'center', width: 40, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.90)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)', alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  itemIconText: { fontSize: 18, lineHeight: 20 },
+  popBurst: { position: 'absolute', width: 74, height: 74, left: 11, top: 18, zIndex: 5 },
   popParticle: { position: 'absolute', left: 32, top: 31, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.gold, borderWidth: 1, borderColor: colors.white },
-  decisionHint: { position: 'absolute', bottom: 5, left: '31%', right: '25%', minHeight: 34, borderRadius: radii.pill, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, ...shadows.soft },
-  decisionTitle: { color: colors.gold, fontSize: 7, fontWeight: '900', letterSpacing: 0.45 },
-  decisionCopy: { color: colors.white, fontSize: 7.4, fontWeight: '800', marginTop: 1 },
+  decisionHint: { position: 'absolute', bottom: 5, left: '31%', right: '18%', minHeight: 36, borderRadius: radii.pill, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, ...shadows.soft },
+  decisionTitle: { color: colors.gold, fontSize: 6.5, fontWeight: '900', letterSpacing: 0.4 },
+  decisionCopy: { color: colors.white, fontSize: 7.2, fontWeight: '800', marginTop: 1 },
   feedbackRow: { minHeight: 26, alignItems: 'center', justifyContent: 'center' },
   tip: { color: colors.forestDark, fontSize: 8, fontWeight: '800', backgroundColor: colors.glassCream, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
   pressed: { transform: [{ scale: 0.95 }] },
