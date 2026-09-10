@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { AdventureMapScreen } from '@/features/adventure/AdventureMapScreen';
 import { useAppData } from '@/features/session/AppDataProvider';
@@ -7,13 +7,23 @@ import { ACTIVE_THEME } from '@/core/theme';
 import { colors, radii, shadows } from '@/core/theme/tokens';
 
 export default function PlayRoute() {
-  const { loading, profile, adventureState, adventureDays } = useAppData();
-  const ready = Boolean(!loading && profile && adventureState && adventureDays.length > 0);
-  if (!ready) return <AdventureMapBoot />;
-  return <AdventureMapScreen />;
+  const { loading, profile, adventureDays, refresh } = useAppData();
+  const [waitedTooLong, setWaitedTooLong] = useState(false);
+
+  useEffect(() => {
+    if (!profile || adventureDays.length > 0) {
+      setWaitedTooLong(false);
+      return;
+    }
+    const timer = setTimeout(() => setWaitedTooLong(true), 2600);
+    return () => clearTimeout(timer);
+  }, [adventureDays.length, profile]);
+
+  if (profile && adventureDays.length > 0) return <AdventureMapScreen />;
+  return <AdventureMapBoot stalled={!loading && waitedTooLong} onRetry={() => void refresh()} />;
 }
 
-function AdventureMapBoot() {
+function AdventureMapBoot({ stalled, onRetry }: { stalled: boolean; onRetry: () => void }) {
   const pulse = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     const loop = Animated.loop(Animated.sequence([
@@ -32,7 +42,7 @@ function AdventureMapBoot() {
       <Image source={ACTIVE_THEME.world.mapIslands} resizeMode="contain" style={styles.islands} />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Mapa de aventuras</Text>
-        <Text style={styles.headerMeta}>PREPARANDO TU EXPEDICIÓN</Text>
+        <Text style={styles.headerMeta}>{stalled ? 'PARTIDA LOCAL DISPONIBLE' : 'PREPARANDO TU EXPEDICIÓN'}</Text>
       </View>
       <View style={styles.routePreview}>
         {[0, 1, 2, 3, 4].map((index) => (
@@ -45,9 +55,14 @@ function AdventureMapBoot() {
         ))}
       </View>
       <View style={styles.bootCard}>
-        <Text style={styles.bootEyebrow}>CARGANDO PARTIDA LOCAL</Text>
-        <Text style={styles.bootTitle}>Preparando caminos, retos y recompensas…</Text>
-        <Text style={styles.bootCopy}>El mapa aparecerá completo; no necesitas tocar ni mover la pantalla para que termine de cargar.</Text>
+        <Text style={styles.bootEyebrow}>{stalled ? 'NO TE DEJAMOS ATRAPADO' : 'CARGANDO PARTIDA LOCAL'}</Text>
+        <Text style={styles.bootTitle}>{stalled ? 'El mapa tardó más de lo normal.' : 'Preparando caminos, retos y recompensas…'}</Text>
+        <Text style={styles.bootCopy}>{stalled ? 'Reintenta la lectura local. Esto no necesita internet.' : 'El mapa aparecerá completo; no necesitas tocar ni mover la pantalla para que termine de cargar.'}</Text>
+        {stalled ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Reintentar abrir mapa" onPress={onRetry} style={({ pressed }) => [styles.retry, pressed && styles.pressed]}>
+            <Text style={styles.retryText}>REINTENTAR MAPA →</Text>
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );
@@ -69,4 +84,7 @@ const styles = StyleSheet.create({
   bootEyebrow: { color: colors.gold, fontSize: 6.5, fontWeight: '900', letterSpacing: 1 },
   bootTitle: { color: colors.white, fontSize: 12, lineHeight: 14, fontWeight: '900', marginTop: 2, textAlign: 'center' },
   bootCopy: { color: '#DDEFD8', fontSize: 7, lineHeight: 9, fontWeight: '700', marginTop: 3, textAlign: 'center' },
+  retry: { marginTop: 8, minWidth: 150, height: 30, borderRadius: radii.pill, backgroundColor: colors.gold, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  retryText: { color: colors.forestDark, fontSize: 7.5, fontWeight: '900' },
+  pressed: { transform: [{ scale: 0.97 }] },
 });
