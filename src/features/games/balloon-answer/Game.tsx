@@ -162,9 +162,9 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
       <GameProgress value={(completedItems + 0.2) / totalItems} />
 
       <View style={styles.sky}>
-        <View style={styles.escapeLine}><Text style={styles.escapeText}>↑ ZONA DE ESCAPE</Text></View>
-        <Image source={ACTIVE_THEME.characters.primary} resizeMode="contain" style={styles.hero} />
-        <View style={styles.targetReminder}><Text style={styles.targetReminderSmall}>BUSCA</Text><Text style={styles.targetReminderBig}>{round.target.toUpperCase()}</Text></View>
+        <View pointerEvents="none" style={styles.escapeLine}><Text style={styles.escapeText}>↑ ZONA DE ESCAPE</Text></View>
+        <Image pointerEvents="none" source={ACTIVE_THEME.characters.primary} resizeMode="contain" style={styles.hero} />
+        <View pointerEvents="none" style={styles.targetReminder}><Text style={styles.targetReminderSmall}>BUSCA</Text><Text style={styles.targetReminderBig}>{round.target.toUpperCase()}</Text></View>
 
         {waveItems.map((item, index) => (
           <RisingBalloon
@@ -179,12 +179,12 @@ export function BalloonAnswerGame({ session, onFinish }: GameComponentProps) {
           />
         ))}
 
-        <View style={styles.decisionHint}>
+        <View pointerEvents="none" style={styles.decisionHint}>
           <Text style={styles.decisionTitle}>DOS GLOBOS · UNA DECISIÓN POR CADA UNO</Text>
           <Text style={styles.decisionCopy}>Sí pertenece → revienta · No pertenece → déjalo subir</Text>
         </View>
       </View>
-      <View style={styles.feedbackRow}>
+      <View pointerEvents="none" style={styles.feedbackRow}>
         {feedback ? <FeedbackPill text={feedback.text} good={feedback.good} /> : <Text style={styles.tip}>Tienes más tiempo y dos objetos a la vez para comparar.</Text>}
       </View>
     </ImageBackground>
@@ -205,6 +205,7 @@ function RisingBalloon({ item, icon, lane, duration, resolved, onPress, onEscape
   const scale = useRef(new Animated.Value(1)).current;
   const burst = useRef(new Animated.Value(0)).current;
   const escapedRef = useRef(false);
+  const pressedRef = useRef(false);
   const onEscapeRef = useRef(onEscape);
 
   useEffect(() => {
@@ -213,6 +214,7 @@ function RisingBalloon({ item, icon, lane, duration, resolved, onPress, onEscape
 
   useEffect(() => {
     escapedRef.current = false;
+    pressedRef.current = false;
     travel.setValue(0);
     scale.setValue(1);
     burst.setValue(0);
@@ -237,7 +239,8 @@ function RisingBalloon({ item, icon, lane, duration, resolved, onPress, onEscape
   }, [resolved]);
 
   const pop = () => {
-    if (resolved) return;
+    if (resolved || pressedRef.current) return;
+    pressedRef.current = true;
     escapedRef.current = true;
     Animated.parallel([
       Animated.sequence([
@@ -251,18 +254,29 @@ function RisingBalloon({ item, icon, lane, duration, resolved, onPress, onEscape
 
   const tone = lane === 0 ? 'gold' : 'aqua';
   return (
-    <Animated.View style={[
-      styles.risingWrap,
-      { left: lane === 0 ? '42%' : '66%', transform: [
-        { translateY: travel.interpolate({ inputRange: [0, 1], outputRange: [190, -170] }) },
-        { translateX: sway.interpolate({ inputRange: [-1, 1], outputRange: [-10, 10] }) },
-      ] },
-    ]}>
+    <Animated.View
+      pointerEvents={resolved ? 'none' : 'box-none'}
+      style={[
+        styles.risingWrap,
+        { left: lane === 0 ? '42%' : '66%', transform: [
+          { translateY: travel.interpolate({ inputRange: [0, 1], outputRange: [190, -170] }) },
+          { translateX: sway.interpolate({ inputRange: [-1, 1], outputRange: [-10, 10] }) },
+        ] },
+      ]}
+    >
       <Animated.View pointerEvents="none" style={[styles.popBurst, { opacity: burst.interpolate({ inputRange: [0, 0.15, 1], outputRange: [0, 1, 0] }), transform: [{ scale: burst.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1.8] }) }] }]}>
         {[0, 1, 2, 3, 4, 5].map((particle) => <View key={particle} style={[styles.popParticle, { transform: [{ rotate: `${particle * 60}deg` }, { translateY: -28 }] }]} />)}
       </Animated.View>
-      <Animated.View style={{ transform: [{ scale }] }}>
-        <Pressable accessibilityRole="button" accessibilityLabel={`Globo ${item.label}`} disabled={resolved} onPress={pop} style={({ pressed }) => [styles.balloonButton, pressed && styles.pressed]}>
+      <Animated.View pointerEvents="box-none" style={{ transform: [{ scale }] }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Reventar globo ${item.label}`}
+          accessibilityState={{ disabled: resolved }}
+          disabled={resolved}
+          hitSlop={14}
+          onPressIn={pop}
+          style={({ pressed }) => [styles.balloonButton, pressed && !resolved && styles.pressed]}
+        >
           <BalloonObject label={item.label} tone={tone} />
           <View pointerEvents="none" style={styles.itemIcon}><Text style={styles.itemIconText}>{icon}</Text></View>
         </Pressable>
@@ -285,16 +299,16 @@ const styles = StyleSheet.create({
   targetReminder: { position: 'absolute', left: 86, top: '27%', width: 105, minHeight: 52, borderRadius: 17, backgroundColor: 'rgba(255,253,243,0.95)', borderWidth: 2, borderColor: colors.gold, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
   targetReminderSmall: { color: colors.inkMuted, fontSize: 5.5, fontWeight: '900', letterSpacing: 1 },
   targetReminderBig: { color: colors.forestDark, fontSize: 10, fontWeight: '900', marginTop: 1 },
-  risingWrap: { position: 'absolute', bottom: 0, width: 96, height: 136, alignItems: 'center', justifyContent: 'center' },
-  balloonButton: { position: 'relative', alignItems: 'center', justifyContent: 'center' },
-  itemIcon: { position: 'absolute', top: 25, alignSelf: 'center', width: 40, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.90)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)', alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  risingWrap: { position: 'absolute', bottom: 0, width: 118, height: 150, alignItems: 'center', justifyContent: 'center', zIndex: 20, elevation: 20 },
+  balloonButton: { width: 110, height: 144, position: 'relative', alignItems: 'center', justifyContent: 'center' },
+  itemIcon: { position: 'absolute', top: 31, alignSelf: 'center', width: 40, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.90)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.98)', alignItems: 'center', justifyContent: 'center', ...shadows.soft },
   itemIconText: { fontSize: 18, lineHeight: 20 },
-  popBurst: { position: 'absolute', width: 74, height: 74, left: 11, top: 18, zIndex: 5 },
+  popBurst: { position: 'absolute', width: 74, height: 74, left: 22, top: 25, zIndex: 25 },
   popParticle: { position: 'absolute', left: 32, top: 31, width: 9, height: 9, borderRadius: 5, backgroundColor: colors.gold, borderWidth: 1, borderColor: colors.white },
   decisionHint: { position: 'absolute', bottom: 5, left: '31%', right: '18%', minHeight: 36, borderRadius: radii.pill, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.leafSoft, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, ...shadows.soft },
   decisionTitle: { color: colors.gold, fontSize: 6.5, fontWeight: '900', letterSpacing: 0.4 },
   decisionCopy: { color: colors.white, fontSize: 7.2, fontWeight: '800', marginTop: 1 },
   feedbackRow: { minHeight: 26, alignItems: 'center', justifyContent: 'center' },
   tip: { color: colors.forestDark, fontSize: 8, fontWeight: '800', backgroundColor: colors.glassCream, borderRadius: radii.pill, paddingHorizontal: 10, paddingVertical: 4 },
-  pressed: { transform: [{ scale: 0.95 }] },
+  pressed: { transform: [{ scale: 0.96 }] },
 });
