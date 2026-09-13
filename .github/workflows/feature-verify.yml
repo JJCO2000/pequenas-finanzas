@@ -24,6 +24,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run check:ci-policy
       - run: npm run typecheck
       - run: npx expo install --check
       - run: npx expo-doctor@latest
