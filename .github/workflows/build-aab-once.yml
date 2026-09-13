@@ -1,0 +1,75 @@
+name: Authorized one-shot production AAB
+
+on:
+  push:
+    branches:
+      - build/aab-main-e4a42f2
+
+permissions:
+  contents: read
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout canonical main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Require Expo authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${EXPO_TOKEN:-}"
+
+      - run: npm ci
+      - run: npm run check:ci-policy
+      - run: npm run typecheck
+      - run: npx expo install --check
+      - run: npx expo-doctor@latest
+
+      - name: Generate production AAB with EAS Build
+        id: eas_build
+        shell: bash
+        run: |
+          set -euo pipefail
+          BUILD_JSON="$RUNNER_TEMP/eas-build.json"
+          npx eas-cli@latest build --platform android --profile production --non-interactive --wait --json > "$BUILD_JSON"
+          BUILD_ID="$(jq -r 'if type == "array" then .[0].id else .id end' "$BUILD_JSON")"
+          BUILD_URL="$(jq -r 'if type == "array" then .[0].artifacts.buildUrl else .artifacts.buildUrl end' "$BUILD_JSON")"
+          test -n "$BUILD_ID" && test "$BUILD_ID" != "null"
+          test -n "$BUILD_URL" && test "$BUILD_URL" != "null"
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+          echo "build_url=$BUILD_URL" >> "$GITHUB_OUTPUT"
+          echo "EAS build completed: $BUILD_ID"
+
+      - name: Download generated AAB
+        shell: bash
+        env:
+          BUILD_URL: ${{ steps.eas_build.outputs.build_url }}
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 "$BUILD_URL" --output pequenas-finanzas-production.aab
+          test -s pequenas-finanzas-production.aab
+          sha256sum pequenas-finanzas-production.aab > pequenas-finanzas-production.aab.sha256
+          ls -lh pequenas-finanzas-production.aab pequenas-finanzas-production.aab.sha256
+
+      - name: Store AAB as GitHub artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pequenas-finanzas-production-aab
+          path: |
+            pequenas-finanzas-production.aab
+            pequenas-finanzas-production.aab.sha256
+          if-no-files-found: error
+          retention-days: 7
