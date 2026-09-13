@@ -1,0 +1,54 @@
+name: Authorized one-shot Google Play internal submit
+
+on:
+  push:
+    branches:
+      - submit/internal-main-e4a42f2
+
+permissions:
+  contents: read
+
+jobs:
+  submit-internal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout canonical main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Require Expo authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${EXPO_TOKEN:-}"
+
+      - run: npm ci
+
+      - name: Verify internal track configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(node -p "require('./eas.json').submit.internal.android.track")" = "internal"
+          test "$(node -p "require('./eas.json').submit.production.android.track")" = "production"
+          test "$(git rev-parse HEAD)" = "e4a42f278c6ce09c739b9228e9e06f080c0d5d17"
+
+      - name: Submit exact AAB to Google Play internal testing
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx eas-cli@latest submit \
+            --platform android \
+            --profile internal \
+            --id 451c41ef-4f76-4f49-bf9d-2403eaecf1fa \
+            --non-interactive \
+            --wait
