@@ -50,6 +50,7 @@
     "start:dev": "expo start --dev-client --clear",
     "typecheck": "tsc --noEmit",
     "doctor": "npx expo-doctor@latest",
+    "check:ci-policy": "node scripts/check-ci-policy.mjs",
     "verify": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\VERIFY.ps1",
     "verify:release": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\VERIFY_RELEASE.ps1",
     "audit": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\AUDIT_PLAN_1_1.ps1",
