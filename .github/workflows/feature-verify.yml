@@ -3,6 +3,7 @@ name: Feature Verify
 on:
   push:
     branches:
+      - main
       - feature/racha-financiera-v1
       - fix/game-layout-audit-v2
       - audit/navigation-button-v1
