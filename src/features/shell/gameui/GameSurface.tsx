@@ -44,22 +44,26 @@ export function CompactHeader({
   );
 }
 
-export function IconButton({ label, accessibilityLabel, onPress, tone = 'dark' }: {
+export function IconButton({ label, accessibilityLabel, onPress, tone = 'dark', disabled = false }: {
   label: string;
   accessibilityLabel: string;
   onPress: () => void;
   tone?: 'dark' | 'light' | 'gold';
+  disabled?: boolean;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.iconButton,
         tone === 'light' && styles.iconButtonLight,
         tone === 'gold' && styles.iconButtonGold,
-        pressed && styles.pressed,
+        disabled && styles.disabled,
+        pressed && !disabled && styles.pressed,
       ]}
     >
       <Text style={[styles.iconText, tone !== 'dark' && styles.iconTextDark]}>{label}</Text>
@@ -91,12 +95,13 @@ export function HudPill({ label, value, icon, tone = 'light', style }: {
   );
 }
 
-export function SceneHotspot({ art, label, sublabel, onPress, selected = false, style, artBackground = 'rgba(255,255,255,0.84)' }: {
+export function SceneHotspot({ art, label, sublabel, onPress, selected = false, disabled = false, style, artBackground = 'rgba(255,255,255,0.84)' }: {
   art: ImageSourcePropType;
   label: string;
   sublabel?: string;
   onPress: () => void;
   selected?: boolean;
+  disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   artBackground?: string;
 }) {
@@ -104,8 +109,10 @@ export function SceneHotspot({ art, label, sublabel, onPress, selected = false, 
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ selected, disabled }}
+      disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.hotspot, selected && styles.hotspotSelected, style, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.hotspot, selected && styles.hotspotSelected, disabled && styles.disabled, style, pressed && !disabled && styles.pressed]}
     >
       <View style={[styles.hotspotArtWell, { backgroundColor: artBackground }]}>
         <Image source={art} contentFit="contain" cachePolicy="memory-disk" allowDownscaling style={styles.hotspotArt} />
@@ -128,11 +135,13 @@ export function GameTile({ art, title, badge, meta, onPress, locked = false, sty
   style?: StyleProp<ViewStyle>;
   artBackground?: string;
 }) {
+  const disabled = !onPress || locked;
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={onPress ? title : undefined}
-      disabled={!onPress || locked}
+      accessibilityState={onPress ? { disabled: locked } : undefined}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [styles.gameTile, locked && styles.locked, style, pressed && onPress && !locked && styles.pressed]}
     >
@@ -157,9 +166,30 @@ export function FloatingCard({ children, tone = 'light', style }: { children: Re
   return <View style={[styles.floatingCard, tone === 'dark' && styles.floatingCardDark, style]}>{children}</View>;
 }
 
-export function ActionPill({ label, onPress, tone = 'gold', style }: { label: string; onPress: () => void; tone?: 'gold' | 'dark' | 'light'; style?: StyleProp<ViewStyle> }) {
+export function ActionPill({ label, onPress, tone = 'gold', style, disabled = false, accessibilityLabel }: {
+  label: string;
+  onPress: () => void;
+  tone?: 'gold' | 'dark' | 'light';
+  style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
+  accessibilityLabel?: string;
+}) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.action, tone === 'dark' && styles.actionDark, tone === 'light' && styles.actionLight, style, pressed && styles.pressed]}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.action,
+        tone === 'dark' && styles.actionDark,
+        tone === 'light' && styles.actionLight,
+        style,
+        disabled && styles.disabled,
+        pressed && !disabled && styles.pressed,
+      ]}
+    >
       <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.actionText, tone === 'dark' && styles.actionTextLight]}>{label}</Text>
     </Pressable>
   );
@@ -219,5 +249,6 @@ const styles = StyleSheet.create({
   actionLight: { backgroundColor: 'rgba(255,253,244,0.95)', borderColor: '#DDE7D0' },
   actionText: { color: '#0A4934', fontSize: 9, lineHeight: 11, fontWeight: '900' },
   actionTextLight: { color: colors.white },
+  disabled: { opacity: 0.42 },
   pressed: { transform: [{ scale: 0.965 }] },
 });

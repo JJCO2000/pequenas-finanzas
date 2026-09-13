@@ -13,15 +13,21 @@ export function CollectibleEgg({
   size?: number;
   selected?: boolean;
 }) {
-  const glow = Math.round(size * 0.92);
+  const glow = Math.round(size * 1.12);
+  const ring = Math.round(size * 0.98);
+  const imageSize = Math.round(size * 1.08);
   return (
-    <View style={[styles.eggStage, { width: size + 34, height: size + 30 }]}>
-      <View style={[styles.eggGlow, { width: glow, height: glow, borderRadius: glow / 2, backgroundColor: accent, opacity: selected ? 0.28 : 0.16 }]} />
-      <View style={[styles.eggShadow, { width: Math.round(size * 0.72), backgroundColor: accent }]} />
-      <Image source={source} contentFit="contain" cachePolicy="memory-disk" allowDownscaling style={{ width: size, height: size }} />
+    <View style={[styles.eggStage, { width: size + 42, height: size + 38 }, selected && styles.eggStageSelected]}>
+      <View style={[styles.eggGlow, { width: glow, height: glow, borderRadius: glow / 2, backgroundColor: accent, opacity: selected ? 0.34 : 0.22 }]} />
+      <View style={[styles.eggRing, { width: ring, height: ring, borderRadius: ring / 2, borderColor: accent, opacity: selected ? 0.72 : 0.42 }]} />
+      <View style={[styles.eggCore, { width: Math.round(size * 0.78), height: Math.round(size * 0.82), borderRadius: Math.round(size * 0.4), backgroundColor: accent }]} />
+      <View style={[styles.eggShadow, { width: Math.round(size * 0.82), backgroundColor: accent }]} />
+      <Image source={source} contentFit="contain" cachePolicy="memory-disk" allowDownscaling style={{ width: imageSize, height: imageSize, zIndex: 4 }} />
+      <View pointerEvents="none" style={[styles.eggShine, { width: Math.max(12, Math.round(size * 0.19)), height: Math.max(22, Math.round(size * 0.34)) }]} />
       <View style={[styles.spark, styles.sparkA, { backgroundColor: accent }]} />
       <View style={[styles.spark, styles.sparkB, { backgroundColor: accent }]} />
       <View style={[styles.sparkSmall, styles.sparkC, { backgroundColor: accent }]} />
+      {selected ? <View style={[styles.sparkSelected, { borderColor: accent }]} /> : null}
     </View>
   );
 }
@@ -51,13 +57,18 @@ export function AdventureVolcano({ width = 170, height = 128 }: { width?: number
 
 const styles = StyleSheet.create({
   eggStage: { alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  eggStageSelected: { transform: [{ translateY: -2 }, { scale: 1.04 }] },
   eggGlow: { position: 'absolute' },
-  eggShadow: { position: 'absolute', bottom: 2, height: 9, borderRadius: 999, opacity: 0.20, transform: [{ scaleX: 1.15 }] },
-  spark: { position: 'absolute', width: 7, height: 7, borderRadius: 4, opacity: 0.78 },
-  sparkSmall: { position: 'absolute', width: 4, height: 4, borderRadius: 2, opacity: 0.70 },
-  sparkA: { right: 8, top: 16 },
-  sparkB: { left: 12, top: 30 },
-  sparkC: { right: 19, bottom: 22 },
+  eggRing: { position: 'absolute', borderWidth: 3, backgroundColor: 'rgba(255,255,255,0.34)' },
+  eggCore: { position: 'absolute', opacity: 0.14, transform: [{ scaleX: 0.86 }] },
+  eggShadow: { position: 'absolute', bottom: 1, height: 10, borderRadius: 999, opacity: 0.28, transform: [{ scaleX: 1.18 }] },
+  eggShine: { position: 'absolute', zIndex: 5, left: '31%', top: '23%', borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.46)', transform: [{ rotate: '18deg' }], opacity: 0.78 },
+  spark: { position: 'absolute', width: 8, height: 8, borderRadius: 2, opacity: 0.9, transform: [{ rotate: '45deg' }] },
+  sparkSmall: { position: 'absolute', width: 5, height: 5, borderRadius: 1, opacity: 0.82, transform: [{ rotate: '45deg' }] },
+  sparkA: { right: 6, top: 12 },
+  sparkB: { left: 9, top: 28 },
+  sparkC: { right: 16, bottom: 18 },
+  sparkSelected: { position: 'absolute', width: 14, height: 14, right: 1, top: 3, borderWidth: 3, borderRadius: 3, transform: [{ rotate: '45deg' }], backgroundColor: 'rgba(255,255,255,0.76)' },
 
   volcanoShadow: { position: 'absolute', backgroundColor: 'rgba(12,45,31,0.26)' },
   mountain: {

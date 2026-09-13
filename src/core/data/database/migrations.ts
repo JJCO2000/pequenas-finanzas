@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-const VERSION = 4;
+const VERSION = 5;
 
 export async function migrateDb(db: SQLiteDatabase) {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
@@ -202,6 +202,40 @@ export async function migrateDb(db: SQLiteDatabase) {
       SELECT profile_id,game_id,1,MIN(created_at)
       FROM game_sessions
       GROUP BY profile_id,game_id;
+    `);
+  }
+
+  if (current < 5) {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS streak_state(
+        profile_id TEXT PRIMARY KEY NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+        current_streak INTEGER NOT NULL DEFAULT 0,
+        best_streak INTEGER NOT NULL DEFAULT 0,
+        last_qualified_date TEXT,
+        freezes_available INTEGER NOT NULL DEFAULT 0,
+        last_freeze_award_streak INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS streak_events(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        profile_id TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+        event_type TEXT NOT NULL,
+        local_date TEXT NOT NULL,
+        game_id TEXT,
+        streak_before INTEGER NOT NULL DEFAULT 0,
+        streak_after INTEGER NOT NULL DEFAULT 0,
+        payload_json TEXT,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS streak_events_profile_date
+        ON streak_events(profile_id,local_date,id);
+
+      INSERT OR IGNORE INTO streak_state(
+        profile_id,current_streak,best_streak,last_qualified_date,freezes_available,last_freeze_award_streak,updated_at
+      )
+      SELECT id,0,0,NULL,0,0,datetime('now') FROM profiles;
     `);
   }
 

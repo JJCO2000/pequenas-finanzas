@@ -1,0 +1,43 @@
+name: Feature Verify
+
+on:
+  push:
+    branches:
+      - main
+      - feature/racha-financiera-v1
+      - fix/game-layout-audit-v2
+      - audit/navigation-button-v1
+      - feature/offline-gamefeel-v2
+      - feature/krug-home-camp-v1
+
+concurrency:
+  group: feature-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check:ci-policy
+      - run: npm run typecheck
+      - run: npx expo install --check
+      - run: npx expo-doctor@latest
+      - run: npm run audit:source:hygiene
+      - run: npm run audit:offline
+      - run: npm run audit:offline-gamefeel:v2
+      - run: npm run audit:streak:v1
+      - run: npm run audit:krug:home-camp
+      - run: npm run audit:plan7-rn086
+      - run: npm run audit:plan7-imports
+      - run: npm run audit:plan7-strict
+      - run: npm run audit:games:layout-v2
+      - run: npm run audit:navigation:v1
+      - run: npm run audit:control-states:v1
+      - run: npm audit --omit=dev --audit-level=high

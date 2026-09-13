@@ -9,13 +9,13 @@ export function WorldPanel({ children, tone = 'cream', style }: { children: Reac
 }
 
 export function WorldButton({ label, onPress, disabled = false, compact = false, style }: { label: string; onPress: () => void; disabled?: boolean; compact?: boolean; style?: StyleProp<ViewStyle> }) {
-  return <Pressable accessibilityRole="button" disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.button, compact && styles.buttonCompact, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
+  return <Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.button, compact && styles.buttonCompact, style, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
     <View pointerEvents="none" style={styles.buttonShine} /><Text numberOfLines={1} adjustsFontSizeToFit style={styles.buttonText}>{label}</Text>
   </Pressable>;
 }
 
-export function WorldCircleButton({ label, accessibilityLabel, onPress, size = 36 }: { label: string; accessibilityLabel: string; onPress: () => void; size?: number }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} onPress={onPress} style={({ pressed }) => [styles.circle, { width: size, height: size, borderRadius: size / 2 }, pressed && styles.pressed]}>
+export function WorldCircleButton({ label, accessibilityLabel, onPress, size = 36, disabled = false }: { label: string; accessibilityLabel: string; onPress: () => void; size?: number; disabled?: boolean }) {
+  return <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [styles.circle, { width: size, height: size, borderRadius: size / 2 }, disabled && styles.disabled, pressed && !disabled && styles.pressed]}>
     <Text style={[styles.circleText, { fontSize: Math.round(size * 0.43) }]}>{label}</Text>
   </Pressable>;
 }

@@ -8,9 +8,11 @@ export function ParentGate({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [wrong, setWrong] = useState(false);
   const a = 7; const b = 4;
+  const canSubmit = input.trim().length > 0;
   if (open) return <>{children}</>;
 
   const submit = () => {
+    if (!canSubmit) return;
     if (Number(input) === a * b) { setWrong(false); setOpen(true); return; }
     setWrong(true); setInput('');
   };
@@ -35,9 +37,9 @@ export function ParentGate({ children }: { children: React.ReactNode }) {
               placeholder="Respuesta"
               placeholderTextColor={colors.inkMuted}
             />
-            <Pressable accessibilityRole="button" onPress={submit} style={({ pressed }) => [styles.enter, pressed && styles.pressed]}><Text style={styles.enterText}>ENTRAR</Text></Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Entrar a zona de adultos" accessibilityState={{ disabled: !canSubmit }} disabled={!canSubmit} onPress={submit} style={({ pressed }) => [styles.enter, !canSubmit && styles.disabled, pressed && canSubmit && styles.pressed]}><Text style={styles.enterText}>ENTRAR</Text></Pressable>
           </View>
-          <Text style={[styles.helper, wrong && styles.wrong]}>{wrong ? 'Respuesta incorrecta.' : 'Evita accesos accidentales de niños.'}</Text>
+          <Text accessibilityLiveRegion="polite" style={[styles.helper, wrong && styles.wrong]}>{wrong ? 'Respuesta incorrecta.' : 'Evita accesos accidentales de niños.'}</Text>
         </View>
       </View>
     </View>
@@ -59,5 +61,6 @@ const styles = StyleSheet.create({
   enterText: { color: colors.white, fontSize: 7.5, fontWeight: '900', letterSpacing: 0.7 },
   helper: { color: colors.inkMuted, fontSize: 5.8, fontWeight: '700', marginTop: 3 },
   wrong: { color: colors.danger },
+  disabled: { opacity: 0.38 },
   pressed: { transform: [{ scale: 0.97 }] },
 });

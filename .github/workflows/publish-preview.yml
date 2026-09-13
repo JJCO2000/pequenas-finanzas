@@ -1,0 +1,36 @@
+name: Publish Android Preview OTA
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: OTA update message
+        required: false
+        default: "Pequeñas Finanzas — Preview OTA"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-preview-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      UPDATE_MESSAGE: ${{ inputs.message }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check:ci-policy
+      - run: npm run typecheck
+      - run: npx expo install --check
+      - name: Publish compatible JS/assets to Preview
+        run: npx eas-cli@latest update --channel preview --platform android --environment preview --non-interactive --message "$UPDATE_MESSAGE"

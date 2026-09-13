@@ -6,15 +6,21 @@ function firstParam(value: string | string[] | undefined) {
 
 export function useCampBack() {
   const params = useLocalSearchParams<{ from?: string | string[] }>();
-  const fromCamp = firstParam(params.from) === 'camp';
+  const from = firstParam(params.from);
+  const fromCamp = from === 'camp';
+  const fromGameResult = from === 'game-result';
 
   const goBack = () => {
     if (fromCamp) {
       router.replace({ pathname: '/play', params: { camp: '1' } } as any);
       return;
     }
+    if (fromGameResult) {
+      router.replace('/play' as any);
+      return;
+    }
     router.back();
   };
 
-  return { fromCamp, goBack };
+  return { fromCamp, fromGameResult, goBack };
 }

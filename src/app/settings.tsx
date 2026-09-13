@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { useAppData } from '@/features/session/AppDataProvider';
 import { ACTIVE_THEME } from '@/core/theme';
 import { useCampBack } from '@/features/shell/navigation/useCampBack';
@@ -28,13 +28,13 @@ export default function SettingsScreen() {
   );
 }
 
-function SettingButton({ title, description, value, art, tone, onPress }: { title: string; description: string; value: boolean; art: any; tone: string; onPress: () => void }) {
+function SettingButton({ title, description, value, art, tone, onPress }: { title: string; description: string; value: boolean; art: ImageSourcePropType; tone: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.setting, { backgroundColor: tone }, value && styles.settingActive, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="switch" accessibilityLabel={title} accessibilityHint={description} accessibilityState={{ checked: value }} onPress={onPress} style={({ pressed }) => [styles.setting, { backgroundColor: tone }, value && styles.settingActive, pressed && styles.pressed]}>
       <Image source={art} style={styles.settingArt} resizeMode="contain" />
       <Text style={styles.settingTitle}>{title}</Text>
       <Text style={styles.settingDesc}>{description}</Text>
-      <View style={[styles.switch, value && styles.switchOn]}><View style={[styles.knob, value && styles.knobOn]} /></View>
+      <View pointerEvents="none" style={[styles.switch, value && styles.switchOn]}><View style={[styles.knob, value && styles.knobOn]} /></View>
     </Pressable>
   );
 }

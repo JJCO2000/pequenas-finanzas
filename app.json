@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Peque\u00f1as Finanzas",
+    "name": "Pequeñas Finanzas",
     "slug": "pequenas-finanzas",
     "scheme": "pequenasfinanzas",
     "version": "0.1.1",
@@ -51,6 +51,12 @@
     "icon": "./assets/app/icon.png",
     "web": {
       "favicon": "./assets/app/favicon.png"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/276b4c9a-4ba5-4366-b3e4-219c89fad343"
     },
     "extra": {
       "router": {},

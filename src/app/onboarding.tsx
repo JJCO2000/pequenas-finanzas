@@ -17,8 +17,9 @@ export default function Onboarding() {
   const [busy, setBusy] = useState(false);
   const { createChildProfile } = useAppData();
 
+  const canContinue = Boolean(name.trim()) && !busy;
   const go = async () => {
-    if (!name.trim() || busy) return;
+    if (!canContinue) return;
     setBusy(true);
     try { await createChildProfile(name.trim(), age); router.replace('/play' as any); }
     finally { setBusy(false); }
@@ -33,7 +34,7 @@ export default function Onboarding() {
         <Image source={ACTIVE_THEME.characters.startCast[3]!} style={[styles.coverCharacter, styles.castD]} resizeMode="contain" />
         <View style={styles.coverCenter}>
           <View style={styles.logoPill}><Text style={styles.coverTitle}>Pequeñas Finanzas</Text><Text style={styles.coverSub}>Aprende jugando en una aventura prehistórica.</Text></View>
-          <ActionPill label="JUGAR  →" onPress={() => setStage('profile')} style={styles.startButton} />
+          <ActionPill label="JUGAR  →" accessibilityLabel="Empezar" onPress={() => setStage('profile')} style={styles.startButton} />
         </View>
       </WorldScene>
     );
@@ -47,11 +48,11 @@ export default function Onboarding() {
         <FloatingCard style={styles.form}>
           <Text style={styles.formKicker}>NUEVO EXPLORADOR</Text>
           <Text style={styles.formTitle}>¿Cómo te llamas?</Text>
-          <TextInput value={name} onChangeText={setName} maxLength={24} autoCorrect={false} autoCapitalize="words" placeholder="Tu nombre" placeholderTextColor={colors.inkMuted} style={styles.input} returnKeyType="done" />
+          <TextInput accessibilityLabel="Nombre del explorador" value={name} onChangeText={setName} onSubmitEditing={() => { if (canContinue) void go(); }} maxLength={24} autoCorrect={false} autoCapitalize="words" placeholder="Tu nombre" placeholderTextColor={colors.inkMuted} style={styles.input} returnKeyType="done" />
           <View style={styles.ageRow}>
-            {(['6-8', '9-12'] as AgeBand[]).map((band) => <Pressable key={band} onPress={() => setAge(band)} style={[styles.ageCard, age === band && styles.ageActive]}><Text style={[styles.ageText, age === band && styles.ageTextActive]}>{band} años</Text></Pressable>)}
+            {(['6-8', '9-12'] as AgeBand[]).map((band) => <Pressable key={band} accessibilityRole="button" accessibilityLabel={`Edad ${band} años`} accessibilityState={{ selected: age === band }} onPress={() => setAge(band)} style={[styles.ageCard, age === band && styles.ageActive]}><Text style={[styles.ageText, age === band && styles.ageTextActive]}>{band} años</Text></Pressable>)}
           </View>
-          <ActionPill label={busy ? 'PREPARANDO…' : 'ENTRAR AL MAPA  →'} onPress={() => void go()} style={styles.continue} />
+          <ActionPill label={busy ? 'PREPARANDO…' : 'ENTRAR AL MAPA  →'} accessibilityLabel="Crear perfil y entrar al mapa" onPress={() => void go()} disabled={!canContinue} style={styles.continue} />
         </FloatingCard>
       </KeyboardAvoidingView>
     </WorldScene>

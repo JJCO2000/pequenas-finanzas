@@ -24,6 +24,7 @@ import type {
   WalletTransaction,
 } from '@/core/domain/types';
 import type { GameResult } from '@/core/game-runtime';
+import type { StreakSnapshot } from '@/core/progression/streak';
 import { useAppRepository } from '@/core/data/repositories/useAppRepository';
 import {
   getInvestmentOpportunityForDay,
@@ -64,6 +65,7 @@ type AppDataContextValue = {
   currentDay: number;
   gameUnlocks: GameUnlock[];
   settings: Record<string, string>;
+  streak: StreakSnapshot | null;
   refresh: () => Promise<void>;
   ensureAdventureThrough: (dayNumber: number) => Promise<void>;
   saveMapPosition: (offsetX: number) => Promise<void>;
@@ -93,6 +95,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
   const [adventureDays, setAdventureDays] = useState<AdventureDay[]>([]);
   const [gameUnlocks, setGameUnlocks] = useState<GameUnlock[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
+  const [streak, setStreak] = useState<StreakSnapshot | null>(null);
 
   const hydrateAdventure = useCallback(async (
     activeProfile: ChildProfile,
@@ -150,6 +153,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         setAdventureDays([]);
         setGameUnlocks([]);
         setSettings({});
+        setStreak(null);
         return;
       }
 
@@ -162,6 +166,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         nextInventory,
         nextUnlocks,
         nextSettings,
+        nextStreak,
       ] = await Promise.all([
         repository.getWallet(activeProfile.id),
         repository.getTransactions(activeProfile.id),
@@ -169,6 +174,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         repository.getInventory(activeProfile.id),
         repository.getGameUnlocks(activeProfile.id),
         repository.getSettings(activeProfile.id),
+        repository.getStreakState(activeProfile.id),
       ]);
 
       setWallet(nextWallet);
@@ -180,6 +186,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
       setAdventureDays(adventure.days);
       setGameUnlocks(nextUnlocks);
       setSettings(nextSettings);
+      setStreak(nextStreak);
     } finally {
       setLoading(false);
     }
@@ -250,6 +257,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     currentDay,
     gameUnlocks,
     settings,
+    streak,
     refresh,
     ensureAdventureThrough,
     saveMapPosition,
@@ -338,6 +346,9 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
         mode,
         campaignDay,
       );
+      if (result.completed) {
+        await repository.qualifyDailyStreak(activeProfile.id, result.gameId);
+      }
       if (rewardResult.currentDay !== null) {
         await ensureAdventureThrough(rewardResult.currentDay + BUFFER_DAYS);
       }
@@ -375,6 +386,7 @@ export function AppDataProvider({ children }: { children: React.ReactNode }) {
     requireProfile,
     saveMapPosition,
     settings,
+    streak,
     transactions,
     wallet,
   ]);

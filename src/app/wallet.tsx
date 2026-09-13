@@ -18,6 +18,10 @@ export default function WalletScreen() {
   const [mode, setMode] = useState<WalletMode>('save');
   const [message, setMessage] = useState<Message>(null);
   const { goBack } = useCampBack();
+  const availableCents = wallet?.availableCents ?? 0;
+  const savingsCents = wallet?.savingsCents ?? 0;
+  const canSaveTen = availableCents >= pesos(10);
+  const canUnsaveTen = savingsCents >= pesos(10);
 
   const doAction = async (action: () => Promise<void>, success: string) => {
     try { await action(); setMessage({ text: success, good: true }); }
@@ -32,14 +36,14 @@ export default function WalletScreen() {
       </View>
 
       <View style={styles.objects}>
-        <SceneHotspot art={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} artBackground="#FFF0AF" label="Disponible" sublabel={formatMoney(wallet?.availableCents ?? 0)} onPress={() => setMode('history')} selected={mode === 'history'} />
-        <SceneHotspot art={ACTIVE_THEME.decor.savings} artBackground="#E4F3D8" label="Ahorro" sublabel={formatMoney(wallet?.savingsCents ?? 0)} onPress={() => setMode('save')} selected={mode === 'save'} />
+        <SceneHotspot art={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} artBackground="#FFF0AF" label="Disponible" sublabel={formatMoney(availableCents)} onPress={() => setMode('history')} selected={mode === 'history'} />
+        <SceneHotspot art={ACTIVE_THEME.decor.savings} artBackground="#E4F3D8" label="Ahorro" sublabel={formatMoney(savingsCents)} onPress={() => setMode('save')} selected={mode === 'save'} />
         <SceneHotspot art={ACTIVE_THEME.characters.secondary} artBackground="#FFE0C7" label="Inversión" sublabel={formatMoney(wallet?.investedCents ?? 0)} onPress={() => setMode('invest')} selected={mode === 'invest'} />
         <SceneHotspot art={ACTIVE_THEME.shop.featuredItem} artBackground="#EEE5FF" label="Tienda" sublabel="Mejoras" onPress={() => router.push('/shop' as any)} />
       </View>
 
       <FloatingCard style={styles.drawer}>
-        <View style={styles.tabs}>
+        <View style={styles.tabs} accessibilityRole="tablist">
           <Tab label="AHORRO" active={mode === 'save'} onPress={() => { setMode('save'); setMessage(null); }} />
           <Tab label="INVERTIR" active={mode === 'invest'} onPress={() => { setMode('invest'); setMessage(null); }} />
           <Tab label="MOVIMIENTOS" active={mode === 'history'} onPress={() => { setMode('history'); setMessage(null); }} />
@@ -54,8 +58,8 @@ export default function WalletScreen() {
               <Text numberOfLines={1} style={styles.copy}>El dinero solo cambia de lugar: disponible ↔ ahorro.</Text>
             </View>
             <View style={styles.actions}>
-              <ActionPill label="AHORRAR $10" onPress={() => void doAction(() => save(pesos(10)), 'Guardaste $10.')} tone="gold" />
-              <ActionPill label="RETIRAR $10" onPress={() => void doAction(() => unsave(pesos(10)), 'Retiraste $10.')} tone="light" />
+              <ActionPill label="AHORRAR $10" onPress={() => void doAction(() => save(pesos(10)), 'Guardaste $10.')} disabled={!canSaveTen} tone={canSaveTen ? 'gold' : 'light'} />
+              <ActionPill label="RETIRAR $10" onPress={() => void doAction(() => unsave(pesos(10)), 'Retiraste $10.')} disabled={!canUnsaveTen} tone={canUnsaveTen ? 'light' : 'light'} />
             </View>
           </View>
         ) : null}
@@ -69,7 +73,10 @@ export default function WalletScreen() {
               <Text numberOfLines={1} style={styles.copy}>{activeInvestments.length} activas · regla N+4 / +50%.</Text>
             </View>
             <View style={styles.actions}>
-              {INVEST_AMOUNTS.map((amount) => <ActionPill key={amount} label={`$${amount}`} onPress={() => void doAction(() => invest(pesos(amount)), `Inversión de $${amount} enviada.`)} tone="gold" />)}
+              {INVEST_AMOUNTS.map((amount) => {
+                const canInvestAmount = availableCents >= pesos(amount);
+                return <ActionPill key={amount} label={`$${amount}`} accessibilityLabel={`Invertir ${amount} pesos`} onPress={() => void doAction(() => invest(pesos(amount)), `Inversión de $${amount} enviada.`)} disabled={!canInvestAmount} tone={canInvestAmount ? 'gold' : 'light'} />;
+              })}
               <ActionPill label="VER TODAS" onPress={() => router.push('/investments' as any)} tone="dark" />
             </View>
           </View>
@@ -89,13 +96,13 @@ export default function WalletScreen() {
         ) : null}
       </FloatingCard>
 
-      {message ? <View style={[styles.toast, message.good ? styles.toastGood : styles.toastBad]}><Text style={styles.toastText}>{message.text}</Text></View> : null}
+      {message ? <View accessibilityLiveRegion="polite" style={[styles.toast, message.good ? styles.toastGood : styles.toastBad]}><Text style={styles.toastText}>{message.text}</Text></View> : null}
     </WorldScene>
   );
 }
 
 function Tab({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
-  return <Pressable onPress={onPress} style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && styles.pressed]}><Text style={[styles.tabText, active && styles.tabTextActive]}>{label}</Text></Pressable>;
+  return <Pressable accessibilityRole="tab" accessibilityLabel={label} accessibilityState={{ selected: active }} onPress={onPress} style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && styles.pressed]}><Text style={[styles.tabText, active && styles.tabTextActive]}>{label}</Text></Pressable>;
 }
 
 const styles = StyleSheet.create({

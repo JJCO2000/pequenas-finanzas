@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GameHost } from '@/features/games/GameHost';
 import { useAppData } from '@/features/session/AppDataProvider';
 import { createGameSession, type GameResult } from '@/core/game-runtime';
@@ -15,8 +16,44 @@ import { GameIntroScreen, LearningPeek } from '@/features/games/ui/GameIntroScre
 import { ScenicBackdrop } from '@/features/shell/components/PFVisual';
 import { colors, shadows } from '@/core/theme/tokens';
 
+type ResultStat = { label: string; value: string };
+
+const METRIC_LABELS: Record<string, string> = {
+  coins: 'MONEDAS',
+  correct: 'ACIERTOS',
+  wrong: 'ERRORES',
+  bestCombo: 'MEJOR RACHA',
+  bonusCaught: 'BONUS',
+  hazards: 'PELIGROS',
+  livesLeft: 'VIDAS',
+  rounds: 'RONDAS',
+  averageResilience: 'RESILIENCIA',
+  missions: 'MISIONES',
+  mistakes: 'ERRORES',
+  averageScore: 'PROMEDIO',
+  keys: 'LLAVES',
+  banked: 'PROTEGIDO',
+  cashouts: 'ASEGURADAS',
+  bombs: 'CODICIA',
+  spins: 'GIROS',
+};
+
+function resultStats(result: GameResult): ResultStat[] {
+  const metrics = result.metrics ?? {};
+  const preferred = [
+    'coins', 'correct', 'wrong', 'bestCombo', 'bonusCaught', 'hazards', 'livesLeft', 'rounds',
+    'averageResilience', 'missions', 'mistakes', 'averageScore', 'keys', 'banked', 'cashouts', 'bombs', 'spins',
+  ];
+  const entries = Object.entries(metrics as Record<string, unknown>)
+    .filter(([key, value]) => preferred.includes(key) && (typeof value === 'number' || typeof value === 'string'))
+    .sort(([a], [b]) => preferred.indexOf(a) - preferred.indexOf(b))
+    .slice(0, 4);
+  return entries.map(([key, value]) => ({ label: METRIC_LABELS[key] ?? key.toUpperCase(), value: String(value) }));
+}
+
 export default function GameRoute() {
   const params = useLocalSearchParams<{ gameId: string; mode?: string; day?: string }>();
+  const insets = useSafeAreaInsets();
   const { profile, inventory, settings, submitGameResult } = useAppData();
   const gameId = String(params.gameId);
   const game = getGame(gameId);
@@ -29,6 +66,7 @@ export default function GameRoute() {
   const [result, setResult] = useState<GameResult | null>(null);
   const [reward, setReward] = useState<{ rewardCents: number; multiplier: number; maturedCount: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const modifiers = useMemo(() => ({
     ...deriveGameModifiers(inventory),
@@ -45,16 +83,24 @@ export default function GameRoute() {
     return <ScenicBackdrop source={ACTIVE_THEME.world.shell} overlay="dark" contentStyle={styles.missingRoot}><Text style={styles.missing}>Juego no encontrado.</Text></ScenicBackdrop>;
   }
 
-  const finish = async (nextResult: GameResult) => {
-    if (submitting || result) return;
+  const persistResult = async (nextResult: GameResult) => {
+    if (submitting) return;
     setSubmitting(true);
+    setSaveError(null);
     try {
-      setResult(nextResult);
       const outcome = await submitGameResult(nextResult, { mode, campaignDay });
       setReward({ rewardCents: outcome.rewardCents, multiplier: outcome.multiplier, maturedCount: outcome.maturedInvestments.length });
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'No se pudo guardar el resultado.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const finish = (nextResult: GameResult) => {
+    if (result) return;
+    setResult(nextResult);
+    void persistResult(nextResult);
   };
 
   const returnPath = mode === 'campaign' ? '/play' : '/arcade';
@@ -64,14 +110,16 @@ export default function GameRoute() {
       router.replace({ pathname: '/play', params: { completed: String(campaignDay) } } as any);
       return;
     }
-    router.replace(returnPath as any);
+    router.replace({ pathname: '/arcade', params: { from: 'game-result' } } as any);
   };
 
   const resultSubtitle = reward?.maturedCount
     ? `${reward.maturedCount} inversión(es) también llegaron a su fecha de cobro.`
     : mode === 'campaign'
-      ? 'El siguiente punto de la expedición ya está listo en el mapa.'
-      : `Tu resultado quedó guardado. Multiplicador de hoy: ×${reward?.multiplier ?? 1}.`;
+      ? 'Tu resultado quedó registrado. El siguiente punto de la expedición queda listo al continuar.'
+      : reward
+        ? `Resultado guardado · multiplicador ×${reward.multiplier}.`
+        : 'Tu partida terminó. Revisa cómo te fue mientras guardamos la recompensa.';
 
   if (!started) {
     return (
@@ -97,13 +145,30 @@ export default function GameRoute() {
     );
   }
 
+  const safeHorizontal = Math.max(8, insets.left, insets.right);
+  const safeTop = Math.max(4, insets.top);
+  const safeBottom = Math.max(4, insets.bottom);
+
   return (
     <View style={styles.gameRoot}>
-      <GameHost componentId={game.componentId} session={session} onFinish={(nextResult: GameResult) => void finish(nextResult)} />
+      <View style={[styles.gameViewport, { paddingLeft: safeHorizontal, paddingRight: safeHorizontal, paddingTop: safeTop, paddingBottom: safeBottom }]}>
+        <GameHost componentId={game.componentId} session={session} onFinish={finish} />
+      </View>
 
-      <View pointerEvents="box-none" style={styles.controlsOverlay}>
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.controlsOverlay,
+          {
+            left: Math.max(8, insets.left + 4),
+            right: Math.max(8, insets.right + 4),
+            top: Math.max(8, insets.top + 4),
+          },
+        ]}
+      >
         <Pressable accessibilityLabel="Salir del juego" onPress={goBack} style={({ pressed }) => [styles.floatingBack, pressed && styles.pressed]}>
-          <Text style={styles.floatingBackText}>←</Text>
+          <Text style={styles.floatingBackArrow}>←</Text>
+          <Text style={styles.floatingBackLabel}>SALIR</Text>
         </Pressable>
         <LearningPeek
           open={learningOpen}
@@ -114,12 +179,16 @@ export default function GameRoute() {
       </View>
 
       <MissionCompleteOverlay
-        visible={Boolean(result && reward)}
+        visible={Boolean(result)}
         eyebrow={mode === 'campaign' ? `DÍA ${campaignDay ?? ''} SUPERADO` : 'PARTIDA COMPLETADA'}
-        title={mode === 'campaign' ? '¡Misión cumplida!' : '¡Buen trabajo!'}
+        title={result?.completed ? '¡Lo lograste!' : 'Partida terminada'}
         subtitle={resultSubtitle}
         scoreText={result ? String(result.score) : undefined}
         rewardText={reward ? formatMoney(reward.rewardCents) : undefined}
+        stats={result ? resultStats(result) : []}
+        saving={submitting}
+        saveError={saveError}
+        onRetrySave={result ? () => void persistResult(result) : undefined}
         primaryLabel={mode === 'campaign' ? 'CONTINUAR AVENTURA →' : 'VOLVER A ARCADE'}
         onPrimary={returnToJourney}
         secondaryLabel="VER MI DINERO"
@@ -135,9 +204,11 @@ const styles = StyleSheet.create({
   missingRoot: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   missing: { color: colors.white, fontSize: 26, fontWeight: '900' },
   introRoot: { flex: 1 },
-  gameRoot: { flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: colors.ink },
-  controlsOverlay: { position: 'absolute', zIndex: 50, left: 8, right: 8, top: 8, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  floatingBack: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.white, alignItems: 'center', justifyContent: 'center', ...shadows.card },
-  floatingBackText: { color: colors.white, fontSize: 24, lineHeight: 26, fontWeight: '900' },
+  gameRoot: { flex: 1, position: 'relative', overflow: 'hidden', backgroundColor: colors.forestDark },
+  gameViewport: { flex: 1, minWidth: 0, minHeight: 0 },
+  controlsOverlay: { position: 'absolute', zIndex: 50, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+  floatingBack: { minWidth: 92, height: 38, borderRadius: 20, backgroundColor: colors.glassDark, borderWidth: 2, borderColor: colors.white, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 12, ...shadows.card },
+  floatingBackArrow: { color: colors.white, fontSize: 21, lineHeight: 22, fontWeight: '900' },
+  floatingBackLabel: { color: colors.white, fontSize: 8, fontWeight: '900', letterSpacing: 0.7 },
   pressed: { transform: [{ scale: 0.97 }] },
 });
