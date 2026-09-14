@@ -35,6 +35,7 @@ jobs:
       - run: npm run audit:offline-gamefeel:v2
       - run: npm run audit:streak:v1
       - run: npm run audit:krug:home-camp
+      - run: node scripts/check-home-5-1.mjs
       - run: npm run audit:plan7-rn086
       - run: npm run audit:plan7-imports
       - run: npm run audit:plan7-strict
