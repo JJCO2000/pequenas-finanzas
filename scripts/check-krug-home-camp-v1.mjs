@@ -42,7 +42,7 @@ assert.match(home, /referenceCanvas: \{ position: 'relative', flexShrink: 0, ove
 assert.match(home, /referenceArtwork: \{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' \}/, 'Approved artwork must fill the exact reference canvas');
 assert.match(home, /campInteractionLayer: \{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 19 \}/, 'Camp interaction layer must cover the exact reference canvas');
 assert.doesNotMatch(home, /StyleSheet\.absoluteFillObject/, 'RN 0.86 incompatible StyleSheet.absoluteFillObject must not return');
-assert.equal((home.match(/styles\.campHitbox/g) ?? []).length, 6, 'Home must expose exactly six secondary destination hitboxes');
+assert.equal((home.match(/styles\.campHitbox\b/g) ?? []).length, 6, 'Home must expose exactly six secondary destination hitboxes');
 assert.equal((home.match(/<ActionPill/g) ?? []).length, 1, 'Home must have exactly one primary ActionPill');
 assert.match(home, /label="IR A MI MISIÓN →"/, 'Home primary CTA must describe where it goes');
 assert.match(home, /accessibilityLabel="Ir a mi misión actual"/, 'Home primary CTA needs an explicit accessible action');
