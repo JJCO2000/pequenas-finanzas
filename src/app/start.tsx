@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Redirect, router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppData } from '@/features/session/AppDataProvider';
 import { ACTIVE_THEME } from '@/core/theme';
 import { formatMoney } from '@/core/domain/money';
@@ -21,10 +22,19 @@ const REFERENCE_HEIGHT = 864;
 export default function StartScreen() {
   const { profile, currentDay, adventureDays, wallet, gameUnlocks } = useAppData();
   const { width: viewportWidth, height: viewportHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const current = useMemo(() => adventureDays.find((day) => day.dayNumber === currentDay) ?? null, [adventureDays, currentDay]);
   if (!profile) return <Redirect href={'/onboarding' as any} />;
 
-  const referenceScale = Math.min(viewportWidth / REFERENCE_WIDTH, viewportHeight / REFERENCE_HEIGHT);
+  // Match WorldScene's safe-area padding exactly so the approved 16:9 canvas
+  // never sits beneath a notch, rounded corner, gesture area, or its minimum gutter.
+  const safePaddingLeft = Math.max(insets.left, 12);
+  const safePaddingRight = Math.max(insets.right, 12);
+  const safePaddingTop = Math.max(insets.top, 10);
+  const safePaddingBottom = Math.max(insets.bottom, 10);
+  const safeViewportWidth = Math.max(1, viewportWidth - safePaddingLeft - safePaddingRight);
+  const safeViewportHeight = Math.max(1, viewportHeight - safePaddingTop - safePaddingBottom);
+  const referenceScale = Math.min(safeViewportWidth / REFERENCE_WIDTH, safeViewportHeight / REFERENCE_HEIGHT);
   const px = (value: number) => value * referenceScale;
   const currentTitle = current ? current.gameId ? getGamePresentation(current.gameId).title : current.title : 'Explora el mapa';
   const missionArt = current?.gameId ? (ACTIVE_THEME.gameThumbnails?.[current.gameId] ?? ACTIVE_THEME.characters.primary) : ACTIVE_THEME.characters.primary;
@@ -32,7 +42,7 @@ export default function StartScreen() {
   const stage = getAdventureStage(currentDay);
 
   return (
-    <WorldScene background={HOME_REFERENCE} tone="none" safe={false} contentStyle={styles.root}>
+    <WorldScene background={HOME_REFERENCE} tone="none" safe contentStyle={styles.root}>
       <View
         style={[
           styles.referenceCanvas,
@@ -404,5 +414,5 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   continueButtonText: { color: '#074C35', fontWeight: '900' },
-  continueButtonHitbox: { position: 'absolute', left: 0, right: 0, top: -8, bottom: -8, opacity: 0 },
+  continueButtonHitbox: { position: 'absolute', left: 0, right: 0, top: -10, bottom: -10, opacity: 0 },
 });
