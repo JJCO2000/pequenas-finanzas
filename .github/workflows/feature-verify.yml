@@ -9,6 +9,7 @@ on:
       - audit/navigation-button-v1
       - feature/offline-gamefeel-v2
       - feature/krug-home-camp-v1
+      - feature/home-exact-reference-v1
 
 concurrency:
   group: feature-verify-${{ github.ref }}
