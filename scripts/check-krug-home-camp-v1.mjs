@@ -25,9 +25,18 @@ assert.equal(referenceGitBlobSha, '9842995da1dfc9afa9553266b2290f0d02d2f49b', 'A
 assert.match(home, /HOME_REFERENCE = require\('\.\.\/\.\.\/assets\/world\/v7\/home-approved\.webp'\)/, 'Home must use the approved exact-reference artwork');
 assert.match(home, /REFERENCE_WIDTH = 1536/, 'Home reference coordinate system must stay locked to 1536px width');
 assert.match(home, /REFERENCE_HEIGHT = 864/, 'Home reference coordinate system must stay locked to 864px height');
+assert.match(home, /useSafeAreaInsets/, 'Home must read device safe-area insets');
+assert.match(home, /safePaddingLeft = Math\.max\(insets\.left, 12\)/, 'Home must match WorldScene left safe gutter');
+assert.match(home, /safePaddingRight = Math\.max\(insets\.right, 12\)/, 'Home must match WorldScene right safe gutter');
+assert.match(home, /safePaddingTop = Math\.max\(insets\.top, 10\)/, 'Home must match WorldScene top safe gutter');
+assert.match(home, /safePaddingBottom = Math\.max\(insets\.bottom, 10\)/, 'Home must match WorldScene bottom safe gutter');
+assert.match(home, /safeViewportWidth = Math\.max\(1, viewportWidth - safePaddingLeft - safePaddingRight\)/, 'Home scale must use safe viewport width');
+assert.match(home, /safeViewportHeight = Math\.max\(1, viewportHeight - safePaddingTop - safePaddingBottom\)/, 'Home scale must use safe viewport height');
+assert.match(home, /referenceScale = Math\.min\(safeViewportWidth \/ REFERENCE_WIDTH, safeViewportHeight \/ REFERENCE_HEIGHT\)/, 'Home reference canvas must contain-fit inside the safe viewport');
+assert.match(home, /<WorldScene background=\{HOME_REFERENCE\} tone="none" safe contentStyle=\{styles\.root\}>/, 'Home must enable WorldScene safe-area padding');
 assert.match(home, /styles\.referenceCanvas/, 'Home must render all exact-reference content inside one shared canvas');
 assert.match(home, /\{ width: px\(REFERENCE_WIDTH\), height: px\(REFERENCE_HEIGHT\) \}/, 'Home reference canvas must scale from the approved dimensions');
-assert.match(home, /source=\{HOME_REFERENCE\}[\s\S]{0,160}resizeMode="stretch"[\s\S]{0,160}style=\{styles\.referenceArtwork\}/, 'Approved artwork must be rendered inside the shared reference canvas');
+assert.match(home, /source=\{HOME_REFERENCE\}[\s\S]{0,180}resizeMode="stretch"[\s\S]{0,180}accessible=\{false\}[\s\S]{0,180}style=\{styles\.referenceArtwork\}/, 'Approved artwork must be a non-accessible visual layer inside the shared reference canvas');
 assert.match(home, /root: \{ flex: 1, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' \}/, 'Home reference canvas must stay centered in every viewport');
 assert.match(home, /referenceCanvas: \{ position: 'relative', flexShrink: 0, overflow: 'hidden' \}/, 'Home reference canvas must be the positioning parent for artwork and controls');
 assert.match(home, /referenceArtwork: \{ \.\.\.StyleSheet\.absoluteFillObject, width: '100%', height: '100%' \}/, 'Approved artwork must fill the exact reference canvas');
@@ -73,29 +82,31 @@ for (const exactGeometry of [
   assert.ok(home.includes(exactGeometry), `Home exact-reference geometry drifted: ${exactGeometry.split(':')[0]}`);
 }
 
-// Responsive contract: the approved artwork and every percentage-based hitbox share
-// the same centered 1536x864 canvas. Validate representative phone/tablet aspect ratios,
-// including non-16:9 screens where a viewport-level cover image would otherwise drift.
+// Responsive contract: artwork and every percentage-based hitbox share the same
+// safe-area-contained 1536x864 canvas. Test ordinary, ultrawide, tablet and cutout cases.
 const viewports = [
-  [1536, 864, 'reference 16:9'],
-  [1920, 1080, 'large 16:9'],
-  [2400, 1080, 'wide 20:9'],
-  [1280, 800, '16:10 tablet'],
-  [1024, 768, '4:3 tablet'],
-  [854, 480, 'compact 16:9'],
-  [568, 320, 'small landscape'],
-  [480, 270, 'minimum supported landscape'],
+  [1536, 864, 0, 0, 0, 0, 'reference 16:9'],
+  [1920, 1080, 0, 0, 0, 0, 'large 16:9'],
+  [2400, 1080, 0, 0, 0, 0, 'wide 20:9'],
+  [1280, 800, 0, 0, 0, 0, '16:10 tablet'],
+  [1024, 768, 0, 0, 0, 0, '4:3 tablet'],
+  [852, 393, 59, 59, 0, 21, 'notched landscape phone'],
+  [854, 480, 0, 0, 0, 0, 'compact 16:9'],
+  [568, 320, 0, 0, 0, 0, 'small landscape'],
+  [480, 270, 0, 0, 0, 0, 'minimum supported landscape'],
 ];
-for (const [viewportWidth, viewportHeight, label] of viewports) {
-  const scale = Math.min(viewportWidth / REFERENCE_WIDTH, viewportHeight / REFERENCE_HEIGHT);
+for (const [viewportWidth, viewportHeight, insetLeft, insetRight, insetTop, insetBottom, label] of viewports) {
+  const safeWidth = Math.max(1, viewportWidth - Math.max(insetLeft, 12) - Math.max(insetRight, 12));
+  const safeHeight = Math.max(1, viewportHeight - Math.max(insetTop, 10) - Math.max(insetBottom, 10));
+  const scale = Math.min(safeWidth / REFERENCE_WIDTH, safeHeight / REFERENCE_HEIGHT);
   const canvasWidth = REFERENCE_WIDTH * scale;
   const canvasHeight = REFERENCE_HEIGHT * scale;
-  const offsetX = (viewportWidth - canvasWidth) / 2;
-  const offsetY = (viewportHeight - canvasHeight) / 2;
+  const offsetX = (safeWidth - canvasWidth) / 2;
+  const offsetY = (safeHeight - canvasHeight) / 2;
 
-  assert.ok(canvasWidth <= viewportWidth + 1e-6, `${label}: canvas overflows horizontally`);
-  assert.ok(canvasHeight <= viewportHeight + 1e-6, `${label}: canvas overflows vertically`);
-  assert.ok(offsetX >= -1e-6 && offsetY >= -1e-6, `${label}: centered canvas offset is invalid`);
+  assert.ok(canvasWidth <= safeWidth + 1e-6, `${label}: canvas overflows safe width`);
+  assert.ok(canvasHeight <= safeHeight + 1e-6, `${label}: canvas overflows safe height`);
+  assert.ok(offsetX >= -1e-6 && offsetY >= -1e-6, `${label}: centered safe-canvas offset is invalid`);
   assert.ok(Math.abs(canvasWidth / canvasHeight - REFERENCE_WIDTH / REFERENCE_HEIGHT) < 1e-9, `${label}: canvas aspect ratio drifted`);
 
   for (const [destination, , , left, top, width, height] of homeDestinations) {
@@ -109,7 +120,7 @@ for (const [viewportWidth, viewportHeight, label] of viewports) {
     assert.ok(screenWidth >= 44 && screenHeight >= 44, `${label}: ${destination} touch target falls below 44x44`);
   }
 
-  const missionTouchHeight = 90 * scale + 16; // visual 90px reference height + 8pt transparent expansion on each side.
+  const missionTouchHeight = 90 * scale + 20; // visual 90px reference height + 10pt transparent expansion on each side.
   assert.ok(missionTouchHeight >= 44, `${label}: mission CTA touch target falls below 44pt`);
 }
 
@@ -143,7 +154,7 @@ for (const exactMissionGeometry of [
 assert.match(home, /width: px\(331\),\s*height: px\(90\),\s*borderRadius: px\(45\),\s*borderWidth: px\(4\),\s*marginLeft: px\(18\)/, 'Home approved mission CTA visual geometry drifted');
 assert.match(home, /styles\.continueButtonHitbox/, 'Mission CTA must preserve the approved visual button as its hit target');
 assert.match(home, /style=\{styles\.continueButtonHitbox\}/, 'Mission CTA must keep the transparent hitbox over the approved visual button');
-assert.match(home, /continueButtonHitbox: \{ position: 'absolute', left: 0, right: 0, top: -8, bottom: -8, opacity: 0 \}/, 'Mission CTA hitbox must exceed the visual button enough for a 44pt minimum target on compact landscape screens');
+assert.match(home, /continueButtonHitbox: \{ position: 'absolute', left: 0, right: 0, top: -10, bottom: -10, opacity: 0 \}/, 'Mission CTA hitbox must exceed the visual button enough for a 44pt minimum target on safe-area compact landscape screens');
 assert.match(home, /<AdventureStageProgress dayNumber=\{currentDay\} compact \/>/, 'Mission must keep the canonical adventure progress component wired to the current day');
 assert.match(home, /hiddenProgress: \{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' \}/, 'Canonical progress must remain non-visual so it cannot fight the approved reference geometry');
 
@@ -167,4 +178,4 @@ assert.match(streak, /Tu racha está a salvo por hoy\./, 'Completed streak needs
 assert.match(streak, /accessibilityLabel={`Racha de hoy\./, 'Streak action must be self-describing to accessibility services');
 assert.doesNotMatch(streak, /<Text style={styles\.ctaText}>{safe \? '✓' : '→'}<\/Text>/, 'Icon-only streak CTA is not allowed');
 
-console.log('PASS check-krug-home-camp-v1: exact approved asset, centered responsive canvas, aligned hitboxes, accessible controls, dynamic mission card, and readable streak states are locked.');
+console.log('PASS check-krug-home-camp-v1: exact approved asset, safe-area responsive canvas, aligned hitboxes, accessible controls, dynamic mission card, and readable streak states are locked.');
