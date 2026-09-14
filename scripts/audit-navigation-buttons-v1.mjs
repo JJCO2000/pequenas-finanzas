@@ -102,11 +102,12 @@ assert.deepEqual(invalidTargets, [], `Navigation targets must resolve to real Ex
 assert.deepEqual(selfRedirects, [], `A route must never Redirect to its own URL:\n${selfRedirects.map((item) => `${item.file} -> ${item.route}`).join('\n')}`);
 
 const expectations = [
-  ['start Arcade', 'src/app/start.tsx', /label="Arcade"[\s\S]{0,180}router\.push\('\/arcade'/],
-  ['start Wallet', 'src/app/start.tsx', /label="Mi dinero"[\s\S]{0,180}router\.push\('\/wallet'/],
-  ['start Investments', 'src/app/start.tsx', /label="Inversiones"[\s\S]{0,180}router\.push\('\/investments'/],
-  ['start Shop', 'src/app/start.tsx', /label="Tienda"[\s\S]{0,180}router\.push\('\/shop'/],
-  ['start Collection', 'src/app/start.tsx', /label="Colección"[\s\S]{0,180}router\.push\('\/collection'/],
+  ['start Map', 'src/app/start.tsx', /accessibilityLabel="Mapa"[\s\S]{0,180}router\.replace\('\/play'/],
+  ['start Arcade', 'src/app/start.tsx', /accessibilityLabel="Arcade"[\s\S]{0,180}router\.push\('\/arcade'/],
+  ['start Wallet', 'src/app/start.tsx', /accessibilityLabel="Mi dinero"[\s\S]{0,180}router\.push\('\/wallet'/],
+  ['start Investments', 'src/app/start.tsx', /accessibilityLabel="Inversiones"[\s\S]{0,180}router\.push\('\/investments'/],
+  ['start Shop', 'src/app/start.tsx', /accessibilityLabel="Tienda"[\s\S]{0,180}router\.push\('\/shop'/],
+  ['start Collection', 'src/app/start.tsx', /accessibilityLabel="Colección"[\s\S]{0,180}router\.push\('\/collection'/],
   ['camp Arcade', 'src/features/adventure/components/AdventureCampMenu.tsx', /label: 'Arcade'[\s\S]{0,120}route: '\/arcade'/],
   ['camp Wallet', 'src/features/adventure/components/AdventureCampMenu.tsx', /label: 'Mi dinero'[\s\S]{0,120}route: '\/wallet'/],
   ['camp Investments', 'src/features/adventure/components/AdventureCampMenu.tsx', /label: 'Inversiones'[\s\S]{0,120}route: '\/investments'/],
