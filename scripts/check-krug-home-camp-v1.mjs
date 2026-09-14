@@ -39,8 +39,9 @@ assert.match(home, /\{ width: px\(REFERENCE_WIDTH\), height: px\(REFERENCE_HEIGH
 assert.match(home, /source=\{HOME_REFERENCE\}[\s\S]{0,180}resizeMode="stretch"[\s\S]{0,180}accessible=\{false\}[\s\S]{0,180}style=\{styles\.referenceArtwork\}/, 'Approved artwork must be a non-accessible visual layer inside the shared reference canvas');
 assert.match(home, /root: \{ flex: 1, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' \}/, 'Home reference canvas must stay centered in every viewport');
 assert.match(home, /referenceCanvas: \{ position: 'relative', flexShrink: 0, overflow: 'hidden' \}/, 'Home reference canvas must be the positioning parent for artwork and controls');
-assert.match(home, /referenceArtwork: \{ \.\.\.StyleSheet\.absoluteFillObject, width: '100%', height: '100%' \}/, 'Approved artwork must fill the exact reference canvas');
-assert.match(home, /campInteractionLayer/, 'Home must keep the exact-reference camp interaction layer');
+assert.match(home, /referenceArtwork: \{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' \}/, 'Approved artwork must fill the exact reference canvas');
+assert.match(home, /campInteractionLayer: \{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 19 \}/, 'Camp interaction layer must cover the exact reference canvas');
+assert.doesNotMatch(home, /StyleSheet\.absoluteFillObject/, 'RN 0.86 incompatible StyleSheet.absoluteFillObject must not return');
 assert.equal((home.match(/styles\.campHitbox/g) ?? []).length, 6, 'Home must expose exactly six secondary destination hitboxes');
 assert.equal((home.match(/<ActionPill/g) ?? []).length, 1, 'Home must have exactly one primary ActionPill');
 assert.match(home, /label="IR A MI MISIÓN →"/, 'Home primary CTA must describe where it goes');
