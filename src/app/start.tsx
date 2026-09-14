@@ -44,6 +44,7 @@ export default function StartScreen() {
   return (
     <WorldScene background={HOME_REFERENCE} tone="none" safe contentStyle={styles.root}>
       <View
+        testID="home-reference-canvas"
         style={[
           styles.referenceCanvas,
           { width: px(REFERENCE_WIDTH), height: px(REFERENCE_HEIGHT) },
@@ -275,7 +276,13 @@ export default function StartScreen() {
               </View>
             </View>
 
-            <View pointerEvents="none" style={styles.hiddenProgress}>
+            <View
+              pointerEvents="none"
+              accessible={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+              style={styles.hiddenProgress}
+            >
               <AdventureStageProgress dayNumber={currentDay} compact />
             </View>
           </View>
