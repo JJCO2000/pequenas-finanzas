@@ -52,7 +52,6 @@ export default function StartScreen() {
         <Image
           source={HOME_REFERENCE}
           resizeMode="stretch"
-          pointerEvents="none"
           accessible={false}
           style={styles.referenceArtwork}
         />
@@ -316,7 +315,7 @@ export default function StartScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   referenceCanvas: { position: 'relative', flexShrink: 0, overflow: 'hidden' },
-  referenceArtwork: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
+  referenceArtwork: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' },
 
   headerWrap: { position: 'absolute', left: '2.2%', top: '2.2%', zIndex: 20, width: '37.0%', height: '11.7%' },
   referenceHeader: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(1,65,43,0.96)', borderColor: '#79D66B', ...shadows.card },
@@ -348,7 +347,7 @@ const styles = StyleSheet.create({
 
   // The six cards are already rendered pixel-for-pixel in HOME_REFERENCE.
   // These hitboxes are measured directly from the 1536x864 approved image.
-  campInteractionLayer: { ...StyleSheet.absoluteFillObject, zIndex: 19 },
+  campInteractionLayer: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 19 },
   campHitbox: { position: 'absolute', borderRadius: 18 },
   campHitboxPressed: { backgroundColor: 'rgba(255,255,255,0.12)' },
   campMap: { left: '61.7188%', top: '25.9259%', width: '10.6771%', height: '20.4861%' },
