@@ -12,6 +12,10 @@ import { WorldScene } from '@/features/shell/world';
 import { ActionPill, CompactHeader, FloatingCard, HudPill, SceneHotspot } from '@/features/shell/gameui';
 import { colors, radii, shadows } from '@/core/theme/tokens';
 
+// Approved 16:9 visual target. It already bakes in the environmental detail
+// previously represented by tracksA and worldFriend, so no procedural scene layer is needed.
+const HOME_REFERENCE = require('../../assets/world/v7/home-approved.webp');
+
 export default function StartScreen() {
   const { profile, currentDay, adventureDays, wallet, gameUnlocks } = useAppData();
   const current = useMemo(() => adventureDays.find((day) => day.dayNumber === currentDay) ?? null, [adventureDays, currentDay]);
@@ -22,25 +26,7 @@ export default function StartScreen() {
   const reward = current?.rewardCents ? formatMoney(current.rewardCents) : current?.nodeType === 'game' ? 'POR PUNTAJE' : 'MISIÓN';
 
   return (
-    <WorldScene background={ACTIVE_THEME.world.shell} tone="none" safe={false} contentStyle={styles.root}>
-      <View pointerEvents="none" style={styles.sceneDecor}>
-        <View style={styles.skyFade} />
-        <View style={styles.sunGlow} />
-        <View style={styles.campIsland} />
-        <View style={styles.groundGlow} />
-        <View style={styles.pathLine} />
-        <View style={[styles.pathDot, styles.pathDotA]} />
-        <View style={[styles.pathDot, styles.pathDotB]} />
-        <View style={[styles.pathDot, styles.pathDotC]} />
-        <Image source={ACTIVE_THEME.decor.trail} resizeMode="contain" style={styles.tracksA} />
-        <Image source={ACTIVE_THEME.decor.trail} resizeMode="contain" style={styles.tracksB} />
-        <View style={[styles.bush, styles.bushA]} />
-        <View style={[styles.bush, styles.bushB]} />
-        <View style={[styles.bush, styles.bushC]} />
-        <Image source={ACTIVE_THEME.characters.startCast[2]!} resizeMode="contain" style={styles.worldDino} />
-        <Image source={ACTIVE_THEME.characters.startCast[0]!} resizeMode="contain" style={styles.worldFriend} />
-      </View>
-
+    <WorldScene background={HOME_REFERENCE} tone="none" safe={false} contentStyle={styles.root}>
       <View pointerEvents="none" style={styles.guideBadge}>
         <Text style={styles.guideBadgeKicker}>SIGUIENTE PASO</Text>
         <Text style={styles.guideBadgeText}>Tu misión está lista ↓</Text>
@@ -108,24 +94,6 @@ export default function StartScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, overflow: 'hidden', paddingHorizontal: 14, paddingVertical: 10 },
-  sceneDecor: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
-  skyFade: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(4,45,29,0.05)' },
-  sunGlow: { position: 'absolute', left: '28%', top: '9%', width: 315, height: 315, borderRadius: 158, backgroundColor: 'rgba(255,232,126,0.10)' },
-  campIsland: { position: 'absolute', left: '29%', top: '17%', width: '34%', height: '52%', borderRadius: 190, backgroundColor: 'rgba(236,228,160,0.11)', borderWidth: 1.5, borderColor: 'rgba(226,242,200,0.12)', transform: [{ rotate: '-7deg' }] },
-  groundGlow: { position: 'absolute', left: '34%', bottom: 44, width: '31%', height: 62, borderRadius: 80, backgroundColor: 'rgba(5,53,35,0.22)' },
-  pathLine: { position: 'absolute', left: '16%', right: '35%', top: '54%', height: 4, borderRadius: 2, backgroundColor: 'rgba(242,218,133,0.20)', transform: [{ rotate: '-8deg' }] },
-  pathDot: { position: 'absolute', width: 14, height: 14, borderRadius: 7, backgroundColor: 'rgba(255,223,111,0.36)', borderWidth: 2, borderColor: 'rgba(255,247,197,0.34)' },
-  pathDotA: { left: '25%', top: '55%' },
-  pathDotB: { left: '34%', top: '50%' },
-  pathDotC: { left: '43%', top: '45%' },
-  tracksA: { position: 'absolute', left: '20%', top: '44%', width: 52, height: 52, opacity: 0.24, transform: [{ rotate: '20deg' }] },
-  tracksB: { position: 'absolute', left: '51%', top: '62%', width: 43, height: 43, opacity: 0.18, transform: [{ rotate: '-20deg' }] },
-  bush: { position: 'absolute', borderRadius: 999, backgroundColor: 'rgba(39,116,69,0.34)', borderWidth: 1, borderColor: 'rgba(104,170,100,0.22)' },
-  bushA: { left: '31%', bottom: 71, width: 58, height: 24, transform: [{ rotate: '-7deg' }] },
-  bushB: { left: '57%', bottom: 86, width: 45, height: 18 },
-  bushC: { left: '26%', top: '23%', width: 35, height: 15 },
-  worldDino: { position: 'absolute', left: '41%', bottom: 54, width: 208, height: 190, opacity: 0.96 },
-  worldFriend: { position: 'absolute', left: '28%', bottom: 64, width: 82, height: 82, opacity: 0.9 },
   guideBadge: { position: 'absolute', left: '35%', top: '31%', minWidth: 164, borderRadius: radii.pill, backgroundColor: 'rgba(255,253,244,0.96)', borderWidth: 2, borderColor: 'rgba(255,224,115,0.84)', paddingHorizontal: 12, paddingVertical: 6, alignItems: 'center', ...shadows.soft },
   guideBadgeKicker: { color: '#B87722', fontSize: 5.3, lineHeight: 6.5, fontWeight: '900', letterSpacing: 0.9 },
   guideBadgeText: { color: colors.forestDark, fontSize: 7.5, lineHeight: 9.2, fontWeight: '900', marginTop: 1 },
