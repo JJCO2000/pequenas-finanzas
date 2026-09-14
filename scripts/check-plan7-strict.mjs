@@ -7,6 +7,43 @@ const ok = (label) => console.log(`[OK] ${label}`);
 const fail = (label) => { console.error(`[FAIL] ${label}`); process.exitCode = 1; };
 const expect = (cond, label) => cond ? ok(label) : fail(label);
 
+function checkHomeContract() {
+  const start = read('src/app/start.tsx');
+  const layout = read('src/features/home/useHomeLayout.ts');
+  const scene = read('src/features/home/HomeSceneLayout.tsx');
+  const controls = read('src/features/home/HomeControlsLayer.tsx');
+  const background = read('src/features/home/HomeBackgroundLayer.tsx');
+  const destinations = read('src/features/home/homeDestinations.ts');
+  const card = read('src/features/home/components/HomeDestinationCard.tsx');
+  const mission = read('src/features/home/components/HomeMissionCard.tsx');
+
+  expect(start.includes('<HomeSceneLayout'), 'Home route delegates rendering to HomeSceneLayout.');
+  expect(!/Pressable|ActionPill|FloatingCard|referenceCanvas|campInteractionLayer|hiddenProgress|HOME_REFERENCE/.test(start), 'Home route is free of legacy fixed-canvas/interactions.');
+  expect(scene.includes('<HomeBackgroundLayer') && scene.includes('<HomeControlsLayer'), 'Home scene composes background and controls as separate layers.');
+  expect(background.includes("from 'expo-image'") && background.includes('home-background.webp') && background.includes('contentFit={layout.backgroundFit}'), 'Home uses one expo-image background with centralized cover behavior.');
+  expect(!background.includes('ImageBackground') && !background.includes('StyleSheet.absoluteFillObject'), 'Home background avoids deprecated/unsupported fill patterns.');
+  expect(layout.includes('HOME_COMPACT_MAX_WIDTH = 900') && layout.includes('HOME_COMPACT_MAX_HEIGHT = 500') && layout.includes('HOME_EXPANDED_MIN_WIDTH = 1600') && layout.includes('HOME_EXPANDED_MIN_HEIGHT = 900'), 'Home responsive breakpoints are explicit and centralized.');
+  expect(layout.includes('HOME_MIN_TOUCH_TARGET = 48'), 'Home centralizes a 48dp minimum touch target.');
+  expect((destinations.match(/\{ id: '/g) ?? []).length === 6, 'Home registry has exactly six destinations.');
+  const routes = [...destinations.matchAll(/\{ id: '[^']+'[^\n]+route: '([^']+)'/g)].map((match) => match[1]);
+  expect(routes.length === 6 && new Set(routes).size === 6, 'Home destination registry has six unique routes.');
+  for (const route of ['/play', '/arcade', '/wallet', '/investments', '/shop', '/collection']) {
+    expect(routes.includes(route), `Home registry includes ${route}.`);
+  }
+  expect(controls.includes('HOME_DESTINATIONS.map') && controls.includes('<HomeDestinationCard'), 'Home destinations render data-driven through one card component.');
+  expect(card.includes('accessibilityRole="button"') && card.includes('accessibilityLabel={destination.label}') && card.includes('minWidth: layout.touchTarget') && card.includes('minHeight: layout.touchTarget'), 'Home destination card preserves accessibility and minimum target size.');
+  expect(mission.includes('accessibilityLabel="Ir a mi misión actual"') && mission.includes('minHeight: layout.touchTarget'), 'Home mission CTA preserves accessibility and minimum target size.');
+  expect(controls.includes("router.replace('/play' as any)"), 'Home mission CTA intentionally returns to /play independently of destination uniqueness.');
+  expect(controls.includes('SIGUIENTE PASO') && controls.includes('OTROS LUGARES'), 'Home keeps clear action hierarchy and section labels.');
+}
+
+checkHomeContract();
+if (process.argv.includes('--home-contract-only')) {
+  if (process.exitCode) process.exit(process.exitCode);
+  ok('PLAN 7 Home contract guard passed.');
+  process.exit(0);
+}
+
 const files = {
   coin: read('src/features/games/coin-catcher/Game.native.tsx'),
   balloon: read('src/features/games/balloon-answer/Game.tsx'),
@@ -51,24 +88,6 @@ expect(files.collection.includes('Los 7 juegos son libres') && files.collection.
 expect(files.collection.includes('Hallazgos ocultos') && files.collection.includes('HIDDEN_FINDS') && files.collection.includes('museum.find.'), 'Museum includes a future-ready hidden finds subsection with persisted discovery keys.');
 expect(files.investments.includes('ELIGES') && files.investments.includes('VIAJA') && files.investments.includes('REGRESA') && files.investments.includes('×1.5'), 'Investments explains the full money journey visually.');
 expect(files.route.includes("params: { from: 'game-result' }") && files.campBack.includes("const fromGameResult = from === 'game-result'") && files.campBack.includes("router.replace('/play' as any)"), 'Post-game Arcade back returns deterministically to the adventure map instead of a stale result route.');
-
-const homeNavigationRoutes = [
-  "router.replace('/play' as any)",
-  "router.push('/arcade' as any)",
-  "router.push('/wallet' as any)",
-  "router.push('/investments' as any)",
-  "router.push('/shop' as any)",
-  "router.push('/collection' as any)",
-];
-const homePreservesNavigationHierarchy =
-  homeNavigationRoutes.every((route) => files.start.includes(route)) &&
-  files.start.includes('styles.referenceCanvas') &&
-  files.start.includes('styles.campInteractionLayer') &&
-  files.start.includes('missionAccent') &&
-  files.start.includes('SIGUIENTE PASO') &&
-  files.start.includes('IR A MI MISIÓN →') &&
-  (files.start.match(/accessibilityRole="button"/g) ?? []).length >= 6;
-expect(homePreservesNavigationHierarchy, 'Home preserves all six destinations and deliberate visual hierarchy in the approved exact-reference composition.');
 
 if (process.exitCode) process.exit(process.exitCode);
 ok('PLAN 7 strict TypeScript/RN compatibility guard passed.');

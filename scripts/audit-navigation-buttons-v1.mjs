@@ -6,7 +6,53 @@ const root = process.cwd();
 const srcRoot = path.join(root, 'src');
 const appRoot = path.join(srcRoot, 'app');
 const inventoryOnly = process.argv.includes('--inventory');
+const homeOnly = process.argv.includes('--home-contract-only');
 const baselinePath = path.join(root, 'scripts', 'navigation-button-baseline.json');
+
+function read(relativePath) {
+  return fs.readFileSync(path.join(root, relativePath), 'utf8');
+}
+
+function checkHomeNavigationContract() {
+  const start = read('src/app/start.tsx');
+  const controls = read('src/features/home/HomeControlsLayer.tsx');
+  const destinations = read('src/features/home/homeDestinations.ts');
+  const card = read('src/features/home/components/HomeDestinationCard.tsx');
+  const mission = read('src/features/home/components/HomeMissionCard.tsx');
+
+  assert.match(start, /<HomeSceneLayout/, 'Start route must delegate Home rendering');
+  assert.doesNotMatch(start, /<Pressable\b|<ActionPill\b/, 'Start route must not own Home interaction declarations');
+  assert.equal((destinations.match(/\{ id: '/g) ?? []).length, 6, 'HOME_DESTINATIONS must contain exactly six destinations');
+
+  const expected = [
+    ['Mapa', '/play', 'replace'],
+    ['Arcade', '/arcade', 'push'],
+    ['Mi dinero', '/wallet', 'push'],
+    ['Inversiones', '/investments', 'push'],
+    ['Tienda', '/shop', 'push'],
+    ['Colección', '/collection', 'push'],
+  ];
+  const routes = [];
+  for (const [label, route, navigation] of expected) {
+    const pattern = new RegExp(`label: '${label.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}'[\\s\\S]{0,220}route: '${route.replace('/', '\\/')}'[\\s\\S]{0,120}navigation: '${navigation}'`);
+    assert.match(destinations, pattern, `Home destination registry contract failed: ${label}`);
+    routes.push(route);
+  }
+  assert.equal(new Set(routes).size, 6, 'The six HOME_DESTINATIONS routes must be unique');
+  assert.match(controls, /HOME_DESTINATIONS\.map/, 'Home destinations must render from the semantic registry');
+  assert.match(controls, /destination\.navigation === 'replace'/, 'Home controls must honor destination navigation semantics');
+  assert.match(card, /accessibilityRole="button"/, 'HomeDestinationCard must expose button semantics');
+  assert.match(card, /accessibilityLabel=\{destination\.label\}/, 'HomeDestinationCard must expose the registry label');
+  assert.match(card, /accessibilityHint=\{destination\.hint\}/, 'HomeDestinationCard must expose the registry hint');
+  assert.match(mission, /accessibilityLabel="Ir a mi misión actual"/, 'Home mission CTA needs an explicit accessible action');
+  assert.match(controls, /router\.replace\('\/play' as any\)/, 'Home mission CTA intentionally targets /play independently of destination uniqueness');
+}
+
+checkHomeNavigationContract();
+if (homeOnly) {
+  console.log('PASS audit-navigation-buttons-v1 Home semantic navigation contract.');
+  process.exit(0);
+}
 
 function walk(dir) {
   const out = [];
@@ -49,15 +95,7 @@ for (const item of routeDefinitions) {
 const duplicateRoutes = [...routeFiles.entries()]
   .filter(([, definitions]) => definitions.length > 1)
   .map(([route, definitions]) => ({ route, definitions }));
-assert.deepEqual(
-  duplicateRoutes,
-  [],
-  `Duplicate Expo URLs are forbidden unless deliberately modeled as shared routes:\n${duplicateRoutes.map((item) => `${item.route}: ${item.definitions.join(', ')}`).join('\n')}`,
-);
-
-function read(relativePath) {
-  return fs.readFileSync(path.join(root, relativePath), 'utf8');
-}
+assert.deepEqual(duplicateRoutes, [], `Duplicate Expo URLs are forbidden unless deliberately modeled as shared routes:\n${duplicateRoutes.map((item) => `${item.route}: ${item.definitions.join(', ')}`).join('\n')}`);
 
 function validRoute(target) {
   const clean = target.split('?')[0].split('#')[0] || '/';
@@ -102,12 +140,6 @@ assert.deepEqual(invalidTargets, [], `Navigation targets must resolve to real Ex
 assert.deepEqual(selfRedirects, [], `A route must never Redirect to its own URL:\n${selfRedirects.map((item) => `${item.file} -> ${item.route}`).join('\n')}`);
 
 const expectations = [
-  ['start Map', 'src/app/start.tsx', /accessibilityLabel="Mapa"[\s\S]{0,180}router\.replace\('\/play'/],
-  ['start Arcade', 'src/app/start.tsx', /accessibilityLabel="Arcade"[\s\S]{0,180}router\.push\('\/arcade'/],
-  ['start Wallet', 'src/app/start.tsx', /accessibilityLabel="Mi dinero"[\s\S]{0,180}router\.push\('\/wallet'/],
-  ['start Investments', 'src/app/start.tsx', /accessibilityLabel="Inversiones"[\s\S]{0,180}router\.push\('\/investments'/],
-  ['start Shop', 'src/app/start.tsx', /accessibilityLabel="Tienda"[\s\S]{0,180}router\.push\('\/shop'/],
-  ['start Collection', 'src/app/start.tsx', /accessibilityLabel="Colección"[\s\S]{0,180}router\.push\('\/collection'/],
   ['camp Arcade', 'src/features/adventure/components/AdventureCampMenu.tsx', /label: 'Arcade'[\s\S]{0,120}route: '\/arcade'/],
   ['camp Wallet', 'src/features/adventure/components/AdventureCampMenu.tsx', /label: 'Mi dinero'[\s\S]{0,120}route: '\/wallet'/],
   ['camp Investments', 'src/features/adventure/components/AdventureCampMenu.tsx', /label: 'Inversiones'[\s\S]{0,120}route: '\/investments'/],
@@ -155,13 +187,7 @@ for (const file of tsxFiles) {
   }
 }
 
-const inventory = {
-  schema: 1,
-  routeCount: routes.length,
-  routes,
-  totalInteractions,
-  interactionByFile,
-};
+const inventory = { schema: 1, routeCount: routes.length, routes, totalInteractions, interactionByFile };
 
 if (inventoryOnly) {
   console.log('NAVIGATION_BUTTON_INVENTORY_START');
