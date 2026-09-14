@@ -6,20 +6,51 @@ const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), '
 const home = read('src/app/start.tsx');
 const camp = read('src/features/adventure/components/AdventureCampMenu.tsx');
 const streak = read('src/features/streak/StreakCard.tsx');
+const homeReference = new URL('../assets/world/v7/home-approved.webp', import.meta.url);
 
-// Home: keep the accepted structure, but make the next action unmistakable.
-assert.equal((home.match(/<SceneHotspot/g) ?? []).length, 6, 'Home must keep exactly six secondary destinations');
+// Home: preserve the approved 1536x864 composition while keeping the six baked-in
+// camp cards independently interactive and accessible.
+assert.ok(fs.existsSync(homeReference), 'Approved home reference asset must exist');
+assert.ok(fs.statSync(homeReference).size > 100_000, 'Approved home reference asset must be a real visual asset, not a placeholder');
+assert.match(home, /HOME_REFERENCE = require\('\.\.\/\.\.\/assets\/world\/v7\/home-approved\.webp'\)/, 'Home must use the approved exact-reference artwork');
+assert.match(home, /REFERENCE_WIDTH = 1536/, 'Home reference coordinate system must stay locked to 1536px width');
+assert.match(home, /REFERENCE_HEIGHT = 864/, 'Home reference coordinate system must stay locked to 864px height');
+assert.match(home, /campInteractionLayer/, 'Home must keep the exact-reference camp interaction layer');
+assert.equal((home.match(/styles\.campHitbox/g) ?? []).length, 6, 'Home must expose exactly six secondary destination hitboxes');
 assert.equal((home.match(/<ActionPill/g) ?? []).length, 1, 'Home must have exactly one primary ActionPill');
 assert.match(home, /label="IR A MI MISIÓN →"/, 'Home primary CTA must describe where it goes');
 assert.match(home, /accessibilityLabel="Ir a mi misión actual"/, 'Home primary CTA needs an explicit accessible action');
 assert.match(home, /router\.replace\('\/play'/, 'Home mission CTA must lead to the adventure map');
-assert.match(home, /OTROS LUGARES|Otros lugares/, 'Secondary destinations must be clearly labelled as secondary');
-assert.match(home, /Toca una tarjeta\./, 'Secondary navigation needs a short direct instruction');
 assert.match(home, /SIGUIENTE PASO/, 'Home must identify the next step without requiring interpretation');
 assert.match(home, /Tu misión está lista/, 'Home center cue must point to the mission');
-assert.match(home, /tracksA/, 'Home scene needs environmental detail instead of an empty field');
-assert.match(home, /worldFriend/, 'Home scene needs supporting kid-friendly character detail');
 assert.doesNotMatch(home, /label="CONTINUAR →"/, 'Ambiguous home CTA CONTINUAR is not allowed');
+
+const homeDestinations = [
+  ['Mapa', "router.replace('/play'", 'campMap'],
+  ['Arcade', "router.push('/arcade'", 'campArcade'],
+  ['Mi dinero', "router.push('/wallet'", 'campWallet'],
+  ['Inversiones', "router.push('/investments'", 'campInvestments'],
+  ['Tienda', "router.push('/shop'", 'campShop'],
+  ['Colección', "router.push('/collection'", 'campCollection'],
+];
+for (const [label, route, style] of homeDestinations) {
+  assert.ok(home.includes(`accessibilityLabel="${label}"`), `Home destination missing accessible label: ${label}`);
+  assert.ok(home.includes(route), `Home destination missing route: ${label}`);
+  assert.ok(home.includes(`styles.${style}`), `Home destination missing measured hitbox: ${label}`);
+}
+
+// Coordinates measured from the approved 1536x864 reference. These prevent a later
+// refactor from silently drifting the tappable cards away from what the child sees.
+for (const exactGeometry of [
+  "campMap: { left: '61.7188%', top: '25.9259%', width: '10.6771%', height: '20.4861%' }",
+  "campArcade: { left: '73.8932%', top: '25.9259%', width: '10.7422%', height: '20.3704%' }",
+  "campWallet: { left: '86.1328%', top: '26.0417%', width: '10.7422%', height: '20.2546%' }",
+  "campInvestments: { left: '61.7188%', top: '48.1481%', width: '10.7422%', height: '20.6019%' }",
+  "campShop: { left: '73.8281%', top: '48.2639%', width: '10.7422%', height: '20.6019%' }",
+  "campCollection: { left: '86.0677%', top: '48.2639%', width: '10.8073%', height: '20.6019%' }",
+]) {
+  assert.ok(home.includes(exactGeometry), `Home exact-reference geometry drifted: ${exactGeometry.split(':')[0]}`);
+}
 
 // Camp: daily streak first, destinations second, map exit secondary.
 assert.equal((camp.match(/<SceneHotspot/g) ?? []).length, 1, 'Camp destinations are data-driven through one SceneHotspot template');
@@ -41,4 +72,4 @@ assert.match(streak, /Tu racha está a salvo por hoy\./, 'Completed streak needs
 assert.match(streak, /accessibilityLabel={`Racha de hoy\./, 'Streak action must be self-describing to accessibility services');
 assert.doesNotMatch(streak, /<Text style={styles\.ctaText}>{safe \? '✓' : '→'}<\/Text>/, 'Icon-only streak CTA is not allowed');
 
-console.log('PASS check-krug-home-camp-v1: one obvious next action, explicit labels, six secondary destinations, and readable streak states are locked.');
+console.log('PASS check-krug-home-camp-v1: exact-reference home keeps one obvious mission CTA, six measured secondary destinations, and readable streak states.');
