@@ -5,77 +5,47 @@ on:
     branches:
       - feature/home-exact-reference-v1
     paths:
+      - 'repair-home-q80/**'
       - '.github/workflows/repair-home-reference.yml'
-      - 'repair-home-asset/**'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: repair-home-reference-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   repair:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Rebuild approved WebP from staged base64
+      - name: Rebuild and verify approved reference
+        shell: bash
         run: |
           set -euo pipefail
-          cat repair-home-asset/chunks/*.txt | tr -d '\r\n' | base64 --decode > /tmp/home-approved.webp
+          cat repair-home-q80/chunks/*.txt | tr -d '\r\n' | base64 --decode > assets/world/v7/home-approved.webp
+          test "$(wc -c < assets/world/v7/home-approved.webp)" -eq 179986
+          test "$(git hash-object assets/world/v7/home-approved.webp)" = "45f201f512c96faaba75abf26ceeba3d3372b614"
           python3 - <<'PY'
           from pathlib import Path
-          import hashlib
           import struct
-
-          p = Path('/tmp/home-approved.webp')
-          b = p.read_bytes()
-          if len(b) != 341_094:
-              raise SystemExit(f'unexpected repaired asset size: {len(b)}')
-          if b[:4] != b'RIFF' or b[8:12] != b'WEBP':
-              raise SystemExit('repaired asset is not a valid RIFF/WEBP container')
-          riff_size = struct.unpack('<I', b[4:8])[0] + 8
-          if riff_size != len(b):
-              raise SystemExit(f'RIFF length mismatch: {riff_size} != {len(b)}')
-          h = hashlib.sha1()
-          h.update(f'blob {len(b)}\0'.encode())
-          h.update(b)
-          blob_sha = h.hexdigest()
-          expected = '32de039c9d088072443ccb871f74717ddeac0063'
-          if blob_sha != expected:
-              raise SystemExit(f'unexpected repaired Git blob SHA: {blob_sha}')
-          print(f'validated repaired home reference: {len(b)} bytes, blob {blob_sha}')
+          data = Path('assets/world/v7/home-approved.webp').read_bytes()
+          assert data[:4] == b'RIFF'
+          assert data[8:12] == b'WEBP'
+          assert struct.unpack('<I', data[4:8])[0] + 8 == len(data)
+          print('PASS repaired approved Home reference')
           PY
-          cp /tmp/home-approved.webp assets/world/v7/home-approved.webp
-      - name: Update exact-reference guard to repaired asset
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('scripts/check-krug-home-camp-v1.mjs')
-          s = p.read_text(encoding='utf-8')
-          old_size = "assert.equal(referenceBytes.length, 14_997, 'Approved home reference byte size changed');"
-          new_size = "assert.equal(referenceBytes.length, 341_094, 'Approved home reference byte size changed');"
-          old_sha = "assert.equal(referenceGitBlobSha, '9842995da1dfc9afa9553266b2290f0d02d2f49b', 'Approved home reference bytes changed');"
-          new_sha = "assert.equal(referenceGitBlobSha, '32de039c9d088072443ccb871f74717ddeac0063', 'Approved home reference bytes changed');"
-          if old_size not in s or old_sha not in s:
-              raise SystemExit('expected old asset locks not found; refusing blind rewrite')
-          p.write_text(s.replace(old_size, new_size).replace(old_sha, new_sha), encoding='utf-8')
-          PY
-      - name: Remove one-time repair scaffolding
-        run: |
-          rm -rf repair-home-asset
-          rm -f .github/workflows/repair-home-reference.yml
-      - name: Commit repaired reference atomically
+      - name: Commit repaired binary
+        shell: bash
         run: |
           set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/world/v7/home-approved.webp scripts/check-krug-home-camp-v1.mjs
-          git add -A repair-home-asset .github/workflows/repair-home-reference.yml
-          git diff --cached --check
-          git commit -m 'fix(home): restore valid approved reference asset'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/world/v7/home-approved.webp
+          if git diff --cached --quiet; then
+            echo "Reference already repaired"
+            exit 0
+          fi
+          git commit -m "fix(home): restore valid approved reference asset"
           git push origin HEAD:feature/home-exact-reference-v1
