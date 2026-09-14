@@ -10,6 +10,7 @@ on:
       - 'scripts/check-home-5-1.mjs'
       - 'scripts/home-visual.e2e.spec.mjs'
       - 'scripts/compare-home-reference.py'
+      - 'scripts/prepare-home-visual-web.py'
       - 'scripts/serve-home-visual.py'
       - '.github/workflows/home-visual-verify.yml'
   workflow_dispatch:
@@ -33,6 +34,8 @@ jobs:
       - run: node scripts/check-home-5-1.mjs
       - run: npm install --no-save @playwright/test@1.55.0
       - run: npx playwright install --with-deps chromium
+      - run: python3 -m pip install --disable-pip-version-check pillow
+      - run: python3 scripts/prepare-home-visual-web.py
       - run: npx expo export --platform web --output-dir dist --clear
       - name: Start isolated visual web server
         run: |
@@ -47,7 +50,6 @@ jobs:
           cat /tmp/home-visual-server.log
           exit 1
       - run: npx playwright test scripts/home-visual.e2e.spec.mjs --reporter=line --workers=1
-      - run: python3 -m pip install --disable-pip-version-check pillow
       - run: python3 scripts/compare-home-reference.py
       - name: Upload visual evidence
         if: always()
