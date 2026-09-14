@@ -1,0 +1,60 @@
+name: Home Visual Verify
+
+on:
+  push:
+    branches:
+      - feature/home-exact-reference-v1
+    paths:
+      - 'src/app/start.tsx'
+      - 'assets/world/v7/home-approved.webp'
+      - 'scripts/check-home-5-1.mjs'
+      - 'scripts/home-visual.e2e.spec.mjs'
+      - 'scripts/compare-home-reference.py'
+      - 'scripts/serve-home-visual.py'
+      - '.github/workflows/home-visual-verify.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: home-visual-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: node scripts/check-home-5-1.mjs
+      - run: npm install --no-save @playwright/test@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - run: npx expo export --platform web --output-dir dist --clear
+      - name: Start isolated visual web server
+        run: |
+          python3 scripts/serve-home-visual.py > /tmp/home-visual-server.log 2>&1 &
+          echo $! > /tmp/home-visual-server.pid
+          for attempt in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:8080/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/home-visual-server.log
+          exit 1
+      - run: npx playwright test scripts/home-visual.e2e.spec.mjs --reporter=line --workers=1
+      - run: python3 -m pip install --disable-pip-version-check pillow
+      - run: python3 scripts/compare-home-reference.py
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-visual-evidence
+          path: |
+            artifacts/home-render.png
+            artifacts/home-diff.png
+          if-no-files-found: ignore
