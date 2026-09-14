@@ -7,10 +7,10 @@ import { formatMoney } from '@/core/domain/money';
 import { getGamePresentation } from '@/registry/gamePresentation';
 import { GAMES } from '@/registry/games';
 import { AdventureStageProgress } from '@/features/adventure/components/AdventureStageProgress';
-import { getAdventureNodeLabel, getAdventureMissionStatus } from '@/features/adventure/presentation/adventurePresentation';
+import { getAdventureNodeLabel, getAdventureMissionStatus, getAdventureStage } from '@/features/adventure/presentation/adventurePresentation';
 import { WorldScene } from '@/features/shell/world';
 import { ActionPill, FloatingCard } from '@/features/shell/gameui';
-import { colors, radii, shadows } from '@/core/theme/tokens';
+import { colors, shadows } from '@/core/theme/tokens';
 
 // Approved 16:9 visual target. It already bakes in the environmental detail
 // previously represented by tracksA and worldFriend, so no procedural scene layer is needed.
@@ -29,6 +29,7 @@ export default function StartScreen() {
   const currentTitle = current ? current.gameId ? getGamePresentation(current.gameId).title : current.title : 'Explora el mapa';
   const missionArt = current?.gameId ? (ACTIVE_THEME.gameThumbnails?.[current.gameId] ?? ACTIVE_THEME.characters.primary) : ACTIVE_THEME.characters.primary;
   const reward = current?.rewardCents ? formatMoney(current.rewardCents) : current?.nodeType === 'game' ? 'POR PUNTAJE' : 'MISIÓN';
+  const stage = getAdventureStage(currentDay);
 
   return (
     <WorldScene background={HOME_REFERENCE} tone="none" safe={false} contentStyle={styles.root}>
@@ -129,25 +130,159 @@ export default function StartScreen() {
         />
       </View>
 
-      <FloatingCard tone="dark" style={styles.mission}>
-        <View pointerEvents="none" style={styles.missionAccent} />
-        <View style={styles.missionArtWell}>
+      <FloatingCard
+        tone="dark"
+        style={[
+          styles.mission,
+          {
+            borderRadius: px(42),
+            borderWidth: px(4),
+            paddingLeft: px(26),
+            paddingRight: px(18),
+            paddingVertical: px(18),
+            gap: px(16),
+          },
+        ]}
+      >
+        <View
+          pointerEvents="none"
+          style={[
+            styles.missionAccent,
+            { left: px(8), top: px(14), bottom: px(14), width: px(8), borderRadius: px(4) },
+          ]}
+        />
+        <View
+          style={[
+            styles.missionArtWell,
+            { width: px(158), height: px(158), borderRadius: px(28), borderWidth: px(5) },
+          ]}
+        >
           <Image source={missionArt} resizeMode="contain" style={styles.missionArt} />
         </View>
+
         <View style={styles.missionCopy}>
-          <View style={styles.missionTopLine}>
-            <Text style={styles.missionKicker}>TU MISIÓN · DÍA {currentDay}</Text>
-            <View style={styles.readyPill}><Text style={styles.readyText}>LISTA</Text></View>
+          <View style={[styles.missionTopLine, { gap: px(12) }]}>
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.missionKicker,
+                { fontSize: px(17), lineHeight: px(20), letterSpacing: px(1.2) },
+              ]}
+            >
+              TU MISIÓN · DÍA {currentDay}
+            </Text>
+            <View
+              style={[
+                styles.readyPill,
+                { width: px(98), height: px(34), borderRadius: px(17), borderWidth: px(2) },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.readyText,
+                  { fontSize: px(14), lineHeight: px(17), letterSpacing: px(0.8) },
+                ]}
+              >
+                LISTA
+              </Text>
+            </View>
           </View>
-          <Text numberOfLines={1} style={styles.missionTitle}>{currentTitle}</Text>
-          <Text numberOfLines={1} style={styles.missionText}>{current ? getAdventureMissionStatus(current) : 'Continúa tu expedición financiera.'}</Text>
-          <View style={styles.progress}><AdventureStageProgress dayNumber={currentDay} compact /></View>
-          <View style={styles.metaRow}>
-            <Text style={styles.meta}>{current ? getAdventureNodeLabel(current.nodeType) : 'MAPA'} · Juegos {gameUnlocks.length}/{GAMES.length}</Text>
-            <View style={styles.rewardPill}><Text style={styles.rewardPillText}>PREMIO {reward}</Text></View>
+
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={[styles.missionTitle, { fontSize: px(33), lineHeight: px(38), marginTop: px(3) }]}
+          >
+            {currentTitle}
+          </Text>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={[styles.missionText, { fontSize: px(18), lineHeight: px(22), marginTop: px(1) }]}
+          >
+            {current ? getAdventureMissionStatus(current) : 'Continúa tu expedición financiera.'}
+          </Text>
+
+          <View style={[styles.referenceProgress, { marginTop: px(8), maxWidth: px(515) }]}>
+            <View style={styles.progressCopy}>
+              <Text style={[styles.progressStage, { fontSize: px(16), lineHeight: px(19) }]}>ETAPA {stage.stageNumber}</Text>
+              <Text style={[styles.progressDay, { fontSize: px(16), lineHeight: px(19) }]}>{stage.dayInStage}/{stage.totalSlots}</Text>
+            </View>
+            <View style={[styles.progressTrack, { gap: px(7), marginTop: px(4) }]}>
+              {Array.from({ length: stage.totalSlots }, (_, index) => {
+                const active = index < stage.dayInStage;
+                const currentSegment = index === stage.dayInStage - 1;
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      styles.progressSegment,
+                      { height: px(12), borderRadius: px(6) },
+                      active && styles.progressSegmentActive,
+                      currentSegment && styles.progressSegmentCurrent,
+                    ]}
+                  />
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={[styles.metaRow, { gap: px(14), marginTop: px(6) }]}>
+            <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              style={[styles.meta, { fontSize: px(14), lineHeight: px(17) }]}
+            >
+              {current ? getAdventureNodeLabel(current.nodeType) : 'MAPA'} · Juegos {gameUnlocks.length}/{GAMES.length}
+            </Text>
+            <View
+              style={[
+                styles.rewardPill,
+                { borderRadius: px(16), borderWidth: px(2), paddingHorizontal: px(12), paddingVertical: px(4) },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.rewardPillText,
+                  { fontSize: px(14), lineHeight: px(17), letterSpacing: px(0.5) },
+                ]}
+              >
+                PREMIO {reward}
+              </Text>
+            </View>
+          </View>
+
+          <View pointerEvents="none" style={styles.hiddenProgress}>
+            <AdventureStageProgress dayNumber={currentDay} compact />
           </View>
         </View>
-        <ActionPill label="IR A MI MISIÓN →" accessibilityLabel="Ir a mi misión actual" onPress={() => router.replace('/play' as any)} style={styles.continueButton} />
+
+        <View
+          style={[
+            styles.continueButtonVisual,
+            {
+              width: px(331),
+              height: px(90),
+              borderRadius: px(45),
+              borderWidth: px(4),
+              marginLeft: px(18),
+            },
+          ]}
+        >
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={[styles.continueButtonText, { fontSize: px(29), lineHeight: px(34) }]}
+          >
+            IR A MI MISIÓN →
+          </Text>
+          <ActionPill
+            label="IR A MI MISIÓN →"
+            accessibilityLabel="Ir a mi misión actual"
+            onPress={() => router.replace('/play' as any)}
+            style={styles.continueButtonHitbox}
+          />
+        </View>
       </FloatingCard>
     </WorldScene>
   );
@@ -196,21 +331,61 @@ const styles = StyleSheet.create({
   campShop: { left: '73.8281%', top: '48.2639%', width: '10.7422%', height: '20.6019%' },
   campCollection: { left: '86.0677%', top: '48.2639%', width: '10.8073%', height: '20.6019%' },
 
-  mission: { position: 'absolute', left: 14, bottom: 12, width: '62%', maxWidth: 665, minHeight: 92, paddingHorizontal: 10, paddingVertical: 8, flexDirection: 'row', alignItems: 'center', gap: 9, zIndex: 12, overflow: 'hidden', borderWidth: 2, borderColor: 'rgba(255,213,79,0.62)' },
-  missionAccent: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 6, backgroundColor: '#FFD54F' },
-  missionArtWell: { width: 72, height: 72, borderRadius: 18, backgroundColor: '#E8F4D8', borderWidth: 2, borderColor: 'rgba(255,255,255,0.94)', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  missionArt: { width: 66, height: 66 },
-  missionCopy: { flex: 1, minWidth: 0 },
-  missionTopLine: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  missionKicker: { flex: 1, minWidth: 0, color: '#FFD85A', fontSize: 5.8, fontWeight: '900', letterSpacing: 0.7 },
-  readyPill: { borderRadius: radii.pill, backgroundColor: '#E1F1D4', borderWidth: 1, borderColor: '#96C982', paddingHorizontal: 8, paddingVertical: 2 },
-  readyText: { color: '#31623A', fontSize: 4.8, lineHeight: 6, fontWeight: '900', letterSpacing: 0.6 },
-  missionTitle: { color: colors.white, fontSize: 14, lineHeight: 16.5, fontWeight: '900', marginTop: 2 },
-  missionText: { color: '#DDEFD8', fontSize: 6.6, lineHeight: 8.5, fontWeight: '700', marginTop: 1 },
-  progress: { marginTop: 5, maxWidth: 280 },
-  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 3 },
-  meta: { color: '#CFE5CA', fontSize: 5.7, fontWeight: '800' },
-  rewardPill: { borderRadius: radii.pill, backgroundColor: 'rgba(255,216,90,0.15)', borderWidth: 1, borderColor: 'rgba(255,216,90,0.30)', paddingHorizontal: 6, paddingVertical: 2 },
-  rewardPillText: { color: '#FFE37A', fontSize: 5.1, lineHeight: 6.2, fontWeight: '900', letterSpacing: 0.45 },
-  continueButton: { minWidth: 132, height: 42 },
+  mission: {
+    position: 'absolute',
+    left: '1.75%',
+    bottom: '4.2%',
+    width: '71.0%',
+    height: '25.4%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 20,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0,76,55,0.98)',
+    borderColor: '#FFD54F',
+  },
+  missionAccent: { position: 'absolute', backgroundColor: '#FFD54F' },
+  missionArtWell: {
+    backgroundColor: '#E8F7DE',
+    borderColor: '#FFFDF5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    ...shadows.soft,
+  },
+  missionArt: { width: '94%', height: '94%' },
+  missionCopy: { flex: 1, minWidth: 0, alignSelf: 'stretch', justifyContent: 'center' },
+  missionTopLine: { flexDirection: 'row', alignItems: 'center' },
+  missionKicker: { flex: 1, minWidth: 0, color: '#FFD85A', fontWeight: '900' },
+  readyPill: { backgroundColor: '#DFF8C9', borderColor: '#91D274', alignItems: 'center', justifyContent: 'center' },
+  readyText: { color: '#185C37', fontWeight: '900' },
+  missionTitle: { color: colors.white, fontWeight: '900' },
+  missionText: { color: '#F3F2DB', fontWeight: '700' },
+  referenceProgress: { width: '100%' },
+  progressCopy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  progressStage: { color: '#FFD84B', fontWeight: '900' },
+  progressDay: { color: '#FFFDF3', fontWeight: '900' },
+  progressTrack: { flexDirection: 'row' },
+  progressSegment: { flex: 1, backgroundColor: 'rgba(213,232,217,0.42)' },
+  progressSegmentActive: { backgroundColor: '#90C982' },
+  progressSegmentCurrent: { backgroundColor: '#FFD447' },
+  metaRow: { flexDirection: 'row', alignItems: 'center' },
+  meta: { flexShrink: 1, color: '#F1F0D9', fontWeight: '800' },
+  rewardPill: { backgroundColor: 'rgba(255,216,90,0.12)', borderColor: 'rgba(255,216,90,0.55)' },
+  rewardPillText: { color: '#FFE26B', fontWeight: '900' },
+  hiddenProgress: { position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' },
+  continueButtonVisual: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFD34D',
+    borderColor: '#FFF0A0',
+    shadowColor: '#B87400',
+    shadowOpacity: 0.28,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 6,
+  },
+  continueButtonText: { color: '#074C35', fontWeight: '900' },
+  continueButtonHitbox: { ...StyleSheet.absoluteFillObject, opacity: 0 },
 });
