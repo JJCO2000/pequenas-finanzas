@@ -51,7 +51,24 @@ expect(files.collection.includes('Los 7 juegos son libres') && files.collection.
 expect(files.collection.includes('Hallazgos ocultos') && files.collection.includes('HIDDEN_FINDS') && files.collection.includes('museum.find.'), 'Museum includes a future-ready hidden finds subsection with persisted discovery keys.');
 expect(files.investments.includes('ELIGES') && files.investments.includes('VIAJA') && files.investments.includes('REGRESA') && files.investments.includes('×1.5'), 'Investments explains the full money journey visually.');
 expect(files.route.includes("params: { from: 'game-result' }") && files.campBack.includes("const fromGameResult = from === 'game-result'") && files.campBack.includes("router.replace('/play' as any)"), 'Post-game Arcade back returns deterministically to the adventure map instead of a stale result route.');
-expect(files.start.includes('hotspotPanel') && files.start.includes('CAMPAMENTO') && files.start.includes('missionAccent') && files.start.includes('SceneHotspot'), 'Home preserves its navigation structure while adding deliberate visual hierarchy.');
+
+const homeNavigationRoutes = [
+  "router.replace('/play' as any)",
+  "router.push('/arcade' as any)",
+  "router.push('/wallet' as any)",
+  "router.push('/investments' as any)",
+  "router.push('/shop' as any)",
+  "router.push('/collection' as any)",
+];
+const homePreservesNavigationHierarchy =
+  homeNavigationRoutes.every((route) => files.start.includes(route)) &&
+  files.start.includes('styles.referenceCanvas') &&
+  files.start.includes('styles.campInteractionLayer') &&
+  files.start.includes('missionAccent') &&
+  files.start.includes('SIGUIENTE PASO') &&
+  files.start.includes('IR A MI MISIÓN →') &&
+  (files.start.match(/accessibilityRole="button"/g) ?? []).length >= 6;
+expect(homePreservesNavigationHierarchy, 'Home preserves all six destinations and deliberate visual hierarchy in the approved exact-reference composition.');
 
 if (process.exitCode) process.exit(process.exitCode);
 ok('PLAN 7 strict TypeScript/RN compatibility guard passed.');
