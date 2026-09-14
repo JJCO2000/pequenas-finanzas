@@ -52,6 +52,41 @@ for (const exactGeometry of [
   assert.ok(home.includes(exactGeometry), `Home exact-reference geometry drifted: ${exactGeometry.split(':')[0]}`);
 }
 
+// Mission card: lock the approved lower-card composition as a real dynamic surface,
+// not a screenshot-only decoration. Day/title/status/reward/progress must keep coming
+// from app state, while the reference geometry and the single primary CTA stay fixed.
+for (const token of [
+  'TU MISIÓN · DÍA {currentDay}',
+  '{currentTitle}',
+  'getAdventureMissionStatus(current)',
+  'const stage = getAdventureStage(currentDay)',
+  'ETAPA {stage.stageNumber}',
+  '{stage.dayInStage}/{stage.totalSlots}',
+  'PREMIO {reward}',
+  'Juegos {gameUnlocks.length}/{GAMES.length}',
+]) {
+  assert.ok(home.includes(token), `Home mission card lost dynamic content: ${token}`);
+}
+
+for (const exactMissionGeometry of [
+  "mission: {\n    position: 'absolute',\n    left: '1.75%',\n    bottom: '4.2%',\n    width: '71.0%',\n    height: '25.4%'",
+  "{ width: px(158), height: px(158), borderRadius: px(28), borderWidth: px(5) }",
+  "{ width: px(98), height: px(34), borderRadius: px(17), borderWidth: px(2) }",
+  "style={[styles.referenceProgress, { marginTop: px(8), maxWidth: px(515) }]} ",
+  "width: px(331),\n              height: px(90),\n              borderRadius: px(45),\n              borderWidth: px(4),\n              marginLeft: px(18)",
+]) {
+  const normalizedLock = exactMissionGeometry.endsWith(' ')
+    ? exactMissionGeometry.slice(0, -1)
+    : exactMissionGeometry;
+  assert.ok(home.includes(normalizedLock), `Home approved mission geometry drifted: ${normalizedLock.split('\n')[0]}`);
+}
+
+assert.match(home, /styles\.continueButtonHitbox/, 'Mission CTA must preserve the full approved visual button as its hit target');
+assert.match(home, /style=\{styles\.continueButtonHitbox\}/, 'Mission CTA must keep the transparent hitbox over the approved visual button');
+assert.match(home, /continueButtonHitbox: \{ \.\.\.StyleSheet\.absoluteFillObject, opacity: 0 \}/, 'Mission CTA hitbox must cover the full visual button without adding a second visible control');
+assert.match(home, /<AdventureStageProgress dayNumber=\{currentDay\} compact \/>/, 'Mission must keep the canonical adventure progress component wired to the current day');
+assert.match(home, /hiddenProgress: \{ position: 'absolute', width: 1, height: 1, opacity: 0, overflow: 'hidden' \}/, 'Canonical progress must remain non-visual so it cannot fight the approved reference geometry');
+
 // Camp: daily streak first, destinations second, map exit secondary.
 assert.equal((camp.match(/<SceneHotspot/g) ?? []).length, 1, 'Camp destinations are data-driven through one SceneHotspot template');
 assert.equal((camp.match(/route: '\//g) ?? []).length, 6, 'Camp must keep six secondary destinations');
@@ -72,4 +107,4 @@ assert.match(streak, /Tu racha está a salvo por hoy\./, 'Completed streak needs
 assert.match(streak, /accessibilityLabel={`Racha de hoy\./, 'Streak action must be self-describing to accessibility services');
 assert.doesNotMatch(streak, /<Text style={styles\.ctaText}>{safe \? '✓' : '→'}<\/Text>/, 'Icon-only streak CTA is not allowed');
 
-console.log('PASS check-krug-home-camp-v1: exact-reference home keeps one obvious mission CTA, six measured secondary destinations, and readable streak states.');
+console.log('PASS check-krug-home-camp-v1: exact-reference home locks the measured camp panel, dynamic mission card, one mission CTA, and readable streak states.');
