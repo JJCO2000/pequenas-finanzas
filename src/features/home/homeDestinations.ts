@@ -11,7 +11,7 @@ export type HomeDestination = {
 
 export const HOME_DESTINATIONS: readonly HomeDestination[] = [
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
-    art: require('../../../assets/world/map/islands.png'), artBackground: '#DDF3E4' },
+    art: require('../../../assets/ui/home/mapa-vector.svg'), artBackground: '#DDF3E4' },
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
     art: require('../../../assets/ui/v6/arcade/dino-market.webp'), artBackground: '#D8EEFF' },
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',
