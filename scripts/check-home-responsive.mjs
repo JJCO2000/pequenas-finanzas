@@ -42,14 +42,16 @@ function resolve(width, height, left = 0, right = 0, top = 0, bottom = 0) {
   const contentWidth = Math.max(1, safeWidth - gutter * 2);
   const contentHeight = Math.max(1, safeHeight - gutter * 2);
   const topBarHeight = mode === 'compact' ? 56 : mode === 'expanded' ? 104 : 92;
-  const panelPadding = mode === 'compact' ? 8 : mode === 'expanded' ? 24 : 22;
+  const panelPadding = mode === 'compact' ? 8 : mode === 'expanded' ? 20 : 18;
   const panelBorderWidth = DESTINATION_PANEL_BORDER_WIDTH;
-  const destinationGap = mode === 'compact' ? 6 : 18;
+  const panelTopOffset = mode === 'compact' ? 0 : mode === 'expanded' ? 4 : 8;
+  const destinationGap = mode === 'compact' ? 6 : mode === 'expanded' ? 20 : 24;
+  const destinationRowGap = mode === 'compact' ? 6 : mode === 'expanded' ? 16 : 15;
   const panelWidth = mode === 'compact'
     ? Math.min(320, Math.max(188, contentWidth * 0.42))
     : mode === 'expanded'
       ? Math.min(660, contentWidth * 0.32)
-      : Math.min(600, Math.max(420, contentWidth * 0.39));
+      : Math.min(590, Math.max(420, contentWidth * 0.395));
   const cardWidth = Math.max(
     MIN_TOUCH,
     (panelWidth - panelBorderWidth * 2 - panelPadding * 2 - destinationGap * 2) / 3,
@@ -60,7 +62,7 @@ function resolve(width, height, left = 0, right = 0, top = 0, bottom = 0) {
   const leftWidth = contentWidth - panelWidth - gap;
   const panelTitleAllowance = mode === 'compact' ? 23 : mode === 'expanded' ? 77 : 72;
   const panelRequiredWidth = panelBorderWidth * 2 + panelPadding * 2 + cardWidth * 3 + destinationGap * 2;
-  const panelRequiredHeight = panelBorderWidth * 2 + panelPadding * 2 + panelTitleAllowance + cardHeight * 2 + destinationGap;
+  const panelRequiredHeight = panelTopOffset + panelBorderWidth * 2 + panelPadding * 2 + panelTitleAllowance + cardHeight * 2 + destinationRowGap;
   return { mode, safeWidth, safeHeight, contentWidth, contentHeight, panelWidth, panelBorderWidth, cardWidth, cardHeight, missionHeight, bodyHeight, leftWidth, panelRequiredWidth, panelRequiredHeight };
 }
 
@@ -99,6 +101,8 @@ assert.match(controlsSource, /paddingRight: layout\.insetRight \+ layout\.gutter
 assert.match(controlsSource, /paddingTop: layout\.insetTop \+ layout\.gutter/, 'Home controls must physically honor top safe-area inset');
 assert.match(controlsSource, /paddingBottom: layout\.insetBottom \+ layout\.gutter/, 'Home controls must physically honor bottom safe-area inset');
 assert.match(controlsSource, /borderWidth: layout\.destinationPanelBorderWidth/, 'Destination panel border width must come from centralized layout');
+assert.match(controlsSource, /columnGap: layout\.destinationGap/, 'Destination grid column gap must come from centralized layout');
+assert.match(controlsSource, /rowGap: layout\.destinationRowGap/, 'Destination grid row gap must come from centralized layout');
 assert.match(cardSource, /minWidth: layout\.touchTarget/, 'Destination controls need centralized min touch width');
 assert.match(cardSource, /minHeight: layout\.touchTarget/, 'Destination controls need centralized min touch height');
 assert.match(cardSource, /accessibilityRole="button"/, 'Destination controls need button semantics');
