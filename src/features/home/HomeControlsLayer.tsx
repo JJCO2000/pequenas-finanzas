@@ -78,6 +78,7 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
               borderWidth: layout.destinationPanelBorderWidth,
               borderRadius: compact ? 18 : expanded ? 32 : 29,
               padding: layout.destinationPanelPadding,
+              marginTop: layout.destinationPanelTopOffset,
               alignSelf: compact ? 'stretch' : 'flex-start',
             },
           ]}
@@ -110,7 +111,15 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
             </View>
           )}
 
-          <View style={[styles.destinationGrid, { gap: layout.destinationGap }]}> 
+          <View
+            style={[
+              styles.destinationGrid,
+              {
+                columnGap: layout.destinationGap,
+                rowGap: layout.destinationRowGap,
+              },
+            ]}
+          > 
             {HOME_DESTINATIONS.map((destination) => (
               <HomeDestinationCard
                 key={destination.id}
