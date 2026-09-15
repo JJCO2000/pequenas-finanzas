@@ -42,9 +42,9 @@ function resolve(width, height, left = 0, right = 0, top = 0, bottom = 0) {
   const contentWidth = Math.max(1, safeWidth - gutter * 2);
   const contentHeight = Math.max(1, safeHeight - gutter * 2);
   const topBarHeight = mode === 'compact' ? 56 : mode === 'expanded' ? 104 : 92;
-  const panelPadding = mode === 'compact' ? 8 : mode === 'expanded' ? 18 : 14;
+  const panelPadding = mode === 'compact' ? 8 : mode === 'expanded' ? 24 : 22;
   const panelBorderWidth = DESTINATION_PANEL_BORDER_WIDTH;
-  const destinationGap = mode === 'compact' ? 6 : mode === 'expanded' ? 12 : 10;
+  const destinationGap = mode === 'compact' ? 6 : 18;
   const panelWidth = mode === 'compact'
     ? Math.min(320, Math.max(188, contentWidth * 0.42))
     : mode === 'expanded'
@@ -54,7 +54,7 @@ function resolve(width, height, left = 0, right = 0, top = 0, bottom = 0) {
     MIN_TOUCH,
     (panelWidth - panelBorderWidth * 2 - panelPadding * 2 - destinationGap * 2) / 3,
   );
-  const cardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 184 : 166;
+  const cardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 196 : 186;
   const missionHeight = mode === 'compact' ? 128 : mode === 'expanded' ? 260 : Math.min(250, Math.max(210, contentHeight * 0.3));
   const bodyHeight = contentHeight - topBarHeight - gap;
   const leftWidth = contentWidth - panelWidth - gap;
