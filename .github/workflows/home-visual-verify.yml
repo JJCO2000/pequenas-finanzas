@@ -8,6 +8,7 @@ on:
       - 'src/app/start.tsx'
       - 'src/features/home/**'
       - 'assets/world/v7/home-background.webp'
+      - 'metro.config.js'
       - 'scripts/check-home-responsive.mjs'
       - 'scripts/check-krug-home-camp-v1.mjs'
       - 'scripts/check-plan7-strict.mjs'
