@@ -87,7 +87,7 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
               <Text style={[styles.destinationCompactTitle, { fontSize: 12.5 * layout.fontScale }]}>OTROS LUGARES</Text>
             </View>
           ) : (
-            <View style={[styles.destinationHeader, { marginBottom: expanded ? 15 : 12 }]}> 
+            <View style={[styles.destinationHeader, { marginBottom: expanded ? 24 : 22 }]}> 
               <View style={styles.destinationHeadingCopy}>
                 <Text style={[styles.destinationKicker, { fontSize: (expanded ? 12 : 11) * layout.fontScale }]}>CAMPAMENTO</Text>
                 <Text
@@ -237,6 +237,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
     paddingHorizontal: 2,
+    paddingTop: 8,
   },
   destinationHeadingCopy: { flex: 1, minWidth: 0 },
   destinationHelper: { alignItems: 'flex-end', paddingTop: 1, maxWidth: '38%' },
