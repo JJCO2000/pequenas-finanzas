@@ -13,7 +13,7 @@ type Props = {
 export function HomeDestinationCard({ destination, layout, onPress }: Props) {
   const compact = layout.mode === 'compact';
   const expanded = layout.mode === 'expanded';
-  const artHeight = compact ? 29 : Math.round(layout.destinationCardHeight * (expanded ? 0.61 : 0.59));
+  const artHeight = compact ? 28 : Math.round(layout.destinationCardHeight * (expanded ? 0.61 : 0.6));
 
   return (
     <Pressable
@@ -30,8 +30,9 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           height: layout.destinationCardHeight,
           minHeight: layout.touchTarget,
           borderRadius: compact ? 12 : 20,
+          borderWidth: compact ? 2 : 3,
           padding: compact ? 4 : 7,
-          opacity: pressed ? 0.92 : 1,
+          opacity: pressed ? 0.94 : 1,
           transform: [{ scale: pressed ? 0.975 : 1 }],
         },
       ]}
@@ -41,7 +42,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           styles.artWell,
           {
             height: artHeight,
-            borderRadius: compact ? 9 : 15,
+            borderRadius: compact ? 8 : 14,
             backgroundColor: destination.artBackground,
           },
         ]}
@@ -55,31 +56,35 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
         />
       </View>
 
-      <View style={[styles.copy, { paddingTop: compact ? 2 : 5 }]}> 
+      <View style={[styles.copy, { paddingTop: compact ? 1 : 5 }]}> 
         <Text
-          numberOfLines={compact ? 2 : 1}
+          numberOfLines={1}
           adjustsFontSizeToFit
-          minimumFontScale={0.72}
+          minimumFontScale={compact ? 0.6 : 0.78}
           style={[
             styles.label,
             {
-              fontSize: (compact ? 10.5 : expanded ? 19 : 17) * layout.fontScale,
-              lineHeight: (compact ? 12 : expanded ? 22 : 20) * layout.fontScale,
+              fontSize: (compact ? 9 : expanded ? 19 : 17) * layout.fontScale,
+              lineHeight: (compact ? 10 : expanded ? 22 : 20) * layout.fontScale,
             },
           ]}
         >
           {destination.label}
         </Text>
-        {!compact ? (
-          <Text
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.72}
-            style={[styles.subtitle, { fontSize: (expanded ? 12 : 11) * layout.fontScale }]}
-          >
-            {destination.subtitle}
-          </Text>
-        ) : null}
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={compact ? 0.6 : 0.75}
+          style={[
+            styles.subtitle,
+            {
+              fontSize: (compact ? 6.5 : expanded ? 12 : 11) * layout.fontScale,
+              lineHeight: (compact ? 7.5 : expanded ? 14 : 13) * layout.fontScale,
+            },
+          ]}
+        >
+          {destination.subtitle}
+        </Text>
       </View>
     </Pressable>
   );
@@ -87,9 +92,8 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFDF2',
-    borderWidth: 2,
-    borderColor: '#F4EFD9',
+    backgroundColor: '#FFFDF4',
+    borderColor: '#F1EBD4',
     alignItems: 'stretch',
     overflow: 'hidden',
     shadowColor: '#062F23',
@@ -104,7 +108,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  art: { width: '92%', height: '92%' },
+  art: { width: '94%', height: '94%' },
   copy: {
     flex: 1,
     minHeight: 0,
@@ -112,6 +116,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 2,
   },
-  label: { color: '#0B4E38', fontWeight: '900', textAlign: 'center' },
-  subtitle: { color: '#58766A', fontWeight: '800', textAlign: 'center', marginTop: 1 },
+  label: { color: '#0A4A36', fontWeight: '900', textAlign: 'center', letterSpacing: -0.15 },
+  subtitle: { color: '#5A756B', fontWeight: '800', textAlign: 'center', marginTop: 1 },
 });

@@ -76,23 +76,36 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
             {
               width: layout.destinationPanelWidth,
               borderWidth: layout.destinationPanelBorderWidth,
-              borderRadius: compact ? 18 : 28,
+              borderRadius: compact ? 18 : expanded ? 32 : 29,
               padding: layout.destinationPanelPadding,
               alignSelf: compact ? 'stretch' : 'flex-start',
             },
           ]}
         >
           {compact ? (
-            <Text style={[styles.destinationCompactTitle, { fontSize: 13 * layout.fontScale, marginBottom: 5 }]}>OTROS LUGARES</Text>
+            <View style={[styles.destinationCompactHeader, { marginBottom: 5 }]}> 
+              <Text style={[styles.destinationCompactTitle, { fontSize: 12.5 * layout.fontScale }]}>OTROS LUGARES</Text>
+            </View>
           ) : (
-            <View style={[styles.destinationHeader, { marginBottom: expanded ? 13 : 11 }]}> 
+            <View style={[styles.destinationHeader, { marginBottom: expanded ? 15 : 12 }]}> 
               <View style={styles.destinationHeadingCopy}>
-                <Text style={[styles.destinationKicker, { fontSize: 11 * layout.fontScale }]}>CAMPAMENTO</Text>
-                <Text style={[styles.destinationTitle, { fontSize: (expanded ? 27 : 24) * layout.fontScale }]}>Otros lugares</Text>
+                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 12 : 11) * layout.fontScale }]}>CAMPAMENTO</Text>
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    styles.destinationTitle,
+                    {
+                      fontSize: (expanded ? 27 : 24) * layout.fontScale,
+                      lineHeight: (expanded ? 31 : 28) * layout.fontScale,
+                    },
+                  ]}
+                >
+                  Otros lugares
+                </Text>
               </View>
               <View style={styles.destinationHelper}>
-                <Text style={[styles.destinationKicker, { fontSize: 10 * layout.fontScale }]}>EXPLORA</Text>
-                <Text style={[styles.destinationHint, { fontSize: 10 * layout.fontScale }]}>Toca una tarjeta.</Text>
+                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 11 : 10) * layout.fontScale }]}>EXPLORA</Text>
+                <Text style={[styles.destinationHint, { fontSize: (expanded ? 11 : 10) * layout.fontScale }]}>Toca una tarjeta.</Text>
               </View>
             </View>
           )}
@@ -207,21 +220,33 @@ const styles = StyleSheet.create({
   nextKicker: { color: '#B56A20', fontWeight: '900', letterSpacing: 1.1 },
   nextText: { color: '#153E2A', fontWeight: '900', marginTop: 1 },
   destinationPanel: {
-    backgroundColor: 'rgba(4, 71, 48, 0.96)',
-    borderColor: '#8DE36A',
+    backgroundColor: 'rgba(3, 72, 49, 0.985)',
+    borderColor: '#8CE36A',
     overflow: 'hidden',
     shadowColor: '#062F23',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.24,
-    shadowRadius: 7,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 9,
+    elevation: 7,
   },
-  destinationCompactTitle: { color: '#FFFFFF', fontWeight: '900', textAlign: 'center', letterSpacing: 0.5 },
-  destinationHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },
+  destinationCompactHeader: { minHeight: 14, justifyContent: 'center' },
+  destinationCompactTitle: { color: '#FFFFFF', fontWeight: '900', textAlign: 'center', letterSpacing: 0.55 },
+  destinationHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+    paddingHorizontal: 2,
+  },
   destinationHeadingCopy: { flex: 1, minWidth: 0 },
   destinationHelper: { alignItems: 'flex-end', paddingTop: 1, maxWidth: '38%' },
-  destinationKicker: { color: '#F6D95D', fontWeight: '900', letterSpacing: 1.1 },
-  destinationTitle: { color: '#FFFFFF', fontWeight: '900', lineHeight: 29 },
-  destinationHint: { color: '#E3F1DA', fontWeight: '700', marginTop: 2, textAlign: 'right' },
-  destinationGrid: { flexDirection: 'row', flexWrap: 'wrap', alignContent: 'center', justifyContent: 'center' },
+  destinationKicker: { color: '#F6D95D', fontWeight: '900', letterSpacing: 1.12 },
+  destinationTitle: { color: '#FFFFFF', fontWeight: '900', marginTop: 1 },
+  destinationHint: { color: '#F0F6E9', fontWeight: '700', marginTop: 2, textAlign: 'right' },
+  destinationGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignContent: 'flex-start',
+    justifyContent: 'flex-start',
+  },
 });
