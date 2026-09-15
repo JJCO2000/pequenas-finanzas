@@ -56,16 +56,17 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
         />
       </View>
 
-      <View style={[styles.copy, { paddingTop: compact ? 1 : 5 }]}> 
+      <View style={[styles.copy, { paddingTop: compact ? 1 : 5, paddingHorizontal: compact ? 0 : 2 }]}> 
         <Text
           numberOfLines={1}
           adjustsFontSizeToFit
-          minimumFontScale={compact ? 0.6 : 0.78}
+          minimumFontScale={compact ? 0.55 : 0.78}
           style={[
             styles.label,
+            compact && styles.labelCompact,
             {
-              fontSize: (compact ? 9 : expanded ? 19 : 17) * layout.fontScale,
-              lineHeight: (compact ? 10 : expanded ? 22 : 20) * layout.fontScale,
+              fontSize: (compact ? 8 : expanded ? 19 : 17) * layout.fontScale,
+              lineHeight: (compact ? 9 : expanded ? 22 : 20) * layout.fontScale,
             },
           ]}
         >
@@ -74,12 +75,13 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
         <Text
           numberOfLines={1}
           adjustsFontSizeToFit
-          minimumFontScale={compact ? 0.6 : 0.75}
+          minimumFontScale={compact ? 0.55 : 0.75}
           style={[
             styles.subtitle,
+            compact && styles.subtitleCompact,
             {
-              fontSize: (compact ? 6.5 : expanded ? 12 : 11) * layout.fontScale,
-              lineHeight: (compact ? 7.5 : expanded ? 14 : 13) * layout.fontScale,
+              fontSize: (compact ? 5.5 : expanded ? 12 : 11) * layout.fontScale,
+              lineHeight: (compact ? 6.5 : expanded ? 14 : 13) * layout.fontScale,
             },
           ]}
         >
@@ -114,8 +116,9 @@ const styles = StyleSheet.create({
     minHeight: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 2,
   },
   label: { color: '#0A4A36', fontWeight: '900', textAlign: 'center', letterSpacing: -0.15 },
+  labelCompact: { letterSpacing: -0.3 },
   subtitle: { color: '#5A756B', fontWeight: '800', textAlign: 'center', marginTop: 1 },
+  subtitleCompact: { letterSpacing: -0.18 },
 });
