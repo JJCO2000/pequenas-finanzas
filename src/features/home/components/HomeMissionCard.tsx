@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
-import { ActionPill } from '@/features/shell/gameui';
 import type { HomeLayout } from '../useHomeLayout';
 
 export type HomeMissionViewModel = {
@@ -27,6 +26,7 @@ export function HomeMissionCard({ mission, layout, onPress }: Props) {
   const expanded = layout.mode === 'expanded';
   const narrowRegular = !compact && layout.contentWidth < 1200;
   const segments = Array.from({ length: mission.totalSlots }, (_, index) => index < mission.dayInStage);
+  const actionFontSize = compact ? 11 : expanded ? 20 : narrowRegular ? 14 : 18;
 
   return (
     <View
@@ -81,11 +81,11 @@ export function HomeMissionCard({ mission, layout, onPress }: Props) {
         ) : null}
       </View>
 
-      <ActionPill
-        label="IR A MI MISIÓN →"
+      <Pressable
+        accessibilityRole="button"
         accessibilityLabel="Ir a mi misión actual"
         onPress={onPress}
-        style={[
+        style={({ pressed }) => [
           styles.action,
           compact
             ? styles.actionCompact
@@ -95,8 +95,18 @@ export function HomeMissionCard({ mission, layout, onPress }: Props) {
                 ? styles.actionNarrow
                 : styles.actionRegular,
           { minWidth: layout.touchTarget, minHeight: layout.touchTarget },
+          pressed && styles.actionPressed,
         ]}
-      />
+      >
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+          style={[styles.actionLabel, { fontSize: actionFontSize * layout.fontScale }]}
+        >
+          IR A MI MISIÓN →
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -169,12 +179,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFD34D',
     borderWidth: 3,
     borderColor: '#FFF2A1',
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
     shadowColor: '#A46312',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.24,
     shadowRadius: 5,
     elevation: 6,
   },
+  actionPressed: { opacity: 0.92, transform: [{ scale: 0.98 }] },
+  actionLabel: { color: '#15432F', fontWeight: '900', textAlign: 'center', letterSpacing: 0.3 },
   actionRegular: { width: 272, height: 72 },
   actionNarrow: { width: 188, height: 62 },
   actionExpanded: { width: 300, height: 78 },
