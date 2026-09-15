@@ -16,6 +16,7 @@ const COMPACT_MAX_HEIGHT = 500;
 const EXPANDED_MIN_WIDTH = 1600;
 const EXPANDED_MIN_HEIGHT = 900;
 const MIN_TOUCH = 48;
+const DESTINATION_PANEL_BORDER_WIDTH = 3;
 
 for (const token of [
   'HOME_COMPACT_MAX_WIDTH = 900',
@@ -23,6 +24,7 @@ for (const token of [
   'HOME_EXPANDED_MIN_WIDTH = 1600',
   'HOME_EXPANDED_MIN_HEIGHT = 900',
   'HOME_MIN_TOUCH_TARGET = 48',
+  'HOME_DESTINATION_PANEL_BORDER_WIDTH = 3',
 ]) {
   assert.ok(layoutSource.includes(token), `Home layout contract drifted: ${token}`);
 }
@@ -41,20 +43,25 @@ function resolve(width, height, left = 0, right = 0, top = 0, bottom = 0) {
   const contentHeight = Math.max(1, safeHeight - gutter * 2);
   const topBarHeight = mode === 'compact' ? 56 : mode === 'expanded' ? 104 : 92;
   const panelPadding = mode === 'compact' ? 8 : mode === 'expanded' ? 18 : 14;
+  const panelBorderWidth = DESTINATION_PANEL_BORDER_WIDTH;
   const destinationGap = mode === 'compact' ? 6 : mode === 'expanded' ? 12 : 10;
   const panelWidth = mode === 'compact'
     ? Math.min(320, Math.max(188, contentWidth * 0.42))
     : mode === 'expanded'
       ? Math.min(660, contentWidth * 0.32)
       : Math.min(600, Math.max(420, contentWidth * 0.39));
-  const cardWidth = Math.max(MIN_TOUCH, (panelWidth - panelPadding * 2 - destinationGap * 2) / 3);
+  const cardWidth = Math.max(
+    MIN_TOUCH,
+    (panelWidth - panelBorderWidth * 2 - panelPadding * 2 - destinationGap * 2) / 3,
+  );
   const cardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 146 : 126;
   const missionHeight = mode === 'compact' ? 128 : mode === 'expanded' ? 250 : Math.min(230, Math.max(190, contentHeight * 0.28));
   const bodyHeight = contentHeight - topBarHeight - gap;
   const leftWidth = contentWidth - panelWidth - gap;
   const panelTitleAllowance = mode === 'compact' ? 23 : mode === 'expanded' ? 42 : 38;
-  const panelRequiredHeight = panelPadding * 2 + panelTitleAllowance + cardHeight * 2 + destinationGap;
-  return { mode, safeWidth, safeHeight, contentWidth, contentHeight, panelWidth, cardWidth, cardHeight, missionHeight, bodyHeight, leftWidth, panelRequiredHeight };
+  const panelRequiredWidth = panelBorderWidth * 2 + panelPadding * 2 + cardWidth * 3 + destinationGap * 2;
+  const panelRequiredHeight = panelBorderWidth * 2 + panelPadding * 2 + panelTitleAllowance + cardHeight * 2 + destinationGap;
+  return { mode, safeWidth, safeHeight, contentWidth, contentHeight, panelWidth, panelBorderWidth, cardWidth, cardHeight, missionHeight, bodyHeight, leftWidth, panelRequiredWidth, panelRequiredHeight };
 }
 
 const cases = [
@@ -77,6 +84,7 @@ for (const [width, height, left, right, top, bottom, expectedMode, label] of cas
   assert.ok(r.missionHeight >= MIN_TOUCH, `${label}: mission card cannot contain a ${MIN_TOUCH}dp CTA`);
   assert.ok(r.leftWidth > MIN_TOUCH * 2, `${label}: left column collapses`);
   assert.ok(r.panelWidth < r.contentWidth, `${label}: destination panel consumes full content width`);
+  assert.ok(r.panelRequiredWidth <= r.panelWidth + 0.01, `${label}: three-card row overflows panel content box`);
   assert.ok(r.bodyHeight >= r.missionHeight, `${label}: mission card overflows body`);
   assert.ok(r.panelRequiredHeight <= r.bodyHeight + 1, `${label}: six-card grid overflows vertically`);
 }
@@ -90,6 +98,7 @@ assert.match(controlsSource, /paddingLeft: layout\.insetLeft \+ layout\.gutter/,
 assert.match(controlsSource, /paddingRight: layout\.insetRight \+ layout\.gutter/, 'Home controls must physically honor right safe-area inset');
 assert.match(controlsSource, /paddingTop: layout\.insetTop \+ layout\.gutter/, 'Home controls must physically honor top safe-area inset');
 assert.match(controlsSource, /paddingBottom: layout\.insetBottom \+ layout\.gutter/, 'Home controls must physically honor bottom safe-area inset');
+assert.match(controlsSource, /borderWidth: layout\.destinationPanelBorderWidth/, 'Destination panel border width must come from centralized layout');
 assert.match(cardSource, /minWidth: layout\.touchTarget/, 'Destination controls need centralized min touch width');
 assert.match(cardSource, /minHeight: layout\.touchTarget/, 'Destination controls need centralized min touch height');
 assert.match(cardSource, /accessibilityRole="button"/, 'Destination controls need button semantics');

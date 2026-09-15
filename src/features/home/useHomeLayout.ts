@@ -7,6 +7,7 @@ export const HOME_COMPACT_MAX_HEIGHT = 500;
 export const HOME_EXPANDED_MIN_WIDTH = 1600;
 export const HOME_EXPANDED_MIN_HEIGHT = 900;
 export const HOME_MIN_TOUCH_TARGET = 48;
+export const HOME_DESTINATION_PANEL_BORDER_WIDTH = 3;
 
 export type HomeLayoutMode = 'compact' | 'regular' | 'expanded';
 
@@ -26,6 +27,7 @@ export type HomeLayout = {
   topBarHeight: number;
   destinationPanelWidth: number;
   destinationPanelPadding: number;
+  destinationPanelBorderWidth: number;
   destinationGap: number;
   destinationCardWidth: number;
   destinationCardHeight: number;
@@ -54,6 +56,7 @@ export function resolveHomeLayout(width: number, height: number, insetLeft = 0, 
   const contentHeight = Math.max(1, safeHeight - gutter * 2);
   const topBarHeight = mode === 'compact' ? 56 : mode === 'expanded' ? 104 : 92;
   const destinationPanelPadding = mode === 'compact' ? 8 : mode === 'expanded' ? 18 : 14;
+  const destinationPanelBorderWidth = HOME_DESTINATION_PANEL_BORDER_WIDTH;
   const destinationGap = mode === 'compact' ? 6 : mode === 'expanded' ? 12 : 10;
   const destinationPanelWidth = mode === 'compact'
     ? Math.min(320, Math.max(188, contentWidth * 0.42))
@@ -62,7 +65,12 @@ export function resolveHomeLayout(width: number, height: number, insetLeft = 0, 
       : Math.min(600, Math.max(420, contentWidth * 0.39));
   const destinationCardWidth = Math.max(
     HOME_MIN_TOUCH_TARGET,
-    (destinationPanelWidth - destinationPanelPadding * 2 - destinationGap * 2) / 3,
+    (
+      destinationPanelWidth
+      - destinationPanelBorderWidth * 2
+      - destinationPanelPadding * 2
+      - destinationGap * 2
+    ) / 3,
   );
   const destinationCardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 146 : 126;
   const missionHeight = mode === 'compact'
@@ -88,6 +96,7 @@ export function resolveHomeLayout(width: number, height: number, insetLeft = 0, 
     topBarHeight,
     destinationPanelWidth,
     destinationPanelPadding,
+    destinationPanelBorderWidth,
     destinationGap,
     destinationCardWidth,
     destinationCardHeight,

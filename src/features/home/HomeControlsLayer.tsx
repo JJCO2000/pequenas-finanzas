@@ -75,6 +75,7 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
             styles.destinationPanel,
             {
               width: layout.destinationPanelWidth,
+              borderWidth: layout.destinationPanelBorderWidth,
               borderRadius: compact ? 18 : 28,
               padding: layout.destinationPanelPadding,
             },
@@ -158,7 +159,6 @@ const styles = StyleSheet.create({
   destinationPanel: {
     alignSelf: 'stretch',
     backgroundColor: 'rgba(8, 66, 45, 0.95)',
-    borderWidth: 3,
     borderColor: '#79D66B',
     overflow: 'hidden',
   },
