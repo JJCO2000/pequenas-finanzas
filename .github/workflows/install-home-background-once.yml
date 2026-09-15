@@ -1,0 +1,40 @@
+name: Install Home Background Once
+
+on:
+  push:
+    branches:
+      - feature/home-exact-reference-v1
+    paths:
+      - '.home-bg-transfer/**'
+      - '.github/workflows/install-home-background-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild exact verified Home background
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .home-bg-transfer/part-*.txt | tr -d '\r\n' | base64 --decode > assets/world/v7/home-background.webp
+          test "$(wc -c < assets/world/v7/home-background.webp)" -eq 93290
+          echo "76d2a86a685fd7376019db65ca38d05ac1e3ac62d352b044c13d2305bedff796  assets/world/v7/home-background.webp" | sha256sum -c -
+          python3 -c "from pathlib import Path;b=Path('assets/world/v7/home-background.webp').read_bytes();assert b[:4]==b'RIFF';assert b[8:12]==b'WEBP';assert b[12:16]==b'VP8 ';assert b[23:26]==bytes([0x9d,0x01,0x2a]);assert int.from_bytes(b[26:28],'little')&0x3fff==1536;assert int.from_bytes(b[28:30],'little')&0x3fff==864"
+      - name: Commit asset and self-clean transfer staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .home-bg-transfer
+          rm -f .github/workflows/install-home-background-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(home): install verified background asset"
+          git push origin HEAD:feature/home-exact-reference-v1
