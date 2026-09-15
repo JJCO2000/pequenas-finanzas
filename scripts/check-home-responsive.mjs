@@ -106,7 +106,10 @@ assert.match(cardSource, /source=\{destination\.art\}/, 'Destination controls mu
 assert.match(cardSource, /destination\.subtitle/, 'Destination cards must preserve their learning/navigation subtitle');
 assert.match(missionSource, /minHeight: layout\.touchTarget/, 'Mission CTA needs centralized min touch height');
 assert.match(missionSource, /accessibilityLabel="Ir a mi misión actual"/, 'Mission CTA needs explicit accessibility label');
-assert.equal((destinationsSource.match(/\{\n    id: '/g) ?? []).length, 6, 'HOME_DESTINATIONS must contain exactly six destinations');
+assert.equal((destinationsSource.match(/\{ id: '/g) ?? []).length, 6, 'HOME_DESTINATIONS must contain exactly six destinations');
+const routes = [...destinationsSource.matchAll(/\{ id: '[^']+'[^\n]+route: '([^']+)'/g)].map((match) => match[1]);
+assert.equal(routes.length, 6, 'HOME_DESTINATIONS must expose all six routes to contract guards');
+assert.equal(new Set(routes).size, 6, 'HOME_DESTINATIONS routes must remain unique');
 assert.match(controlsSource, /HOME_DESTINATIONS\.map/, 'Home controls must render destinations data-driven');
 assert.match(startSource, /<HomeSceneLayout/, 'Start route must delegate Home layout to HomeSceneLayout');
 assert.doesNotMatch(startSource, /Pressable|ActionPill|FloatingCard|referenceCanvas|campInteractionLayer|hiddenProgress|HOME_REFERENCE/, 'Start route must not own old Home rendering/interactions');
