@@ -1,6 +1,11 @@
 name: Publish Android Preview OTA
 
 on:
+  push:
+    branches:
+      - feature/home-exact-reference-v1
+    paths:
+      - '.github/workflows/publish-preview.yml'
   workflow_dispatch:
     inputs:
       message:
@@ -21,7 +26,7 @@ jobs:
     timeout-minutes: 20
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      UPDATE_MESSAGE: ${{ inputs.message }}
+      UPDATE_MESSAGE: ${{ inputs.message || 'fix: sqlite onboarding + responsive home' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
