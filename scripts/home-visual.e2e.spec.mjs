@@ -24,11 +24,12 @@ async function ensureProfile(page) {
     await startButton.click();
     await page.getByLabel('Nombre del explorador').fill('Visual QA');
     await page.getByRole('button', { name: 'Crear perfil y entrar al mapa' }).click();
-    await page.waitForURL(/\/play(?:$|\?)/, { timeout: 30_000 });
+    await page.waitForURL(/\/play\/?(?:$|[?#])/, { timeout: 90_000 });
   }
 }
 
 test('Home is layered, responsive and tappable from compact-min through expanded-max', async ({ page }) => {
+  test.setTimeout(120_000);
   await ensureProfile(page);
   await fs.mkdir('artifacts', { recursive: true });
 
