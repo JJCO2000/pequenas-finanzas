@@ -88,16 +88,16 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
               <Text style={[styles.destinationCompactTitle, { fontSize: 12.5 * layout.fontScale }]}>OTROS LUGARES</Text>
             </View>
           ) : (
-            <View style={[styles.destinationHeader, { marginBottom: expanded ? 24 : 22 }]}> 
+            <View style={[styles.destinationHeader, { marginBottom: expanded ? 18 : 16 }]}> 
               <View style={styles.destinationHeadingCopy}>
-                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 12 : 11) * layout.fontScale }]}>CAMPAMENTO</Text>
+                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 14 : 13) * layout.fontScale }]}>CAMPAMENTO</Text>
                 <Text
                   numberOfLines={1}
                   style={[
                     styles.destinationTitle,
                     {
-                      fontSize: (expanded ? 27 : 24) * layout.fontScale,
-                      lineHeight: (expanded ? 31 : 28) * layout.fontScale,
+                      fontSize: (expanded ? 30 : 28) * layout.fontScale,
+                      lineHeight: (expanded ? 35 : 32) * layout.fontScale,
                     },
                   ]}
                 >
@@ -105,8 +105,8 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
                 </Text>
               </View>
               <View style={styles.destinationHelper}>
-                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 11 : 10) * layout.fontScale }]}>EXPLORA</Text>
-                <Text style={[styles.destinationHint, { fontSize: (expanded ? 11 : 10) * layout.fontScale }]}>Toca una tarjeta.</Text>
+                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 13 : 12) * layout.fontScale }]}>EXPLORA</Text>
+                <Text style={[styles.destinationHint, { fontSize: (expanded ? 13 : 12) * layout.fontScale }]}>Toca una tarjeta.</Text>
               </View>
             </View>
           )}
