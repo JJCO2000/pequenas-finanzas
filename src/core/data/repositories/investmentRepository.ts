@@ -2,7 +2,7 @@ import * as Crypto from 'expo-crypto';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { Investment, InvestmentCompanionKey } from '@/core/domain/types';
 import { calculateInvestmentPayout, calculateInvestmentProfit, INVESTMENT_TERM_LEVELS } from '@/core/economy/investmentPlan';
-import { enqueueSync, mapInvestment, now, txLog } from './repositorySupport';
+import { enqueueSync, mapInvestment, now, txLog, withWriteTransaction } from './repositorySupport';
 
 export async function getInvestments(db: SQLiteDatabase, id: string): Promise<Investment[]> {
   const rows = await db.getAllAsync<any>(
@@ -34,7 +34,7 @@ export async function createInvestment(
   const profitCents = calculateInvestmentProfit(principal);
   const payoutCents = calculateInvestmentPayout(principal);
 
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     const wallet = await tx.getFirstAsync<{ available_cents: number }>(
       'SELECT available_cents FROM wallets WHERE profile_id=?',
       profileId,
@@ -172,7 +172,7 @@ export async function settleMaturedInvestments(
   reachedDay: number,
 ) {
   let result: Investment[] = [];
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     result = await claimMaturedInvestmentsTx(tx, profileId, reachedDay);
   });
   return result;

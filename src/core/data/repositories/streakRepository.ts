@@ -7,7 +7,7 @@ import {
   type StreakQualification,
   type StreakSnapshot,
 } from '@/core/progression/streak';
-import { now } from './repositorySupport';
+import { now, withWriteTransaction } from './repositorySupport';
 
 type StreakRow = {
   profile_id: string;
@@ -128,7 +128,7 @@ export async function getStreakState(
   today = localDateKey(),
 ): Promise<StreakSnapshot> {
   let row: StreakRow | null = null;
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     row = await reconcileStreakTx(tx, profileId, today);
   });
   if (!row) throw new Error('Estado de racha no disponible');
@@ -152,7 +152,7 @@ export async function qualifyDailyStreak(
   }
 
   let qualification: StreakQualification | null = null;
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     const row = await reconcileStreakTx(tx, profileId, today);
     if (row.last_qualified_date === today) {
       qualification = {

@@ -1,7 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { AdventureDay, AdventureDaySeed, AdventureState, CampaignCompletionResult, GameUnlock } from '@/core/domain/types';
 import { claimMaturedInvestmentsTx } from './investmentRepository';
-import { enqueueSync, mapAdventureDay, mapAdventureState, now, txLog } from './repositorySupport';
+import { enqueueSync, mapAdventureDay, mapAdventureState, now, txLog, withWriteTransaction } from './repositorySupport';
 
 export async function getAdventureState(db: SQLiteDatabase, id: string): Promise<AdventureState | null> {
   const row = await db.getFirstAsync<any>('SELECT * FROM adventure_state WHERE profile_id=?', id);
@@ -43,7 +43,7 @@ export async function ensureAdventureDays(
 ) {
   if (seeds.length === 0) return;
   const timestamp = now();
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     for (const seed of seeds) {
       await tx.runAsync(
         `INSERT INTO adventure_days(
@@ -108,7 +108,7 @@ export async function getGameUnlocks(db: SQLiteDatabase, profileId: string): Pro
 
 export async function unlockGame(db: SQLiteDatabase, profileId: string, gameId: string, dayNumber: number) {
   const timestamp = now();
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     await tx.runAsync(
       'INSERT OR IGNORE INTO game_unlocks(profile_id,game_id,unlocked_day,unlocked_at) VALUES(?,?,?,?)',
       profileId,
@@ -240,7 +240,7 @@ export async function completeAdventureDay(
     currentDay: dayNumber,
     maturedInvestments: [],
   };
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     result = await completeAdventureDayTx(
       tx,
       profileId,

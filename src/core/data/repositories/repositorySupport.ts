@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type {
   AdventureDay,
@@ -9,6 +10,17 @@ import type {
 
 export const ACTIVE_PROFILE_STATE_KEY = 'active_profile_id';
 export const now = () => new Date().toISOString();
+
+export async function withWriteTransaction(
+  db: SQLiteDatabase,
+  task: (tx: SQLiteDatabase) => Promise<void>,
+) {
+  if (Platform.OS === 'web') {
+    await db.withTransactionAsync(() => task(db));
+    return;
+  }
+  await db.withExclusiveTransactionAsync(task);
+}
 
 const LEGACY_INVESTMENT_COMPANION_KEYS: Record<string, InvestmentCompanionKey> = {
   stegosaurus: 'companion-1',

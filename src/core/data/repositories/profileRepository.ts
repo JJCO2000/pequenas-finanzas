@@ -2,7 +2,7 @@ import * as Crypto from 'expo-crypto';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { AgeBand, ChildProfile } from '@/core/domain/types';
 import { DEFAULT_PROFILE_AVATAR_KEY } from '@/core/domain/profileDefaults';
-import { ACTIVE_PROFILE_STATE_KEY, enqueueSync, now } from './repositorySupport';
+import { ACTIVE_PROFILE_STATE_KEY, enqueueSync, now, withWriteTransaction } from './repositorySupport';
 
 export async function getActiveProfile(db: SQLiteDatabase): Promise<ChildProfile | null> {
   const state = await db.getFirstAsync<{ value: string }>(
@@ -31,7 +31,7 @@ export async function createProfile(
   const id = Crypto.randomUUID();
   const timestamp = now();
 
-  await db.withExclusiveTransactionAsync(async (tx) => {
+  await withWriteTransaction(db, async (tx) => {
     await tx.runAsync(
       'INSERT INTO profiles VALUES(?,?,?,?,?,?)',
       id,

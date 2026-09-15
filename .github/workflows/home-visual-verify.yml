@@ -7,6 +7,11 @@ on:
     paths:
       - 'src/app/start.tsx'
       - 'src/features/home/**'
+      - 'src/core/data/repositories/profileRepository.ts'
+      - 'src/core/data/repositories/adventureRepository.ts'
+      - 'src/core/data/repositories/investmentRepository.ts'
+      - 'src/core/data/repositories/streakRepository.ts'
+      - 'src/core/data/repositories/repositorySupport.ts'
       - 'assets/world/v7/home-background.webp'
       - 'metro.config.js'
       - 'scripts/check-home-responsive.mjs'
