@@ -8,6 +8,8 @@ import { GAMES } from '@/registry/games';
 import { getAdventureNodeLabel, getAdventureMissionStatus, getAdventureStage } from '@/features/adventure/presentation/adventurePresentation';
 import { HomeSceneLayout } from '@/features/home';
 
+const HOME_AVATAR = require('../../assets/ui/home/trex-avatar-vector.svg');
+
 export default function StartScreen() {
   const { profile, currentDay, adventureDays, wallet, gameUnlocks } = useAppData();
   const current = useMemo(
@@ -24,7 +26,7 @@ export default function StartScreen() {
     : 'Explora el mapa';
   const missionArt = current?.gameId
     ? (ACTIVE_THEME.gameThumbnails?.[current.gameId] ?? ACTIVE_THEME.characters.primary)
-    : ACTIVE_THEME.characters.primary;
+    : HOME_AVATAR;
   const reward = current?.rewardCents
     ? formatMoney(current.rewardCents)
     : current?.nodeType === 'game'
@@ -37,7 +39,7 @@ export default function StartScreen() {
       profileName={profile.displayName}
       day={currentDay}
       balanceLabel={formatMoney(wallet?.availableCents ?? 0)}
-      avatar={ACTIVE_THEME.characters.primary}
+      avatar={HOME_AVATAR}
       mission={{
         day: currentDay,
         title: currentTitle,

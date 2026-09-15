@@ -1,44 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Mapa Aventura">
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#DFF7FF"/>
-      <stop offset="1" stop-color="#BDEBDF"/>
-    </linearGradient>
-    <linearGradient id="hill" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#73D58A"/>
-      <stop offset="1" stop-color="#2D8F59"/>
-    </linearGradient>
-    <linearGradient id="path" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFE08A"/>
-      <stop offset="1" stop-color="#F4B84A"/>
-    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F7F1B8"/><stop offset="1" stop-color="#DCEB9B"/></linearGradient>
+    <linearGradient id="path" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFD766"/><stop offset="1" stop-color="#F4AF3C"/></linearGradient>
   </defs>
-  <rect width="320" height="200" rx="28" fill="url(#sky)"/>
-  <circle cx="265" cy="44" r="23" fill="#FFD95F"/>
-  <path d="M0 120L54 72l43 34 44-58 54 63 42-42 83 78v53H0z" fill="url(#hill)"/>
-  <path d="M151 200c8-45 25-71 61-95 16-10 37-18 58-24-19 14-36 28-48 43-18 21-28 44-31 76z" fill="url(#path)"/>
-  <path d="M44 150c16-17 33-26 51-27 15 0 28 5 41 14-17 0-31 4-43 11-11 7-20 17-28 30z" fill="#1F7A49" opacity=".9"/>
-  <g fill="#FFFFFF" opacity=".95">
-    <ellipse cx="67" cy="45" rx="18" ry="8"/>
-    <ellipse cx="82" cy="45" rx="12" ry="6"/>
-    <ellipse cx="221" cy="63" rx="15" ry="7"/>
-    <ellipse cx="233" cy="63" rx="10" ry="5"/>
-  </g>
-  <g fill="#F6C84A" stroke="#C38E22" stroke-width="3">
-    <circle cx="212" cy="120" r="11"/>
-    <circle cx="229" cy="144" r="9"/>
-    <circle cx="243" cy="169" r="8"/>
-  </g>
-  <g fill="#FFF4B3">
-    <path d="M212 113l2 5 5 .5-4 3.5 1.4 5-4.4-2.7-4.4 2.7 1.4-5-4-3.5 5-.5z"/>
-    <path d="M229 138l1.7 4 4.3.4-3.3 2.8 1 4.2-3.7-2.3-3.7 2.3 1-4.2-3.3-2.8 4.3-.4z"/>
-  </g>
-  <g transform="translate(52 88)">
-    <path d="M0 58c0-28 18-51 45-51 28 0 48 18 48 43 0 15-7 27-20 34H30C12 80 0 70 0 58z" fill="#FF7A55"/>
-    <path d="M18 54c4-23 19-36 40-36 13 0 24 5 32 14-12-3-23 0-32 8-8 7-14 18-17 31z" fill="#FF9D72"/>
-    <circle cx="65" cy="31" r="8" fill="#FFFFFF"/>
-    <circle cx="67" cy="31" r="4" fill="#163D31"/>
-    <path d="M85 47c12 0 18 4 22 10-8 1-14 0-21-4z" fill="#F3D58A"/>
-    <path d="M20 79c-8 4-13 10-16 18 10-6 19-8 28-6z" fill="#E85D47"/>
-  </g>
+  <ellipse cx="160" cy="173" rx="112" ry="16" fill="#2A6D54" opacity=".14"/>
+  <path d="M43 45l74-20 84 22 76-20v124l-76 20-84-22-74 20z" fill="url(#paper)" stroke="#4F8B55" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M117 25v124M201 47v124" stroke="#A5C673" stroke-width="5"/>
+  <path d="M60 123c29-18 41-3 61-25s39-7 50 10 34 17 64-12" fill="none" stroke="url(#path)" stroke-width="10" stroke-linecap="round" stroke-dasharray="13 10"/>
+  <g fill="#4F9E5E"><path d="M69 76l18-27 18 27z"/><path d="M84 89l24-35 24 35z"/><path d="M193 91l21-32 21 32z"/><path d="M218 108l17-25 17 25z"/></g>
+  <path d="M226 48c0-18 14-32 32-32s32 14 32 32c0 24-32 53-32 53s-32-29-32-53z" fill="#EF5A47" stroke="#C53E36" stroke-width="5"/>
+  <circle cx="258" cy="48" r="12" fill="#FFF8DF"/>
 </svg>

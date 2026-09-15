@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Mi dinero">
+  <defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFE36E"/><stop offset="1" stop-color="#F2A61F"/></linearGradient></defs>
+  <g stroke="#C47A10" stroke-width="5">
+    <ellipse cx="84" cy="145" rx="48" ry="16" fill="#E99B1E"/><rect x="36" y="109" width="96" height="36" fill="#F8BE32"/><ellipse cx="84" cy="109" rx="48" ry="16" fill="url(#gold)"/>
+    <ellipse cx="239" cy="151" rx="47" ry="15" fill="#E99B1E"/><rect x="192" y="121" width="94" height="30" fill="#F8BE32"/><ellipse cx="239" cy="121" rx="47" ry="15" fill="url(#gold)"/>
+  </g>
+  <circle cx="163" cy="94" r="66" fill="url(#gold)" stroke="#C47A10" stroke-width="7"/>
+  <circle cx="163" cy="94" r="49" fill="#FFD854" stroke="#F5B728" stroke-width="5"/>
+  <path d="M179 64c-8-7-28-8-36 3-11 16 4 26 20 29 18 4 28 13 20 26-8 12-31 10-42 1M162 51v86" fill="none" stroke="#B36F0D" stroke-width="10" stroke-linecap="round"/>
+  <g fill="#FFE97F"><path d="M50 48l6 14 15 2-11 10 3 15-13-8-13 8 3-15-11-10 15-2z"/><path d="M268 48l5 11 12 2-9 8 3 12-11-6-10 6 2-12-9-8 12-2z"/></g>
+</svg>
