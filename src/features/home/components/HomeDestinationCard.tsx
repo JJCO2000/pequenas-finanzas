@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import type { HomeDestination } from '../homeDestinations';
 import type { HomeLayout } from '../useHomeLayout';
 
@@ -11,6 +12,9 @@ type Props = {
 
 export function HomeDestinationCard({ destination, layout, onPress }: Props) {
   const compact = layout.mode === 'compact';
+  const expanded = layout.mode === 'expanded';
+  const artHeight = compact ? 29 : Math.round(layout.destinationCardHeight * (expanded ? 0.61 : 0.59));
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -25,42 +29,89 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           minWidth: layout.touchTarget,
           height: layout.destinationCardHeight,
           minHeight: layout.touchTarget,
-          borderRadius: compact ? 12 : 18,
-          paddingHorizontal: compact ? 4 : 8,
-          paddingVertical: compact ? 5 : 9,
-          opacity: pressed ? 0.86 : 1,
-          transform: [{ scale: pressed ? 0.98 : 1 }],
+          borderRadius: compact ? 12 : 20,
+          padding: compact ? 4 : 7,
+          opacity: pressed ? 0.92 : 1,
+          transform: [{ scale: pressed ? 0.975 : 1 }],
         },
       ]}
     >
-      <View style={[styles.iconWell, { width: compact ? 30 : 50, height: compact ? 30 : 50, borderRadius: compact ? 9 : 15 }]}> 
-        <Text style={{ fontSize: compact ? 20 : 32 }} accessibilityElementsHidden>{destination.icon}</Text>
-      </View>
-      <Text
-        numberOfLines={2}
-        adjustsFontSizeToFit
-        minimumFontScale={0.78}
-        style={[styles.label, { fontSize: (compact ? 11 : 16) * layout.fontScale, lineHeight: (compact ? 13 : 19) * layout.fontScale }]}
+      <View
+        style={[
+          styles.artWell,
+          {
+            height: artHeight,
+            borderRadius: compact ? 9 : 15,
+            backgroundColor: destination.artBackground,
+          },
+        ]}
       >
-        {destination.label}
-      </Text>
+        <Image
+          source={destination.art}
+          contentFit="contain"
+          cachePolicy="memory-disk"
+          allowDownscaling
+          style={styles.art}
+        />
+      </View>
+
+      <View style={[styles.copy, { paddingTop: compact ? 2 : 5 }]}> 
+        <Text
+          numberOfLines={compact ? 2 : 1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.72}
+          style={[
+            styles.label,
+            {
+              fontSize: (compact ? 10.5 : expanded ? 19 : 17) * layout.fontScale,
+              lineHeight: (compact ? 12 : expanded ? 22 : 20) * layout.fontScale,
+            },
+          ]}
+        >
+          {destination.label}
+        </Text>
+        {!compact ? (
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.72}
+            style={[styles.subtitle, { fontSize: (expanded ? 12 : 11) * layout.fontScale }]}
+          >
+            {destination.subtitle}
+          </Text>
+        ) : null}
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'rgba(6, 63, 44, 0.94)',
+    backgroundColor: '#FFFDF2',
     borderWidth: 2,
-    borderColor: '#79D66B',
+    borderColor: '#F4EFD9',
+    alignItems: 'stretch',
+    overflow: 'hidden',
+    shadowColor: '#062F23',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.24,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  artWell: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    overflow: 'hidden',
   },
-  iconWell: {
+  art: { width: '92%', height: '92%' },
+  copy: {
+    flex: 1,
+    minHeight: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    paddingHorizontal: 2,
   },
-  label: { color: '#FFFFFF', fontWeight: '800', textAlign: 'center' },
+  label: { color: '#0B4E38', fontWeight: '900', textAlign: 'center' },
+  subtitle: { color: '#58766A', fontWeight: '800', textAlign: 'center', marginTop: 1 },
 });

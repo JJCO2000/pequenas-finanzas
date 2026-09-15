@@ -72,12 +72,12 @@ export function resolveHomeLayout(width: number, height: number, insetLeft = 0, 
       - destinationGap * 2
     ) / 3,
   );
-  const destinationCardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 146 : 126;
+  const destinationCardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 184 : 166;
   const missionHeight = mode === 'compact'
     ? 128
     : mode === 'expanded'
-      ? 250
-      : Math.min(230, Math.max(190, contentHeight * 0.28));
+      ? 260
+      : Math.min(250, Math.max(210, contentHeight * 0.3));
   const missionMaxWidth = mode === 'compact' ? 760 : mode === 'expanded' ? 1160 : 1040;
 
   return {

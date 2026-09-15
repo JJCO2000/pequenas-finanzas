@@ -54,11 +54,11 @@ function resolve(width, height, left = 0, right = 0, top = 0, bottom = 0) {
     MIN_TOUCH,
     (panelWidth - panelBorderWidth * 2 - panelPadding * 2 - destinationGap * 2) / 3,
   );
-  const cardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 146 : 126;
-  const missionHeight = mode === 'compact' ? 128 : mode === 'expanded' ? 250 : Math.min(230, Math.max(190, contentHeight * 0.28));
+  const cardHeight = mode === 'compact' ? 64 : mode === 'expanded' ? 184 : 166;
+  const missionHeight = mode === 'compact' ? 128 : mode === 'expanded' ? 260 : Math.min(250, Math.max(210, contentHeight * 0.3));
   const bodyHeight = contentHeight - topBarHeight - gap;
   const leftWidth = contentWidth - panelWidth - gap;
-  const panelTitleAllowance = mode === 'compact' ? 23 : mode === 'expanded' ? 42 : 38;
+  const panelTitleAllowance = mode === 'compact' ? 23 : mode === 'expanded' ? 60 : 54;
   const panelRequiredWidth = panelBorderWidth * 2 + panelPadding * 2 + cardWidth * 3 + destinationGap * 2;
   const panelRequiredHeight = panelBorderWidth * 2 + panelPadding * 2 + panelTitleAllowance + cardHeight * 2 + destinationGap;
   return { mode, safeWidth, safeHeight, contentWidth, contentHeight, panelWidth, panelBorderWidth, cardWidth, cardHeight, missionHeight, bodyHeight, leftWidth, panelRequiredWidth, panelRequiredHeight };
@@ -102,9 +102,11 @@ assert.match(controlsSource, /borderWidth: layout\.destinationPanelBorderWidth/,
 assert.match(cardSource, /minWidth: layout\.touchTarget/, 'Destination controls need centralized min touch width');
 assert.match(cardSource, /minHeight: layout\.touchTarget/, 'Destination controls need centralized min touch height');
 assert.match(cardSource, /accessibilityRole="button"/, 'Destination controls need button semantics');
+assert.match(cardSource, /source=\{destination\.art\}/, 'Destination controls must render real art instead of emoji-only buttons');
+assert.match(cardSource, /destination\.subtitle/, 'Destination cards must preserve their learning/navigation subtitle');
 assert.match(missionSource, /minHeight: layout\.touchTarget/, 'Mission CTA needs centralized min touch height');
 assert.match(missionSource, /accessibilityLabel="Ir a mi misión actual"/, 'Mission CTA needs explicit accessibility label');
-assert.equal((destinationsSource.match(/\{ id: '/g) ?? []).length, 6, 'HOME_DESTINATIONS must contain exactly six destinations');
+assert.equal((destinationsSource.match(/\{\n    id: '/g) ?? []).length, 6, 'HOME_DESTINATIONS must contain exactly six destinations');
 assert.match(controlsSource, /HOME_DESTINATIONS\.map/, 'Home controls must render destinations data-driven');
 assert.match(startSource, /<HomeSceneLayout/, 'Start route must delegate Home layout to HomeSceneLayout');
 assert.doesNotMatch(startSource, /Pressable|ActionPill|FloatingCard|referenceCanvas|campInteractionLayer|hiddenProgress|HOME_REFERENCE/, 'Start route must not own old Home rendering/interactions');
@@ -113,4 +115,4 @@ for (const source of [backgroundSource, controlsSource, cardSource, missionSourc
   assert.doesNotMatch(source, /home-approved\.webp|repair-home-q80|prepare-home-visual-web/, 'Old exact-reference repair architecture must be absent from Home');
 }
 
-console.log('PASS check-home-responsive: compact 480x270 through expanded 2400x1080 satisfy layout, touch-target and layering contracts.');
+console.log('PASS check-home-responsive: compact 480x270 through expanded 2400x1080 satisfy layout, touch-target, illustrated-control and layering contracts.');

@@ -24,6 +24,8 @@ type Props = {
 
 export function HomeMissionCard({ mission, layout, onPress }: Props) {
   const compact = layout.mode === 'compact';
+  const expanded = layout.mode === 'expanded';
+  const narrowRegular = !compact && layout.contentWidth < 1200;
   const segments = Array.from({ length: mission.totalSlots }, (_, index) => index < mission.dayInStage);
 
   return (
@@ -36,14 +38,21 @@ export function HomeMissionCard({ mission, layout, onPress }: Props) {
           maxWidth: layout.missionMaxWidth,
           borderRadius: compact ? 18 : 30,
           padding: compact ? 9 : 16,
-          gap: compact ? 8 : 14,
+          gap: compact ? 8 : narrowRegular ? 10 : 14,
           flexDirection: compact ? 'column' : 'row',
         },
       ]}
     >
       {!compact ? (
-        <View style={styles.artWell} pointerEvents="none">
-          <Image source={mission.art} contentFit="contain" style={styles.art} />
+        <View
+          style={[
+            styles.artWell,
+            narrowRegular && styles.artWellNarrow,
+            expanded && styles.artWellExpanded,
+          ]}
+          pointerEvents="none"
+        >
+          <Image source={mission.art} contentFit="contain" cachePolicy="memory-disk" allowDownscaling style={styles.art} />
         </View>
       ) : null}
 
@@ -78,7 +87,13 @@ export function HomeMissionCard({ mission, layout, onPress }: Props) {
         onPress={onPress}
         style={[
           styles.action,
-          compact ? styles.actionCompact : styles.actionRegular,
+          compact
+            ? styles.actionCompact
+            : expanded
+              ? styles.actionExpanded
+              : narrowRegular
+                ? styles.actionNarrow
+                : styles.actionRegular,
           { minWidth: layout.touchTarget, minHeight: layout.touchTarget },
         ]}
       />
@@ -91,37 +106,77 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'flex-start',
     alignItems: 'center',
-    backgroundColor: 'rgba(3, 45, 35, 0.96)',
+    backgroundColor: 'rgba(3, 61, 45, 0.97)',
     borderWidth: 3,
-    borderColor: '#79D66B',
+    borderColor: '#F2D45B',
     overflow: 'hidden',
+    shadowColor: '#062F23',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.24,
+    shadowRadius: 7,
+    elevation: 6,
   },
   artWell: {
     width: 126,
     height: 126,
     borderRadius: 24,
     borderWidth: 4,
-    borderColor: '#D7F6A8',
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderColor: '#FFF7DF',
+    backgroundColor: '#E9F7D7',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
+  artWellNarrow: { width: 96, height: 96, borderRadius: 20 },
+  artWellExpanded: { width: 140, height: 140 },
   art: { width: '92%', height: '92%' },
   copy: { flex: 1, minWidth: 0, alignSelf: 'stretch', justifyContent: 'center' },
   kickerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  kicker: { color: '#CFF5B2', fontWeight: '900', letterSpacing: 0.8 },
-  ready: { color: '#062E23', backgroundColor: '#CFF5B2', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, fontSize: 11, fontWeight: '900' },
+  kicker: { color: '#F7D95D', fontWeight: '900', letterSpacing: 0.8 },
+  ready: {
+    color: '#17452F',
+    backgroundColor: '#D9F6B7',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderWidth: 2,
+    borderColor: '#A9E780',
+    fontSize: 11,
+    fontWeight: '900',
+  },
   title: { color: '#FFFFFF', fontWeight: '900', marginTop: 2 },
-  description: { color: '#D7E9DE', fontWeight: '600', marginTop: 2 },
+  description: { color: '#E9F4EC', fontWeight: '700', marginTop: 2 },
   progressCopy: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 },
-  progressText: { color: '#E9F7EE', fontWeight: '800' },
+  progressText: { color: '#F7E77D', fontWeight: '900' },
   progressTrack: { flexDirection: 'row', marginTop: 3, minHeight: 6 },
-  progressSegment: { flex: 1, height: 7, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.20)' },
+  progressSegment: { flex: 1, height: 8, borderRadius: 5, backgroundColor: 'rgba(213, 232, 218, 0.36)' },
   progressSegmentActive: { backgroundColor: '#FFD34D' },
   metaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 7 },
-  meta: { flexShrink: 1, color: '#B7CEC1', fontSize: 11, fontWeight: '700' },
-  reward: { color: '#FFD34D', fontSize: 11, fontWeight: '900' },
-  action: { flexShrink: 0 },
-  actionRegular: { width: 252, height: 64 },
+  meta: { flexShrink: 1, color: '#E0EEE5', fontSize: 11, fontWeight: '800' },
+  reward: {
+    color: '#FFD34D',
+    backgroundColor: 'rgba(33, 83, 58, 0.95)',
+    borderWidth: 2,
+    borderColor: '#D6B93E',
+    borderRadius: 999,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  action: {
+    flexShrink: 0,
+    backgroundColor: '#FFD34D',
+    borderWidth: 3,
+    borderColor: '#FFF2A1',
+    shadowColor: '#A46312',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.24,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  actionRegular: { width: 272, height: 72 },
+  actionNarrow: { width: 188, height: 62 },
+  actionExpanded: { width: 300, height: 78 },
   actionCompact: { alignSelf: 'stretch', height: 48 },
 });

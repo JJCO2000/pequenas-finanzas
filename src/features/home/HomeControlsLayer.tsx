@@ -44,11 +44,11 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
         </View>
 
         <View style={[styles.stats, { gap: compact ? 6 : 10 }]}> 
-          <View style={[styles.statPill, { minHeight: layout.touchTarget, paddingHorizontal: compact ? 8 : 13 }]}> 
+          <View style={[styles.statPill, { minHeight: layout.touchTarget, paddingHorizontal: compact ? 8 : 15 }]}> 
             <Text style={[styles.star, { fontSize: compact ? 22 : 32 }]}>★</Text>
             <Text style={[styles.statValue, { fontSize: (compact ? 16 : 24) * layout.fontScale }]}>{day}</Text>
           </View>
-          <View style={[styles.moneyPill, { minHeight: layout.touchTarget, paddingHorizontal: compact ? 8 : 13 }]}> 
+          <View style={[styles.moneyPill, { minHeight: layout.touchTarget, paddingHorizontal: compact ? 8 : 15 }]}> 
             <Text style={[styles.moneyMark, { fontSize: compact ? 17 : 23 }]}>$</Text>
             <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.moneyValue, { fontSize: (compact ? 15 : 22) * layout.fontScale }]}>{balanceLabel}</Text>
           </View>
@@ -59,7 +59,7 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
         <View style={styles.leftColumn}>
           {!compact ? (
             <View pointerEvents="none" style={styles.nextStepWrap}>
-              <View style={[styles.nextStep, { paddingHorizontal: expanded ? 22 : 18, paddingVertical: expanded ? 12 : 10 }]}> 
+              <View style={[styles.nextStep, { paddingHorizontal: expanded ? 25 : 21, paddingVertical: expanded ? 13 : 11 }]}> 
                 <Text style={[styles.nextKicker, { fontSize: 12 * layout.fontScale }]}>SIGUIENTE PASO</Text>
                 <Text style={[styles.nextText, { fontSize: 20 * layout.fontScale }]}>Tu misión está lista ↓</Text>
               </View>
@@ -78,10 +78,25 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
               borderWidth: layout.destinationPanelBorderWidth,
               borderRadius: compact ? 18 : 28,
               padding: layout.destinationPanelPadding,
+              alignSelf: compact ? 'stretch' : 'flex-start',
             },
           ]}
         >
-          <Text style={[styles.destinationTitle, { fontSize: (compact ? 13 : 21) * layout.fontScale, marginBottom: compact ? 5 : 10 }]}>OTROS LUGARES</Text>
+          {compact ? (
+            <Text style={[styles.destinationCompactTitle, { fontSize: 13 * layout.fontScale, marginBottom: 5 }]}>OTROS LUGARES</Text>
+          ) : (
+            <View style={[styles.destinationHeader, { marginBottom: expanded ? 13 : 11 }]}> 
+              <View style={styles.destinationHeadingCopy}>
+                <Text style={[styles.destinationKicker, { fontSize: 11 * layout.fontScale }]}>CAMPAMENTO</Text>
+                <Text style={[styles.destinationTitle, { fontSize: (expanded ? 27 : 24) * layout.fontScale }]}>Otros lugares</Text>
+              </View>
+              <View style={styles.destinationHelper}>
+                <Text style={[styles.destinationKicker, { fontSize: 10 * layout.fontScale }]}>EXPLORA</Text>
+                <Text style={[styles.destinationHint, { fontSize: 10 * layout.fontScale }]}>Toca una tarjeta.</Text>
+              </View>
+            </View>
+          )}
+
           <View style={[styles.destinationGrid, { gap: layout.destinationGap }]}> 
             {HOME_DESTINATIONS.map((destination) => (
               <HomeDestinationCard
@@ -113,55 +128,100 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(2, 63, 43, 0.95)',
     borderWidth: 2,
     borderColor: '#79D66B',
+    shadowColor: '#062F23',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.22,
+    shadowRadius: 5,
+    elevation: 4,
   },
   headerCopy: { flex: 1, minWidth: 0 },
   headerTitle: { color: '#FFFFFF', fontWeight: '900' },
-  headerSubtitle: { color: '#D6E9DC', fontWeight: '600', marginTop: 1 },
+  headerSubtitle: { color: '#E4F3DD', fontWeight: '700', marginTop: 1 },
   stats: { flexDirection: 'row', alignItems: 'center' },
   statPill: {
     height: '100%',
     maxHeight: 72,
-    minWidth: 76,
+    minWidth: 88,
     borderRadius: 999,
     borderWidth: 2,
-    borderColor: '#F0B83D',
-    backgroundColor: 'rgba(74, 53, 11, 0.94)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-  },
-  star: { color: '#FFD34D', fontWeight: '900' },
-  statValue: { color: '#FFFFFF', fontWeight: '900' },
-  moneyPill: {
-    height: '100%',
-    maxHeight: 72,
-    minWidth: 116,
-    maxWidth: 210,
-    borderRadius: 999,
-    borderWidth: 2,
-    borderColor: '#79D66B',
-    backgroundColor: 'rgba(2, 63, 43, 0.95)',
+    borderColor: '#F2C94C',
+    backgroundColor: '#FFF1A8',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+    shadowColor: '#6D5420',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  moneyMark: { color: '#FFFFFF', fontWeight: '900', backgroundColor: '#2A9B5E', borderRadius: 999, paddingHorizontal: 6, paddingVertical: 2 },
-  moneyValue: { color: '#FFFFFF', fontWeight: '900', flexShrink: 1 },
+  star: { color: '#F2A900', fontWeight: '900' },
+  statValue: { color: '#163D2D', fontWeight: '900' },
+  moneyPill: {
+    height: '100%',
+    maxHeight: 72,
+    minWidth: 126,
+    maxWidth: 220,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: '#D8F4B5',
+    backgroundColor: '#FFFDF3',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    shadowColor: '#123F2F',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  moneyMark: {
+    color: '#FFFFFF',
+    fontWeight: '900',
+    backgroundColor: '#2D9E58',
+    borderRadius: 999,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderWidth: 2,
+    borderColor: '#5DCB6C',
+  },
+  moneyValue: { color: '#12462F', fontWeight: '900', flexShrink: 1 },
   body: { flex: 1, minHeight: 0, flexDirection: 'row' },
   leftColumn: { flex: 1, minWidth: 0, justifyContent: 'space-between' },
   compactSpacer: { flex: 1 },
   nextStepWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  nextStep: { borderRadius: 999, backgroundColor: 'rgba(243, 255, 222, 0.95)', borderWidth: 2, borderColor: '#79D66B', alignItems: 'center' },
-  nextKicker: { color: '#2B6338', fontWeight: '900', letterSpacing: 1.1 },
+  nextStep: {
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 252, 231, 0.97)',
+    borderWidth: 3,
+    borderColor: '#F1D66B',
+    alignItems: 'center',
+    shadowColor: '#745B1B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  nextKicker: { color: '#B56A20', fontWeight: '900', letterSpacing: 1.1 },
   nextText: { color: '#153E2A', fontWeight: '900', marginTop: 1 },
   destinationPanel: {
-    alignSelf: 'stretch',
-    backgroundColor: 'rgba(8, 66, 45, 0.95)',
-    borderColor: '#79D66B',
+    backgroundColor: 'rgba(4, 71, 48, 0.96)',
+    borderColor: '#8DE36A',
     overflow: 'hidden',
+    shadowColor: '#062F23',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.24,
+    shadowRadius: 7,
+    elevation: 6,
   },
-  destinationTitle: { color: '#FFFFFF', fontWeight: '900', textAlign: 'center', letterSpacing: 0.5 },
+  destinationCompactTitle: { color: '#FFFFFF', fontWeight: '900', textAlign: 'center', letterSpacing: 0.5 },
+  destinationHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },
+  destinationHeadingCopy: { flex: 1, minWidth: 0 },
+  destinationHelper: { alignItems: 'flex-end', paddingTop: 1, maxWidth: '38%' },
+  destinationKicker: { color: '#F6D95D', fontWeight: '900', letterSpacing: 1.1 },
+  destinationTitle: { color: '#FFFFFF', fontWeight: '900', lineHeight: 29 },
+  destinationHint: { color: '#E3F1DA', fontWeight: '700', marginTop: 2, textAlign: 'right' },
   destinationGrid: { flexDirection: 'row', flexWrap: 'wrap', alignContent: 'center', justifyContent: 'center' },
 });
