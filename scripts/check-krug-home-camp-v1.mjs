@@ -33,7 +33,11 @@ assert.match(controls, /HOME_DESTINATIONS\.map/, 'Secondary destinations must be
 assert.equal((destinations.match(/\{ id: '/g) ?? []).length, 6, 'Home must keep exactly six secondary destinations');
 assert.match(destinationCard, /accessibilityRole="button"/, 'Every destination card template must be a real accessible button');
 assert.match(destinationCard, /minHeight: layout\.touchTarget/, 'Destination cards must preserve minimum touch target');
-assert.match(missionCard, /label="IR A MI MISIÓN →"/, 'Home primary CTA must describe its destination');
+assert.match(
+  missionCard,
+  /(?:label="IR A MI MISIÓN →"|>\s*IR A MI MISIÓN →\s*<\/Text>)/,
+  'Home primary CTA must describe its destination',
+);
 assert.match(missionCard, /accessibilityLabel="Ir a mi misión actual"/, 'Home primary CTA needs an explicit accessible action');
 assert.match(controls, /router\.replace\('\/play' as any\)/, 'Home mission CTA must lead to the adventure map');
 assert.doesNotMatch(controls, /label="CONTINUAR →"/, 'Ambiguous CONTINUAR CTA is not allowed');
