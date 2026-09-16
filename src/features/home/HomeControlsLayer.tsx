@@ -16,6 +16,16 @@ type Props = {
   mission: HomeMissionViewModel;
 };
 
+function LeafCluster({ mirror = false }: { mirror?: boolean }) {
+  return (
+    <View pointerEvents="none" style={[styles.leafCluster, mirror && styles.leafClusterMirror]}>
+      <View style={[styles.leaf, styles.leafOne]} />
+      <View style={[styles.leaf, styles.leafTwo]} />
+      <View style={[styles.leaf, styles.leafThree]} />
+    </View>
+  );
+}
+
 export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avatar, mission }: Props) {
   const compact = layout.mode === 'compact';
   const expanded = layout.mode === 'expanded';
@@ -83,33 +93,24 @@ export function HomeControlsLayer({ layout, profileName, day, balanceLabel, avat
             },
           ]}
         >
-          {compact ? (
-            <View style={[styles.destinationCompactHeader, { marginBottom: 5 }]}> 
-              <Text style={[styles.destinationCompactTitle, { fontSize: 12.5 * layout.fontScale }]}>OTROS LUGARES</Text>
-            </View>
-          ) : (
-            <View style={[styles.destinationHeader, { marginBottom: expanded ? 18 : 16 }]}> 
-              <View style={styles.destinationHeadingCopy}>
-                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 14 : 13) * layout.fontScale }]}>CAMPAMENTO</Text>
-                <Text
-                  numberOfLines={1}
-                  style={[
-                    styles.destinationTitle,
-                    {
-                      fontSize: (expanded ? 30 : 28) * layout.fontScale,
-                      lineHeight: (expanded ? 35 : 32) * layout.fontScale,
-                    },
-                  ]}
-                >
-                  Otros lugares
-                </Text>
-              </View>
-              <View style={styles.destinationHelper}>
-                <Text style={[styles.destinationKicker, { fontSize: (expanded ? 13 : 12) * layout.fontScale }]}>EXPLORA</Text>
-                <Text style={[styles.destinationHint, { fontSize: (expanded ? 13 : 12) * layout.fontScale }]}>Toca una tarjeta.</Text>
-              </View>
-            </View>
-          )}
+          <View style={[styles.referenceHeader, { marginBottom: compact ? 5 : expanded ? 18 : 16 }]}> 
+            {!compact ? <LeafCluster /> : null}
+            <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.72}
+              style={[
+                styles.referenceTitle,
+                {
+                  fontSize: (compact ? 12.5 : expanded ? 33 : 30) * layout.fontScale,
+                  lineHeight: (compact ? 14 : expanded ? 38 : 35) * layout.fontScale,
+                },
+              ]}
+            >
+              OTROS LUGARES
+            </Text>
+            {!compact ? <LeafCluster mirror /> : null}
+          </View>
 
           <View
             style={[
@@ -238,21 +239,42 @@ const styles = StyleSheet.create({
     shadowRadius: 9,
     elevation: 7,
   },
-  destinationCompactHeader: { minHeight: 14, justifyContent: 'center' },
-  destinationCompactTitle: { color: '#FFFFFF', fontWeight: '900', textAlign: 'center', letterSpacing: 0.55 },
-  destinationHeader: {
+  referenceHeader: {
+    minHeight: 14,
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: 12,
-    paddingHorizontal: 2,
-    paddingTop: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 14,
+    paddingHorizontal: 4,
+    paddingTop: 6,
   },
-  destinationHeadingCopy: { flex: 1, minWidth: 0 },
-  destinationHelper: { alignItems: 'flex-end', paddingTop: 1, maxWidth: '38%' },
-  destinationKicker: { color: '#F6D95D', fontWeight: '900', letterSpacing: 1.12 },
-  destinationTitle: { color: '#FFFFFF', fontWeight: '900', marginTop: 1 },
-  destinationHint: { color: '#F0F6E9', fontWeight: '700', marginTop: 2, textAlign: 'right' },
+  referenceTitle: {
+    color: '#FFFFFF',
+    fontWeight: '900',
+    textAlign: 'center',
+    letterSpacing: 0.35,
+    textShadowColor: 'rgba(0, 37, 27, 0.32)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 2,
+    flexShrink: 1,
+  },
+  leafCluster: {
+    width: 44,
+    height: 30,
+    position: 'relative',
+    opacity: 0.82,
+  },
+  leafClusterMirror: { transform: [{ scaleX: -1 }] },
+  leaf: {
+    position: 'absolute',
+    width: 22,
+    height: 10,
+    borderRadius: 999,
+    backgroundColor: '#49C64C',
+  },
+  leafOne: { left: 0, top: 11, transform: [{ rotate: '24deg' }] },
+  leafTwo: { left: 15, top: 1, transform: [{ rotate: '42deg' }], backgroundColor: '#62D85A' },
+  leafThree: { left: 17, top: 18, transform: [{ rotate: '-26deg' }], backgroundColor: '#2AA844' },
   destinationGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
