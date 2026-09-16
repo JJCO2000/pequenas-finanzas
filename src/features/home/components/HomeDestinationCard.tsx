@@ -56,22 +56,22 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
               source={destination.artLayers.background}
               contentFit="cover"
               cachePolicy="memory-disk"
-              allowDownscaling
-              style={styles.layerBackground}
+              allowDownscaling={false}
+              style={styles.fullSceneLayer}
             />
             <Image
               source={destination.artLayers.mascot}
-              contentFit="contain"
+              contentFit="cover"
               cachePolicy="memory-disk"
-              allowDownscaling
-              style={[styles.layerMascot, compact && styles.layerMascotCompact]}
+              allowDownscaling={false}
+              style={styles.fullSceneLayer}
             />
             <Image
               source={destination.artLayers.prop}
-              contentFit="contain"
+              contentFit="cover"
               cachePolicy="memory-disk"
-              allowDownscaling
-              style={[styles.layerProp, compact && styles.layerPropCompact]}
+              allowDownscaling={false}
+              style={styles.fullSceneLayer}
             />
           </View>
         ) : destination.art ? (
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
-  layerBackground: {
+  fullSceneLayer: {
     position: 'absolute',
     top: 0,
     right: 0,
@@ -154,32 +154,6 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
-  },
-  layerMascot: {
-    position: 'absolute',
-    left: '-4%',
-    bottom: '-10%',
-    width: '70%',
-    height: '106%',
-  },
-  layerMascotCompact: {
-    left: '-2%',
-    bottom: '-12%',
-    width: '69%',
-    height: '108%',
-  },
-  layerProp: {
-    position: 'absolute',
-    right: '-3%',
-    bottom: '5%',
-    width: '43%',
-    height: '64%',
-  },
-  layerPropCompact: {
-    right: '-4%',
-    bottom: '3%',
-    width: '44%',
-    height: '66%',
   },
   copy: {
     flex: 1,

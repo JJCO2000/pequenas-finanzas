@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Block 1 CI lock v4: Mapa is composed from background + mascot + prop layers on the same visual contract.
+// Block 1 CI lock v5: Mapa uses a high-resolution background + mascot + prop raster stack from the canonical reference.
 export type HomeDestinationArtLayers = {
   background: number;
   mascot: number;
@@ -19,12 +19,12 @@ export type HomeDestination = {
 };
 
 export const HOME_DESTINATIONS: readonly HomeDestination[] = [
-  // Block 1 reference lock: Mapa/Aventura is deliberately layered so each visual role stays independently tunable.
+  // Block 1 only: Mapa/Aventura is rebuilt from three independently replaceable layers.
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
     artLayers: {
-      background: require('../../../assets/ui/home/destinations/mapa/background.svg'),
-      mascot: require('../../../assets/ui/home/destinations/mapa/dino.svg'),
-      prop: require('../../../assets/ui/home/destinations/mapa/sign.svg'),
+      background: require('../../../assets/ui/home/destinations/mapa/background.jpg'),
+      mascot: require('../../../assets/ui/home/destinations/mapa/dino.webp'),
+      prop: require('../../../assets/ui/home/destinations/mapa/sign.webp'),
     },
     artBackground: '#DDF3E4' },
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
