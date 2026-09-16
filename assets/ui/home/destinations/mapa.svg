@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Mapa Aventura">
+  <!-- Block 1 reference lock: approved Mapa/Aventura vector composition. -->
   <defs>
     <linearGradient id="sky" x1="160" y1="0" x2="160" y2="200" gradientUnits="userSpaceOnUse">
       <stop stop-color="#58C9FF"/>

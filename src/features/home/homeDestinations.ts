@@ -1,4 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
+// Block 1 CI lock: Mapa reference and its visual contract must validate on the same HEAD.
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
   label: string;
