@@ -13,8 +13,9 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
   // Block 1 SSOT: the Mapa illustration lives only in assets/ui/home/destinations/mapa.svg.
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
     art: require('../../../assets/ui/home/destinations/mapa.svg'), artBackground: '#DDF3E4' },
+  // Block 2 SSOT: the Arcade illustration lives only in assets/ui/home/destinations/arcade.svg.
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
-    art: require('../../../assets/ui/home/arcade-vector.svg'), artBackground: '#D8EEFF' },
+    art: require('../../../assets/ui/home/destinations/arcade.svg'), artBackground: '#D8EEFF' },
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',
     art: require('../../../assets/ui/home/dinero-vector.svg'), artBackground: '#FFF2A8' },
   { id: 'investments', label: 'Inversiones', subtitle: 'Expediciones', hint: 'Abre tus expediciones de inversión', route: '/investments', navigation: 'push',
