@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Pterosaurio azul Arcade">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6FB9FF"/><stop offset=".55" stop-color="#367FE0"/><stop offset="1" stop-color="#215EBB"/></linearGradient>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#69BBFF"/><stop offset="1" stop-color="#2B6FCE"/></linearGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#EAFBFF"/><stop offset="1" stop-color="#BEE8F5"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="2.3" flood-color="#0B3A70" flood-opacity=".32"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M138 94C94 55 54 48 17 61C48 73 72 91 94 119L138 112Z" fill="url(#wing)" stroke="#245DAE" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M171 91C216 55 258 53 303 72C268 75 239 91 211 121L169 109Z" fill="url(#wing)" stroke="#245DAE" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M78 112C60 127 51 141 47 156C64 145 81 139 99 138Z" fill="#2A66BB"/>
+    <ellipse cx="155" cy="111" rx="55" ry="39" fill="url(#body)" stroke="#245DAE" stroke-width="5"/>
+    <ellipse cx="159" cy="118" rx="25" ry="29" fill="url(#belly)" opacity=".98"/>
+    <path d="M141 84L153 49L169 79" fill="#7FC9FF" stroke="#245DAE" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M176 81C196 67 218 66 239 75L205 97Z" fill="#FFD05A" stroke="#D98C20" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M190 79C199 77 209 78 218 82" fill="none" stroke="#FFF0A6" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="182" cy="79" r="18" fill="#FFF" stroke="#173E68" stroke-width="2"/>
+    <circle cx="187" cy="82" r="10" fill="#10263D"/><circle cx="190" cy="77" r="4.5" fill="#FFF"/><circle cx="184" cy="75" r="2.3" fill="#FFF" opacity=".85"/>
+    <path d="M190 101C201 105 213 104 222 99C220 112 209 120 198 118C191 116 188 110 190 101Z" fill="#8B2232"/>
+    <path d="M197 115C203 111 211 111 216 114C210 120 202 121 197 118Z" fill="#F06A78"/>
+    <path d="M129 132C138 145 149 153 162 156" fill="none" stroke="#255CA7" stroke-width="8" stroke-linecap="round"/>
+    <path d="M181 134C173 148 164 156 153 160" fill="none" stroke="#255CA7" stroke-width="8" stroke-linecap="round"/>
+    <path d="M128 94C137 87 148 85 158 88" fill="none" stroke="#8ED4FF" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+  </g>
+</svg>

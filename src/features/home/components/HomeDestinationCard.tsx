@@ -13,10 +13,10 @@ type Props = {
 export function HomeDestinationCard({ destination, layout, onPress }: Props) {
   const compact = layout.mode === 'compact';
   const expanded = layout.mode === 'expanded';
-  const layeredMap = destination.id === 'map' && Boolean(destination.artLayers);
+  const layeredScene = Boolean(destination.artLayers);
   const artHeight = compact
-    ? layeredMap ? 32 : 28
-    : Math.round(layout.destinationCardHeight * (layeredMap ? (expanded ? 0.68 : 0.66) : (expanded ? 0.61 : 0.6)));
+    ? layeredScene ? 32 : 28
+    : Math.round(layout.destinationCardHeight * (layeredScene ? (expanded ? 0.68 : 0.66) : (expanded ? 0.61 : 0.6)));
 
   return (
     <Pressable
@@ -32,7 +32,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           minWidth: layout.touchTarget,
           height: layout.destinationCardHeight,
           minHeight: layout.touchTarget,
-          borderRadius: compact ? 12 : layeredMap ? 22 : 20,
+          borderRadius: compact ? 12 : layeredScene ? 22 : 20,
           borderWidth: compact ? 2 : 3,
           padding: compact ? 4 : 7,
           opacity: pressed ? 0.94 : 1,
@@ -45,7 +45,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           styles.artWell,
           {
             height: artHeight,
-            borderRadius: compact ? 8 : layeredMap ? 16 : 14,
+            borderRadius: compact ? 8 : layeredScene ? 16 : 14,
             backgroundColor: destination.artBackground,
           },
         ]}

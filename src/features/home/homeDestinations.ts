@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Block 1 CI lock v8: canonical Mapa raster layers validate functional + visual workflows on the same HEAD after binary integrity repair.
+// Blocks 1-2 CI lock: Mapa and Arcade each use three independently replaceable scene layers on one shared card renderer.
 export type HomeDestinationArtLayers = {
   background: number;
   mascot: number;
@@ -19,7 +19,6 @@ export type HomeDestination = {
 };
 
 export const HOME_DESTINATIONS: readonly HomeDestination[] = [
-  // Block 1 only: Mapa/Aventura is rebuilt from three independently replaceable layers.
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
     artLayers: {
       background: require('../../../assets/ui/home/destinations/mapa/background.jpg'),
@@ -27,8 +26,14 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
       prop: require('../../../assets/ui/home/destinations/mapa/sign.webp'),
     },
     artBackground: '#DDF3E4' },
+  // Block 2 only: Arcade/7 retos mirrors the canonical reference with background + blue pterosaur + star-block props.
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
-    art: require('../../../assets/ui/home/arcade-vector.svg'), artBackground: '#D8EEFF' },
+    artLayers: {
+      background: require('../../../assets/ui/home/destinations/arcade/background.svg'),
+      mascot: require('../../../assets/ui/home/destinations/arcade/mascot.svg'),
+      prop: require('../../../assets/ui/home/destinations/arcade/prop.svg'),
+    },
+    artBackground: '#D8EEFF' },
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',
     art: require('../../../assets/ui/home/dinero-vector.svg'), artBackground: '#FFF2A8' },
   { id: 'investments', label: 'Inversiones', subtitle: 'Expediciones', hint: 'Abre tus expediciones de inversión', route: '/investments', navigation: 'push',

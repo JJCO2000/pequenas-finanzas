@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Bloques estrella Arcade">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFD95A"/><stop offset="1" stop-color="#F4A51E"/></linearGradient>
+    <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#7D7D8F"/><stop offset="1" stop-color="#4B4D61"/></linearGradient>
+    <filter id="s" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#543B1D" flood-opacity=".3"/></filter>
+  </defs>
+  <g filter="url(#s)">
+    <path d="M0 153H70V200H0Z" fill="url(#rock)"/><path d="M18 151H63V177H13Z" fill="#8D8C9B"/><path d="M5 174L19 161L30 174L43 159L58 174L70 164" fill="none" stroke="#626579" stroke-width="3"/>
+    <rect x="9" y="113" width="47" height="44" rx="7" fill="url(#gold)" stroke="#D18414" stroke-width="4"/>
+    <path d="M33 121L38 132L50 133L41 141L44 153L33 147L22 153L25 141L16 133L28 132Z" fill="#FFF1A2" stroke="#E49A18" stroke-width="2"/>
+  </g>
+  <g filter="url(#s)">
+    <path d="M207 165H320V200H207Z" fill="url(#rock)"/><path d="M225 162H294V183H219Z" fill="#8C8C9B"/><path d="M214 184L229 169L242 183L258 166L275 182L292 168L308 183" fill="none" stroke="#626579" stroke-width="3"/>
+    <rect x="226" y="126" width="55" height="48" rx="8" fill="url(#gold)" stroke="#D18414" stroke-width="4"/>
+    <path d="M253 134L259 146L272 148L262 157L265 170L253 164L241 170L244 157L234 148L247 146Z" fill="#FFF1A2" stroke="#E49A18" stroke-width="2"/>
+  </g>
+</svg>
