@@ -1,3 +1,4 @@
+// Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
   label: string;
