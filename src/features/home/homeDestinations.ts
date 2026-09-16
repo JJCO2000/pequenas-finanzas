@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Blocks 1-2 CI lock: Mapa and Arcade each use three independently replaceable scene layers on one shared card renderer.
+// Blocks 1-2 CI lock v2: Mapa and Arcade each use three independently replaceable scene layers; Arcade layers now preserve the canonical painted reference inside the shared renderer.
 export type HomeDestinationArtLayers = {
   background: number;
   mascot: number;
