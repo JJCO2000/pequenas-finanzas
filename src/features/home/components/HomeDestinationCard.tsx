@@ -13,9 +13,10 @@ type Props = {
 export function HomeDestinationCard({ destination, layout, onPress }: Props) {
   const compact = layout.mode === 'compact';
   const expanded = layout.mode === 'expanded';
+  const layeredMap = destination.id === 'map' && Boolean(destination.artLayers);
   const artHeight = compact
-    ? 32
-    : Math.round(layout.destinationCardHeight * (expanded ? 0.69 : 0.68));
+    ? layeredMap ? 32 : 28
+    : Math.round(layout.destinationCardHeight * (layeredMap ? (expanded ? 0.68 : 0.66) : (expanded ? 0.61 : 0.6)));
 
   return (
     <Pressable
@@ -31,7 +32,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           minWidth: layout.touchTarget,
           height: layout.destinationCardHeight,
           minHeight: layout.touchTarget,
-          borderRadius: compact ? 12 : 22,
+          borderRadius: compact ? 12 : layeredMap ? 22 : 20,
           borderWidth: compact ? 2 : 3,
           padding: compact ? 4 : 7,
           opacity: pressed ? 0.94 : 1,
@@ -44,7 +45,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           styles.artWell,
           {
             height: artHeight,
-            borderRadius: compact ? 8 : 16,
+            borderRadius: compact ? 8 : layeredMap ? 16 : 14,
             backgroundColor: destination.artBackground,
           },
         ]}
@@ -76,7 +77,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
         ) : destination.art ? (
           <Image
             source={destination.art}
-            contentFit="cover"
+            contentFit="contain"
             cachePolicy="memory-disk"
             allowDownscaling
             style={styles.art}
@@ -84,7 +85,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
         ) : null}
       </View>
 
-      <View style={[styles.copy, { paddingTop: compact ? 1 : 5, paddingHorizontal: compact ? 0 : 2 }]}>
+      <View style={[styles.copy, { paddingTop: compact ? 1 : 5, paddingHorizontal: compact ? 0 : 2 }]}> 
         <Text
           numberOfLines={1}
           adjustsFontSizeToFit
@@ -93,8 +94,8 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
             styles.label,
             compact && styles.labelCompact,
             {
-              fontSize: (compact ? 8 : expanded ? 20 : 18) * layout.fontScale,
-              lineHeight: (compact ? 9 : expanded ? 23 : 21) * layout.fontScale,
+              fontSize: (compact ? 8 : expanded ? 19 : 17) * layout.fontScale,
+              lineHeight: (compact ? 9 : expanded ? 22 : 20) * layout.fontScale,
             },
           ]}
         >
@@ -108,8 +109,8 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
             styles.subtitle,
             compact && styles.subtitleCompact,
             {
-              fontSize: (compact ? 5.5 : expanded ? 13 : 12) * layout.fontScale,
-              lineHeight: (compact ? 6.5 : expanded ? 15 : 14) * layout.fontScale,
+              fontSize: (compact ? 5.5 : expanded ? 12 : 11) * layout.fontScale,
+              lineHeight: (compact ? 6.5 : expanded ? 14 : 13) * layout.fontScale,
             },
           ]}
         >
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  art: { width: '100%', height: '100%' },
+  art: { width: '94%', height: '94%' },
   layerStage: {
     width: '100%',
     height: '100%',
@@ -156,29 +157,29 @@ const styles = StyleSheet.create({
   },
   layerMascot: {
     position: 'absolute',
-    left: '-9%',
-    bottom: '-15%',
-    width: '82%',
-    height: '121%',
+    left: '-4%',
+    bottom: '-10%',
+    width: '70%',
+    height: '106%',
   },
   layerMascotCompact: {
-    left: '-7%',
-    bottom: '-16%',
-    width: '82%',
-    height: '122%',
+    left: '-2%',
+    bottom: '-12%',
+    width: '69%',
+    height: '108%',
   },
   layerProp: {
     position: 'absolute',
-    right: '-1%',
-    bottom: '4%',
-    width: '42%',
-    height: '63%',
-  },
-  layerPropCompact: {
-    right: '-2%',
-    bottom: '3%',
+    right: '-3%',
+    bottom: '5%',
     width: '43%',
     height: '64%',
+  },
+  layerPropCompact: {
+    right: '-4%',
+    bottom: '3%',
+    width: '44%',
+    height: '66%',
   },
   copy: {
     flex: 1,
