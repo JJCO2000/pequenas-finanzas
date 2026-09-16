@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Mapa Aventura">
+  <defs>
+    <linearGradient id="sky" x1="160" y1="0" x2="160" y2="142" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9FDEFF"/>
+      <stop offset="1" stop-color="#E4F7FF"/>
+    </linearGradient>
+    <linearGradient id="mountain" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#74B7A8"/>
+      <stop offset="1" stop-color="#4D987A"/>
+    </linearGradient>
+    <linearGradient id="body" x1="150" y1="47" x2="145" y2="179" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF7857"/>
+      <stop offset="1" stop-color="#F34D3C"/>
+    </linearGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FFF0AF"/>
+      <stop offset="1" stop-color="#FFD772"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="320" height="200" rx="24" fill="url(#sky)"/>
+
+  <!-- distant adventure landscape -->
+  <path d="M0 120L50 75L82 109L124 62L177 121H0Z" fill="#85CDBD"/>
+  <path d="M96 121L158 58L203 107L241 68L320 121H96Z" fill="url(#mountain)"/>
+  <path d="M143 73L158 58L171 75Z" fill="#F1FBFF" opacity=".92"/>
+  <path d="M229 80L241 68L254 82Z" fill="#EAF9FF" opacity=".9"/>
+
+  <path d="M0 124C38 109 61 116 92 112C126 108 143 91 176 98C211 105 232 124 320 112V200H0Z" fill="#8DD47A"/>
+  <path d="M0 145C40 130 72 135 111 128C147 122 169 114 201 120C234 126 264 144 320 136V200H0Z" fill="#55AF5E"/>
+
+  <!-- waterfall -->
+  <path d="M254 86H286V137C286 147 279 154 270 154C260 154 254 146 254 137Z" fill="#73D9F6"/>
+  <path d="M261 87H269V137C269 143 266 147 262 149C265 140 261 127 261 87Z" fill="#D9F7FF" opacity=".9"/>
+  <ellipse cx="270" cy="151" rx="27" ry="8" fill="#8CE1F7" opacity=".8"/>
+
+  <!-- foliage -->
+  <g fill="#238C52">
+    <circle cx="24" cy="142" r="20"/><circle cx="47" cy="146" r="17"/><circle cx="295" cy="143" r="19"/><circle cx="276" cy="151" r="16"/>
+  </g>
+  <g fill="#43AE5A">
+    <circle cx="15" cy="158" r="17"/><circle cx="65" cy="155" r="16"/><circle cx="304" cy="160" r="17"/><circle cx="249" cy="158" r="14"/>
+  </g>
+
+  <!-- red baby dinosaur, composed from vector shapes -->
+  <g>
+    <!-- tail -->
+    <path d="M116 144C95 158 75 163 56 158C44 155 38 147 41 140C44 134 54 134 65 138C82 144 95 140 110 128Z" fill="url(#body)"/>
+
+    <!-- body -->
+    <ellipse cx="139" cy="135" rx="45" ry="40" fill="url(#body)"/>
+    <ellipse cx="145" cy="139" rx="26" ry="31" fill="url(#belly)"/>
+
+    <!-- neck -->
+    <path d="M124 125C118 109 118 91 125 75C132 59 145 51 158 53C172 55 181 69 178 86C175 104 167 118 158 130Z" fill="url(#body)"/>
+    <path d="M143 121C138 108 137 94 142 83C146 73 153 67 160 68C167 69 172 76 170 86C167 101 160 113 155 124Z" fill="url(#belly)"/>
+
+    <!-- head -->
+    <path d="M141 58C153 43 177 38 199 43C221 48 234 64 232 80C230 96 213 106 190 106C171 106 151 99 142 88C134 78 134 67 141 58Z" fill="url(#body)"/>
+    <ellipse cx="186" cy="81" rx="31" ry="20" fill="#FF805F"/>
+
+    <!-- eye -->
+    <ellipse cx="174" cy="64" rx="17" ry="19" fill="#FFFFFF"/>
+    <ellipse cx="179" cy="67" rx="10" ry="12" fill="#0B2630"/>
+    <ellipse cx="182" cy="62" rx="3.6" ry="4.2" fill="#FFFFFF"/>
+
+    <!-- mouth -->
+    <path d="M184 88C197 93 211 92 222 88C218 99 207 104 195 103C188 102 184 97 184 88Z" fill="#8E2025"/>
+    <path d="M190 98C198 96 207 97 213 100C207 104 199 105 194 103Z" fill="#F05D72"/>
+
+    <!-- nostrils -->
+    <ellipse cx="216" cy="72" rx="2.8" ry="3.5" fill="#8B2A22"/>
+    <ellipse cx="226" cy="74" rx="2.6" ry="3.2" fill="#8B2A22"/>
+
+    <!-- arms -->
+    <path d="M119 112C108 115 104 124 109 131C113 136 121 134 126 129L132 123Z" fill="#F34D3C"/>
+    <path d="M162 111C171 114 176 121 173 128C170 134 162 134 156 129L151 123Z" fill="#F34D3C"/>
+
+    <!-- legs -->
+    <path d="M112 155C103 158 99 167 101 178H127C131 168 127 158 119 155Z" fill="#E94739"/>
+    <path d="M150 156C142 160 140 168 143 178H170C174 168 169 159 161 156Z" fill="#E94739"/>
+    <ellipse cx="111" cy="178" rx="17" ry="5" fill="#D93D34" opacity=".25"/>
+    <ellipse cx="156" cy="178" rx="17" ry="5" fill="#D93D34" opacity=".25"/>
+
+    <!-- claws -->
+    <path d="M104 174L108 168L112 175Z" fill="#FFF0C3"/><path d="M114 175L118 168L122 175Z" fill="#FFF0C3"/>
+    <path d="M147 175L151 168L155 175Z" fill="#FFF0C3"/><path d="M158 175L162 168L166 175Z" fill="#FFF0C3"/>
+
+    <!-- spots -->
+    <g fill="#D92E50">
+      <ellipse cx="147" cy="54" rx="7" ry="5"/><ellipse cx="134" cy="72" rx="6" ry="5"/><ellipse cx="130" cy="91" rx="5" ry="4"/>
+      <ellipse cx="118" cy="118" rx="7" ry="5"/><ellipse cx="109" cy="137" rx="7" ry="5"/><ellipse cx="94" cy="148" rx="5" ry="4"/>
+    </g>
+  </g>
+
+  <!-- adventure marker / path accent -->
+  <path d="M210 154C224 146 239 146 248 151C257 156 255 164 245 168C235 172 222 171 214 176" fill="none" stroke="#F7C955" stroke-width="5" stroke-linecap="round" stroke-dasharray="7 7"/>
+  <circle cx="246" cy="151" r="8" fill="#FFD958" stroke="#E3A52A" stroke-width="3"/>
+  <path d="M246 146L248 150L253 151L249 154L250 159L246 157L242 159L243 154L239 151L244 150Z" fill="#FFF4AE"/>
+
+  <!-- foreground leaves -->
+  <path d="M0 172C13 153 28 142 45 137C42 158 35 177 26 200H0Z" fill="#177744"/>
+  <path d="M320 169C305 151 291 142 273 137C277 158 284 177 294 200H320Z" fill="#177744"/>
+</svg>
