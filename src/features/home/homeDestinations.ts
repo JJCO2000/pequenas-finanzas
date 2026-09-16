@@ -1,5 +1,11 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Block 1 CI lock v3: polished Mapa reference and visual contract validate on the same HEAD.
+// Block 1 CI lock v4: Mapa is composed from background + mascot + prop layers on the same visual contract.
+export type HomeDestinationArtLayers = {
+  background: number;
+  mascot: number;
+  prop: number;
+};
+
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
   label: string;
@@ -7,14 +13,20 @@ export type HomeDestination = {
   hint: string;
   route: '/play' | '/arcade' | '/wallet' | '/investments' | '/shop' | '/collection';
   navigation: 'push' | 'replace';
-  art: number;
+  art?: number;
+  artLayers?: HomeDestinationArtLayers;
   artBackground: string;
 };
 
 export const HOME_DESTINATIONS: readonly HomeDestination[] = [
-  // Block 1 reference lock: Mapa/Aventura uses only assets/ui/home/destinations/mapa.svg.
+  // Block 1 reference lock: Mapa/Aventura is deliberately layered so each visual role stays independently tunable.
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
-    art: require('../../../assets/ui/home/destinations/mapa.svg'), artBackground: '#DDF3E4' },
+    artLayers: {
+      background: require('../../../assets/ui/home/destinations/mapa/background.svg'),
+      mascot: require('../../../assets/ui/home/destinations/mapa/dino.svg'),
+      prop: require('../../../assets/ui/home/destinations/mapa/sign.svg'),
+    },
+    artBackground: '#DDF3E4' },
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
     art: require('../../../assets/ui/home/arcade-vector.svg'), artBackground: '#D8EEFF' },
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 190" role="img" aria-label="Dinosaurio rojo de Mapa">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8A63"/><stop offset=".52" stop-color="#FF6447"/><stop offset="1" stop-color="#F04438"/></linearGradient>
+    <linearGradient id="snout" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFA07A"/><stop offset="1" stop-color="#FF694E"/></linearGradient>
+    <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF2A8"/><stop offset="1" stop-color="#FFD875"/></linearGradient>
+    <linearGradient id="eye" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ED0D2"/><stop offset="1" stop-color="#0A6076"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="150%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="2.4" flood-color="#632519" flood-opacity=".28"/></filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M62 136C44 151 26 155 12 150C3 147 0 140 4 133C8 127 17 128 27 133C39 139 49 134 58 124Z" fill="url(#body)"/>
+    <ellipse cx="77" cy="137" rx="42" ry="40" fill="url(#body)"/>
+    <ellipse cx="86" cy="141" rx="23" ry="31" fill="url(#belly)"/>
+    <path d="M73 123C68 104 72 82 83 63C93 46 108 38 124 42C140 46 150 61 147 80C144 101 130 116 116 128Z" fill="url(#body)"/>
+    <path d="M92 121C88 106 91 91 99 78C106 66 115 59 123 61C132 64 136 74 133 86C130 101 122 114 113 124Z" fill="url(#belly)"/>
+    <path d="M84 59C97 39 122 29 146 34C170 38 186 53 186 70C186 87 169 101 145 103C124 105 103 99 90 90C77 81 76 69 84 59Z" fill="url(#body)"/>
+    <path d="M122 51C143 42 168 47 181 59C190 68 190 79 183 88C174 98 158 102 141 99C129 97 121 90 120 79C118 69 119 58 122 51Z" fill="url(#snout)"/>
+    <ellipse cx="113" cy="58" rx="19" ry="21" fill="#fff" stroke="#792523" stroke-width="2"/>
+    <ellipse cx="118" cy="62" rx="11" ry="14" fill="#102B3A"/>
+    <ellipse cx="120" cy="64" rx="7" ry="10" fill="url(#eye)"/>
+    <ellipse cx="122" cy="56" rx="4.5" ry="5.5" fill="#fff"/>
+    <ellipse cx="112" cy="51" rx="3" ry="3.3" fill="#fff" opacity=".88"/>
+    <ellipse cx="168" cy="65" rx="3.3" ry="4.2" fill="#8E211E"/>
+    <ellipse cx="178" cy="68" rx="3" ry="4" fill="#8E211E"/>
+    <path d="M133 81C147 88 168 87 182 81C180 94 166 103 151 103C140 103 134 95 133 81Z" fill="#751828"/>
+    <path d="M142 98C151 92 162 93 170 99C163 105 152 107 145 103Z" fill="#F06A7C"/>
+    <path d="M134 82C149 87 165 87 181 81" fill="none" stroke="#571219" stroke-width="2.2" stroke-linecap="round"/>
+    <ellipse cx="99" cy="84" rx="7" ry="5" fill="#FFAD89" opacity=".88"/>
+    <path d="M137 45C149 41 160 43 168 47" fill="none" stroke="#FFB091" stroke-width="5" stroke-linecap="round" opacity=".72"/>
+    <path d="M58 116C47 120 44 128 48 135C54 141 62 138 69 133L74 126Z" fill="#F34A39"/>
+    <path d="M107 117C117 116 126 122 126 129C126 136 117 139 109 135L101 129Z" fill="#F34A39"/>
+    <path d="M116 124C129 121 142 122 154 128C159 131 161 136 156 140C151 144 145 142 139 139L130 136C124 139 118 137 114 133C111 129 112 126 116 124Z" fill="#F34A39"/>
+    <path d="M51 154C43 161 41 171 45 183H72C75 170 70 159 61 153Z" fill="#E43F35"/>
+    <path d="M86 156C77 162 75 172 79 183H107C110 171 105 160 96 155Z" fill="#E43F35"/>
+    <g fill="#FFF0B4"><path d="M49 183L54 175L59 183Z"/><path d="M61 183L66 175L71 183Z"/><path d="M83 183L88 175L93 183Z"/><path d="M95 183L100 175L105 183Z"/></g>
+    <g fill="#D62F4C"><ellipse cx="95" cy="45" rx="9" ry="6"/><ellipse cx="81" cy="59" rx="7" ry="6"/><ellipse cx="74" cy="78" rx="6" ry="5"/><ellipse cx="65" cy="99" rx="8" ry="6"/><ellipse cx="56" cy="119" rx="7" ry="5.5"/><ellipse cx="45" cy="136" rx="7" ry="5"/><ellipse cx="35" cy="145" rx="6" ry="4.5"/></g>
+    <g fill="#FFBE91" opacity=".55"><ellipse cx="145" cy="54" rx="8" ry="4"/><ellipse cx="75" cy="132" rx="9" ry="4"/></g>
+  </g>
+</svg>

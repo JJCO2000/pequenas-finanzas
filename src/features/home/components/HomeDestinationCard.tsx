@@ -13,7 +13,10 @@ type Props = {
 export function HomeDestinationCard({ destination, layout, onPress }: Props) {
   const compact = layout.mode === 'compact';
   const expanded = layout.mode === 'expanded';
-  const artHeight = compact ? 28 : Math.round(layout.destinationCardHeight * (expanded ? 0.61 : 0.6));
+  const layeredMap = destination.id === 'map' && Boolean(destination.artLayers);
+  const artHeight = compact
+    ? layeredMap ? 32 : 28
+    : Math.round(layout.destinationCardHeight * (layeredMap ? (expanded ? 0.68 : 0.66) : (expanded ? 0.61 : 0.6)));
 
   return (
     <Pressable
@@ -29,7 +32,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           minWidth: layout.touchTarget,
           height: layout.destinationCardHeight,
           minHeight: layout.touchTarget,
-          borderRadius: compact ? 12 : 20,
+          borderRadius: compact ? 12 : layeredMap ? 22 : 20,
           borderWidth: compact ? 2 : 3,
           padding: compact ? 4 : 7,
           opacity: pressed ? 0.94 : 1,
@@ -42,18 +45,44 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
           styles.artWell,
           {
             height: artHeight,
-            borderRadius: compact ? 8 : 14,
+            borderRadius: compact ? 8 : layeredMap ? 16 : 14,
             backgroundColor: destination.artBackground,
           },
         ]}
       >
-        <Image
-          source={destination.art}
-          contentFit="contain"
-          cachePolicy="memory-disk"
-          allowDownscaling
-          style={styles.art}
-        />
+        {destination.artLayers ? (
+          <View pointerEvents="none" style={styles.layerStage}>
+            <Image
+              source={destination.artLayers.background}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              allowDownscaling
+              style={styles.layerBackground}
+            />
+            <Image
+              source={destination.artLayers.mascot}
+              contentFit="contain"
+              cachePolicy="memory-disk"
+              allowDownscaling
+              style={[styles.layerMascot, compact && styles.layerMascotCompact]}
+            />
+            <Image
+              source={destination.artLayers.prop}
+              contentFit="contain"
+              cachePolicy="memory-disk"
+              allowDownscaling
+              style={[styles.layerProp, compact && styles.layerPropCompact]}
+            />
+          </View>
+        ) : destination.art ? (
+          <Image
+            source={destination.art}
+            contentFit="contain"
+            cachePolicy="memory-disk"
+            allowDownscaling
+            style={styles.art}
+          />
+        ) : null}
       </View>
 
       <View style={[styles.copy, { paddingTop: compact ? 1 : 5, paddingHorizontal: compact ? 0 : 2 }]}> 
@@ -111,6 +140,43 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   art: { width: '94%', height: '94%' },
+  layerStage: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  layerBackground: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  layerMascot: {
+    position: 'absolute',
+    left: '-4%',
+    bottom: '-10%',
+    width: '70%',
+    height: '106%',
+  },
+  layerMascotCompact: {
+    left: '-2%',
+    bottom: '-12%',
+    width: '69%',
+    height: '108%',
+  },
+  layerProp: {
+    position: 'absolute',
+    right: '-3%',
+    bottom: '5%',
+    width: '43%',
+    height: '64%',
+  },
+  layerPropCompact: {
+    right: '-4%',
+    bottom: '3%',
+    width: '44%',
+    height: '66%',
+  },
   copy: {
     flex: 1,
     minHeight: 0,
