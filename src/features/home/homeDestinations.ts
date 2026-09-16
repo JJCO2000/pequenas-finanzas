@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Block 1 CI lock v7: canonical Mapa raster layers validate functional + visual workflows on the same HEAD.
+// Block 1 CI lock v8: canonical Mapa raster layers validate functional + visual workflows on the same HEAD after binary integrity repair.
 export type HomeDestinationArtLayers = {
   background: number;
   mascot: number;
