@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Blocks 1-2 CI lock v4: Mapa and Arcade both use three independently replaceable scene layers in the shared renderer; Arcade keeps its canonical painted layers in Expo-web-safe SVG containers.
+// Blocks 1-2 CI lock v5: Mapa and Arcade both use three independently replaceable scene layers in the shared renderer; Arcade now mirrors the approved Block 1 pattern with a clean raster background plus reusable mascot and prop layers.
 export type HomeDestinationArtLayers = {
   background: number;
   mascot: number;
@@ -26,12 +26,12 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
       prop: require('../../../assets/ui/home/destinations/mapa/sign.webp'),
     },
     artBackground: '#DDF3E4' },
-  // Block 2 only: canonical Arcade scene = painted background + blue pterosaur + star-block props, still three independent layers.
+  // Block 2 only: clean painted Arcade background + reusable blue pterosaur + reusable star-block props.
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
     artLayers: {
-      background: require('../../../assets/ui/home/destinations/arcade/background.svg'),
-      mascot: require('../../../assets/ui/home/destinations/arcade/mascot.svg'),
-      prop: require('../../../assets/ui/home/destinations/arcade/prop.svg'),
+      background: require('../../../assets/ui/home/destinations/arcade/background.webp'),
+      mascot: require('../../../assets/ui/home/destinations/arcade/mascot.webp'),
+      prop: require('../../../assets/ui/home/destinations/arcade/prop.webp'),
     },
     artBackground: '#D8EEFF' },
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',
