@@ -11,7 +11,7 @@ export type HomeDestination = {
 };
 
 export const HOME_DESTINATIONS: readonly HomeDestination[] = [
-  // Block 1 SSOT: the Mapa illustration lives only in assets/ui/home/destinations/mapa.svg.
+  // Block 1 reference lock: Mapa/Aventura uses only assets/ui/home/destinations/mapa.svg.
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
     art: require('../../../assets/ui/home/destinations/mapa.svg'), artBackground: '#DDF3E4' },
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
