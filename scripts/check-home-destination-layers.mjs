@@ -16,6 +16,9 @@ const canonicalAssets = [
   'assets/ui/home/destinations/arcade/background.webp',
   'assets/ui/home/destinations/arcade/pterosaur.webp',
   'assets/ui/home/destinations/arcade/star-blocks.webp',
+  'assets/ui/home/destinations/dinero/background.png',
+  'assets/ui/home/destinations/dinero/coin-stack.png',
+  'assets/ui/home/destinations/dinero/star-coin.png',
 ];
 
 for (const path of canonicalAssets) {
@@ -27,12 +30,13 @@ for (const retiredPath of [
   'assets/ui/home/destinations/arcade/prop.webp',
   'tmp/should-not-exist.txt',
 ]) {
-  assert.equal(exists(retiredPath), false, `Retired Block 2 path must stay absent: ${retiredPath}`);
+  assert.equal(exists(retiredPath), false, `Retired Home destination path must stay absent: ${retiredPath}`);
 }
 
 assert.match(destinationsSource, /kind: 'map'/, 'Mapa must keep a semantic map layer contract');
 assert.match(destinationsSource, /dino: require\('[^']*mapa\/dino\.webp'\)/, 'Mapa dino layer must remain explicit');
 assert.match(destinationsSource, /sign: require\('[^']*mapa\/sign\.webp'\)/, 'Mapa sign layer must remain explicit');
+
 assert.match(destinationsSource, /kind: 'arcade'/, 'Arcade must keep a semantic arcade layer contract');
 assert.match(destinationsSource, /pterosaur: require\('[^']*arcade\/pterosaur\.webp'\)/, 'Arcade pterosaur must be a named canonical layer');
 assert.match(destinationsSource, /starBlocks: require\('[^']*arcade\/star-blocks\.webp'\)/, 'Arcade star blocks must be a named canonical layer');
@@ -40,10 +44,18 @@ assert.match(destinationsSource, /id: 'arcade'[\s\S]*artHeightRatio: 0\.67/, 'Ar
 assert.doesNotMatch(destinationsSource, /arcade\/(?:mascot|prop)\.webp/, 'Arcade must not regress to generic mascot/prop asset names');
 assert.match(destinationsSource, /case 'arcade':[\s\S]*layers\.background[\s\S]*layers\.pterosaur[\s\S]*layers\.starBlocks/, 'Arcade layer order must stay background -> pterosaur -> star blocks');
 
+assert.match(destinationsSource, /kind: 'wallet'/, 'Mi dinero must keep a semantic wallet layer contract');
+assert.match(destinationsSource, /background: require\('[^']*dinero\/background\.png'\)/, 'Mi dinero background must remain explicit');
+assert.match(destinationsSource, /coinStack: require\('[^']*dinero\/coin-stack\.png'\)/, 'Mi dinero coin stack must be a named canonical layer');
+assert.match(destinationsSource, /starCoin: require\('[^']*dinero\/star-coin\.png'\)/, 'Mi dinero star coin must be a named canonical layer');
+assert.match(destinationsSource, /id: 'wallet'[\s\S]*artLayers: walletArt[\s\S]*artHeightRatio: 0\.67/, 'Mi dinero must preserve the approved reference art-height ratio');
+assert.match(destinationsSource, /case 'wallet':[\s\S]*layers\.background[\s\S]*layers\.coinStack[\s\S]*layers\.starCoin/, 'Mi dinero layer order must stay background -> coin stack -> star coin');
+assert.doesNotMatch(destinationsSource, /id: 'wallet'[\s\S]{0,300}dinero-vector\.svg/, 'Mi dinero must not regress to the legacy single SVG');
+
 assert.match(cardSource, /getHomeDestinationArtLayerEntries\(destination\.artLayers\)/, 'Shared card renderer must consume the destination SSOT layer order');
 assert.match(cardSource, /destination\.artHeightRatio \?\? \(expanded \? 0\.68 : 0\.66\)/, 'Approved per-destination art ratio must override the shared layered fallback');
 assert.match(cardSource, /source=\{source\}/, 'Shared card renderer must render the semantic layer source');
 assert.match(cardSource, /contentFit="cover"/, 'Canonical scene layers must keep the approved full-canvas crop');
 assert.match(cardSource, /style=\{styles\.fullSceneLayer\}/, 'Canonical scene layers must stay locked to one shared scene canvas');
 
-console.log('PASS check-home-destination-layers: Mapa and Arcade use semantic canonical layers; Arcade keeps background + pterosaur + star blocks and the approved 67% art framing.');
+console.log('PASS check-home-destination-layers: Mapa, Arcade and Mi dinero use semantic canonical layers; Block 3 keeps background + coin stack + star coin at the approved 67% framing.');
