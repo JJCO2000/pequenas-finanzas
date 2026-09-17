@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
-import type { HomeDestination } from '../homeDestinations';
+import { getHomeDestinationArtLayerEntries, type HomeDestination } from '../homeDestinations';
 import type { HomeLayout } from '../useHomeLayout';
 
 type Props = {
@@ -52,27 +52,16 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
       >
         {destination.artLayers ? (
           <View pointerEvents="none" style={styles.layerStage}>
-            <Image
-              source={destination.artLayers.background}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              allowDownscaling={false}
-              style={styles.fullSceneLayer}
-            />
-            <Image
-              source={destination.artLayers.mascot}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              allowDownscaling={false}
-              style={styles.fullSceneLayer}
-            />
-            <Image
-              source={destination.artLayers.prop}
-              contentFit="cover"
-              cachePolicy="memory-disk"
-              allowDownscaling={false}
-              style={styles.fullSceneLayer}
-            />
+            {getHomeDestinationArtLayerEntries(destination.artLayers).map(({ key, source }) => (
+              <Image
+                key={key}
+                source={source}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                allowDownscaling={false}
+                style={styles.fullSceneLayer}
+              />
+            ))}
           </View>
         ) : destination.art ? (
           <Image
@@ -85,7 +74,7 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
         ) : null}
       </View>
 
-      <View style={[styles.copy, { paddingTop: compact ? 1 : 5, paddingHorizontal: compact ? 0 : 2 }]}> 
+      <View style={[styles.copy, { paddingTop: compact ? 1 : 5, paddingHorizontal: compact ? 0 : 2 }]}>
         <Text
           numberOfLines={1}
           adjustsFontSizeToFit

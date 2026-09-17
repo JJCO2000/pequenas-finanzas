@@ -1,10 +1,20 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Blocks 1-2 CI lock v5: Mapa and Arcade both use three independently replaceable scene layers in the shared renderer; Arcade now mirrors the approved Block 1 pattern with a clean raster background plus reusable mascot and prop layers.
-export type HomeDestinationArtLayers = {
+// Blocks 1-2 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
+type MapDestinationArtLayers = {
+  kind: 'map';
   background: number;
-  mascot: number;
-  prop: number;
+  dino: number;
+  sign: number;
 };
+
+type ArcadeDestinationArtLayers = {
+  kind: 'arcade';
+  background: number;
+  pterosaur: number;
+  starBlocks: number;
+};
+
+export type HomeDestinationArtLayers = MapDestinationArtLayers | ArcadeDestinationArtLayers;
 
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
@@ -18,21 +28,45 @@ export type HomeDestination = {
   artBackground: string;
 };
 
+const mapArt = {
+  kind: 'map',
+  background: require('../../../assets/ui/home/destinations/mapa/background.jpg'),
+  dino: require('../../../assets/ui/home/destinations/mapa/dino.webp'),
+  sign: require('../../../assets/ui/home/destinations/mapa/sign.webp'),
+} satisfies MapDestinationArtLayers;
+
+// Block 2 reference contract: sky/cliffs/foliage background + blue pterosaur + the two gold star blocks.
+// All three assets share the same scene canvas so their approved composition stays aligned at every card size.
+const arcadeArt = {
+  kind: 'arcade',
+  background: require('../../../assets/ui/home/destinations/arcade/background.webp'),
+  pterosaur: require('../../../assets/ui/home/destinations/arcade/pterosaur.webp'),
+  starBlocks: require('../../../assets/ui/home/destinations/arcade/star-blocks.webp'),
+} satisfies ArcadeDestinationArtLayers;
+
+export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLayers) {
+  switch (layers.kind) {
+    case 'map':
+      return [
+        { key: 'background', source: layers.background },
+        { key: 'dino', source: layers.dino },
+        { key: 'sign', source: layers.sign },
+      ] as const;
+    case 'arcade':
+      return [
+        { key: 'background', source: layers.background },
+        { key: 'pterosaur', source: layers.pterosaur },
+        { key: 'starBlocks', source: layers.starBlocks },
+      ] as const;
+  }
+}
+
 export const HOME_DESTINATIONS: readonly HomeDestination[] = [
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
-    artLayers: {
-      background: require('../../../assets/ui/home/destinations/mapa/background.jpg'),
-      mascot: require('../../../assets/ui/home/destinations/mapa/dino.webp'),
-      prop: require('../../../assets/ui/home/destinations/mapa/sign.webp'),
-    },
+    artLayers: mapArt,
     artBackground: '#DDF3E4' },
-  // Block 2 only: clean painted Arcade background + reusable blue pterosaur + reusable star-block props.
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
-    artLayers: {
-      background: require('../../../assets/ui/home/destinations/arcade/background.webp'),
-      mascot: require('../../../assets/ui/home/destinations/arcade/mascot.webp'),
-      prop: require('../../../assets/ui/home/destinations/arcade/prop.webp'),
-    },
+    artLayers: arcadeArt,
     artBackground: '#D8EEFF' },
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',
     art: require('../../../assets/ui/home/dinero-vector.svg'), artBackground: '#FFF2A8' },

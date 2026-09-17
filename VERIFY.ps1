@@ -29,6 +29,7 @@ Run-Step 'PowerShell syntax' { powershell.exe -NoProfile -ExecutionPolicy Bypass
 Run-Step 'Plan 1.1 architecture audit' { powershell.exe -NoProfile -ExecutionPolicy Bypass -File '.\AUDIT_PLAN_1_1.ps1' }
 Run-Step 'Plan 1.1 runtime config' { node '.\scripts\check-plan-runtime.mjs' }
 Run-Step 'Plan 7 Games Block 0 SSOT' { node '.\scripts\check-plan7-block0.mjs' }
+Run-Step 'Home destination layered art contract' { node '.\scripts\check-home-destination-layers.mjs' }
 Run-Step 'Investment companion compatibility' { node '.\scripts\check-investment-step.mjs' }
 Run-Step 'Plan 2.1 design/gameplay audit' { powershell.exe -NoProfile -ExecutionPolicy Bypass -File '.\AUDIT_PLAN_2_1.ps1' }
 Run-Step 'Plan 2.1 runtime invariants' { node '.\scripts\check-plan21-runtime.mjs' }
