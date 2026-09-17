@@ -178,10 +178,11 @@ export function AdventureMapScreen() {
           {Array.from({ length: backgroundCount }, (_, index) => (
             <ExpoImage
               key={`world-${index}`}
-              source={ACTIVE_THEME.world.map ?? ACTIVE_THEME.world.arcade ?? ACTIVE_THEME.world.mapWater}
+              source={ACTIVE_THEME.destinations.map.background}
               contentFit="cover"
               cachePolicy="memory-disk"
               allowDownscaling
+              blurRadius={ACTIVE_THEME.destinations.backgroundBlurRadius}
               style={{ position: 'absolute', left: index * width, top: 0, width, height: sceneHeight }}
             />
           ))}

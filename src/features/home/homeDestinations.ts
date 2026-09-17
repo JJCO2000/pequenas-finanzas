@@ -1,42 +1,45 @@
+import type { ImageSourcePropType } from 'react-native';
+import { ACTIVE_THEME } from '@/core/theme';
+
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
 // Blocks 1-6 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
 type MapDestinationArtLayers = {
   kind: 'map';
-  background: number;
-  dino: number;
-  sign: number;
+  background: ImageSourcePropType;
+  dino: ImageSourcePropType;
+  sign: ImageSourcePropType;
 };
 
 type ArcadeDestinationArtLayers = {
   kind: 'arcade';
-  background: number;
-  pterosaur: number;
-  starBlocks: number;
+  background: ImageSourcePropType;
+  pterosaur: ImageSourcePropType;
+  starBlocks: ImageSourcePropType;
 };
 
 type WalletDestinationArtLayers = {
   kind: 'wallet';
-  background: number;
-  coinStack: number;
-  starCoin: number;
+  background: ImageSourcePropType;
+  coinStack: ImageSourcePropType;
+  starCoin: ImageSourcePropType;
 };
 
 type InvestmentsDestinationArtLayers = {
   kind: 'investments';
-  background: number;
-  stegosaur: number;
+  background: ImageSourcePropType;
+  stegosaur: ImageSourcePropType;
 };
 
 type ShopDestinationArtLayers = {
   kind: 'shop';
-  background: number;
-  eggNest: number;
+  background: ImageSourcePropType;
+  eggNest: ImageSourcePropType;
 };
 
 type CollectionDestinationArtLayers = {
   kind: 'collection';
-  background: number;
-  longneck: number;
+  background: ImageSourcePropType;
+  longneck: ImageSourcePropType;
 };
 
 export type HomeDestinationArtLayers =
@@ -62,51 +65,51 @@ export type HomeDestination = {
 
 const mapArt = {
   kind: 'map',
-  background: require('../../../assets/ui/home/destinations/mapa/background.jpg'),
-  dino: require('../../../assets/ui/home/destinations/mapa/dino.webp'),
-  sign: require('../../../assets/ui/home/destinations/mapa/sign.webp'),
+  background: ACTIVE_THEME.destinations.map.background,
+  dino: ACTIVE_THEME.destinations.map.dino,
+  sign: ACTIVE_THEME.destinations.map.sign,
 } satisfies MapDestinationArtLayers;
 
 // Block 2 reference contract: sky/cliffs/foliage background + blue pterosaur + the two gold star blocks.
 // All three assets share the same scene canvas so their approved composition stays aligned at every card size.
 const arcadeArt = {
   kind: 'arcade',
-  background: require('../../../assets/ui/home/destinations/arcade/background.webp'),
-  pterosaur: require('../../../assets/ui/home/destinations/arcade/pterosaur.webp'),
-  starBlocks: require('../../../assets/ui/home/destinations/arcade/star-blocks.webp'),
+  background: ACTIVE_THEME.destinations.arcade.background,
+  pterosaur: ACTIVE_THEME.destinations.arcade.pterosaur,
+  starBlocks: ACTIVE_THEME.destinations.arcade.starBlocks,
 } satisfies ArcadeDestinationArtLayers;
 
 // Block 3 reference contract: jungle/waterfall background + stacked coins + the large star coin in front.
 // The background stays raster while the two transparent foreground layers are SVG so Expo Web renders them reliably.
 const walletArt = {
   kind: 'wallet',
-  background: require('../../../assets/ui/home/destinations/dinero/background.png'),
-  coinStack: require('../../../assets/ui/home/destinations/dinero/coin-stack.svg'),
-  starCoin: require('../../../assets/ui/home/destinations/dinero/star-coin.svg'),
+  background: ACTIVE_THEME.destinations.wallet.background,
+  coinStack: ACTIVE_THEME.destinations.wallet.coinStack,
+  starCoin: ACTIVE_THEME.destinations.wallet.starCoin,
 } satisfies WalletDestinationArtLayers;
 
 // Block 4 reference contract: desert/ruins background + orange stegosaur.
 // Only two semantic layers are needed; adding more would be fake complexity.
 const investmentsArt = {
   kind: 'investments',
-  background: require('../../../assets/ui/home/destinations/inversiones/background.webp'),
-  stegosaur: require('../../../assets/ui/home/destinations/inversiones/stegosaur.png'),
+  background: ACTIVE_THEME.destinations.investments.background,
+  stegosaur: ACTIVE_THEME.destinations.investments.stegosaur,
 } satisfies InvestmentsDestinationArtLayers;
 
 // Block 5 reference contract: purple mountain/foliage scene + the green-spotted egg in its nest.
 // The split is semantic and reconstructs the approved composition without placeholder props.
 const shopArt = {
   kind: 'shop',
-  background: require('../../../assets/ui/home/destinations/tienda/background.webp'),
-  eggNest: require('../../../assets/ui/home/destinations/tienda/egg-nest.webp'),
+  background: ACTIVE_THEME.destinations.shop.background,
+  eggNest: ACTIVE_THEME.destinations.shop.eggNest,
 } satisfies ShopDestinationArtLayers;
 
 // Block 6 reference contract: museum/ruins scene with the fossil exhibit in the background + the green longneck in front.
 // The fossil belongs to the museum environment, so Collection needs two semantic layers rather than fake extra props.
 const collectionArt = {
   kind: 'collection',
-  background: require('../../../assets/ui/home/destinations/coleccion/background.webp'),
-  longneck: require('../../../assets/ui/home/destinations/coleccion/longneck.webp'),
+  background: ACTIVE_THEME.destinations.collection.background,
+  longneck: ACTIVE_THEME.destinations.collection.longneck,
 } satisfies CollectionDestinationArtLayers;
 
 export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLayers) {

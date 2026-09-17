@@ -36,7 +36,7 @@ function AdventureMapBoot({ stalled, onRetry }: { stalled: boolean; onRetry: () 
 
   return (
     <View style={styles.root}>
-      <ExpoImage source={ACTIVE_THEME.world.map ?? ACTIVE_THEME.world.mapWater} contentFit="cover" cachePolicy="memory-disk" style={StyleSheet.absoluteFill} />
+      <ExpoImage source={ACTIVE_THEME.destinations.map.background} contentFit="cover" cachePolicy="memory-disk" blurRadius={ACTIVE_THEME.destinations.backgroundBlurRadius} style={StyleSheet.absoluteFill} />
       <View style={styles.tint} />
       <Image source={ACTIVE_THEME.world.mapVolcano} resizeMode="contain" style={styles.volcano} />
       <Image source={ACTIVE_THEME.world.mapIslands} resizeMode="contain" style={styles.islands} />

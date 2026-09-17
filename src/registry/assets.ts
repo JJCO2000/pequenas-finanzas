@@ -31,6 +31,35 @@ export const ASSETS = {
     v6GameIntroWide: require('../../assets/world/v6/game-intro-wide.webp'),
     v6CoinFieldWide: require('../../assets/world/v6/coin-field-wide.webp'),
   },
+  homeDestinations: {
+    map: {
+      background: require('../../assets/ui/home/destinations/mapa/background.jpg'),
+      dino: require('../../assets/ui/home/destinations/mapa/dino.webp'),
+      sign: require('../../assets/ui/home/destinations/mapa/sign.webp'),
+    },
+    arcade: {
+      background: require('../../assets/ui/home/destinations/arcade/background.webp'),
+      pterosaur: require('../../assets/ui/home/destinations/arcade/pterosaur.webp'),
+      starBlocks: require('../../assets/ui/home/destinations/arcade/star-blocks.webp'),
+    },
+    wallet: {
+      background: require('../../assets/ui/home/destinations/dinero/background.png'),
+      coinStack: require('../../assets/ui/home/destinations/dinero/coin-stack.svg'),
+      starCoin: require('../../assets/ui/home/destinations/dinero/star-coin.svg'),
+    },
+    investments: {
+      background: require('../../assets/ui/home/destinations/inversiones/background.webp'),
+      stegosaur: require('../../assets/ui/home/destinations/inversiones/stegosaur.png'),
+    },
+    shop: {
+      background: require('../../assets/ui/home/destinations/tienda/background.webp'),
+      eggNest: require('../../assets/ui/home/destinations/tienda/egg-nest.webp'),
+    },
+    collection: {
+      background: require('../../assets/ui/home/destinations/coleccion/background.webp'),
+      longneck: require('../../assets/ui/home/destinations/coleccion/longneck.webp'),
+    },
+  },
   decor: {
     fossil: require('../../assets/world/decor/fossil.png'),
     nest: require('../../assets/world/decor/nest.png'),

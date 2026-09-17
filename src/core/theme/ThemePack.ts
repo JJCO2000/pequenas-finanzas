@@ -28,6 +28,16 @@ export type ThemeShopItem = {
   effectDescription: string;
 };
 
+export type ThemeDestinationArt = {
+  backgroundBlurRadius: number;
+  map: { background: ImageSourcePropType; dino: ImageSourcePropType; sign: ImageSourcePropType };
+  arcade: { background: ImageSourcePropType; pterosaur: ImageSourcePropType; starBlocks: ImageSourcePropType };
+  wallet: { background: ImageSourcePropType; coinStack: ImageSourcePropType; starCoin: ImageSourcePropType };
+  investments: { background: ImageSourcePropType; stegosaur: ImageSourcePropType };
+  shop: { background: ImageSourcePropType; eggNest: ImageSourcePropType };
+  collection: { background: ImageSourcePropType; longneck: ImageSourcePropType };
+};
+
 export type ThemePack = {
   id: string;
   name: string;
@@ -65,6 +75,7 @@ export type ThemePack = {
     gameIntro?: ImageSourcePropType;
     coinField?: ImageSourcePropType;
   };
+  destinations: ThemeDestinationArt;
   decor: {
     currency: ImageSourcePropType;
     savings: ImageSourcePropType;

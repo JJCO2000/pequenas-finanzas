@@ -29,16 +29,16 @@ export default function WalletScreen() {
   };
 
   return (
-    <WorldScene background={ACTIVE_THEME.world.finance} tone="none" contentStyle={styles.root}>
+    <WorldScene background={ACTIVE_THEME.destinations.wallet.background} backgroundBlurRadius={ACTIVE_THEME.destinations.backgroundBlurRadius} tone="none" contentStyle={styles.root}>
       <View style={styles.topRow}>
-        <CompactHeader title="Mi dinero" subtitle="Ahorra, invierte o revisa movimientos." eyebrow="TESORERÍA" hero={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} onBack={goBack} />
+        <CompactHeader title="Mi dinero" subtitle="Ahorra, invierte o revisa movimientos." eyebrow="TESORERÍA" hero={ACTIVE_THEME.destinations.wallet.starCoin} onBack={goBack} />
         <HudPill label="DÍA" value={currentDay} icon="★" tone="gold" />
       </View>
 
       <View style={styles.objects}>
         <SceneHotspot art={ACTIVE_THEME.coinCatcherArt?.coin ?? ACTIVE_THEME.decor.currency} artBackground="#FFF0AF" label="Disponible" sublabel={formatMoney(availableCents)} onPress={() => setMode('history')} selected={mode === 'history'} />
         <SceneHotspot art={ACTIVE_THEME.decor.savings} artBackground="#E4F3D8" label="Ahorro" sublabel={formatMoney(savingsCents)} onPress={() => setMode('save')} selected={mode === 'save'} />
-        <SceneHotspot art={ACTIVE_THEME.characters.secondary} artBackground="#FFE0C7" label="Inversión" sublabel={formatMoney(wallet?.investedCents ?? 0)} onPress={() => setMode('invest')} selected={mode === 'invest'} />
+        <SceneHotspot art={ACTIVE_THEME.destinations.investments.stegosaur} artBackground="#FFE0C7" label="Inversión" sublabel={formatMoney(wallet?.investedCents ?? 0)} onPress={() => setMode('invest')} selected={mode === 'invest'} />
         <SceneHotspot art={ACTIVE_THEME.shop.featuredItem} artBackground="#EEE5FF" label="Tienda" sublabel="Mejoras" onPress={() => router.push('/shop' as any)} />
       </View>
 
@@ -66,7 +66,7 @@ export default function WalletScreen() {
 
         {mode === 'invest' ? (
           <View style={styles.drawerBody}>
-            <Image source={ACTIVE_THEME.characters.secondary} style={styles.drawerArt} resizeMode="contain" />
+            <Image source={ACTIVE_THEME.destinations.investments.stegosaur} style={styles.drawerArt} resizeMode="contain" />
             <View style={styles.drawerCopy}>
               <Text style={styles.kicker}>EXPEDICIÓN · D{currentDay + 4}</Text>
               <Text style={styles.title}>Elige cuánto mandar de viaje</Text>

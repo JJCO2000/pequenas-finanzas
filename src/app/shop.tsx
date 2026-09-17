@@ -49,9 +49,9 @@ export default function Shop() {
   const selectedCanBuy = selected ? !selectedOwned && Boolean(wallet && wallet.availableCents >= selected.priceCents) : false;
 
   return (
-    <WorldScene background={ACTIVE_THEME.world.shop} tone="none" contentStyle={styles.root}>
+    <WorldScene background={ACTIVE_THEME.destinations.shop.background} backgroundBlurRadius={ACTIVE_THEME.destinations.backgroundBlurRadius} tone="none" contentStyle={styles.root}>
       <View style={styles.topRow}>
-        <CompactHeader title="Área de canje" subtitle="Cada huevo es una reliquia distinta y cambia tu juego." eyebrow="TIENDA" hero={ACTIVE_THEME.shop.featuredItem} onBack={() => router.back()} />
+        <CompactHeader title="Área de canje" subtitle="Cada huevo es una reliquia distinta y cambia tu juego." eyebrow="TIENDA" hero={ACTIVE_THEME.destinations.shop.eggNest} onBack={() => router.back()} />
         <HudPill label="DISPONIBLE" value={formatMoney(wallet?.availableCents ?? 0)} icon="●" tone="gold" />
       </View>
 

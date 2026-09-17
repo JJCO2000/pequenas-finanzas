@@ -6,8 +6,9 @@ import { colors } from '@/core/theme/tokens';
 
 export type WorldSceneTone = 'none' | 'soft' | 'dark' | 'deep';
 
-export function WorldScene({ background, children, tone = 'soft', safe = true, style, contentStyle }: {
+export function WorldScene({ background, backgroundBlurRadius = 0, children, tone = 'soft', safe = true, style, contentStyle }: {
   background: ImageSourcePropType;
+  backgroundBlurRadius?: number;
   children: React.ReactNode;
   tone?: WorldSceneTone;
   safe?: boolean;
@@ -17,7 +18,7 @@ export function WorldScene({ background, children, tone = 'soft', safe = true, s
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.root, style]}>
-      <Image source={background} contentFit="cover" contentPosition="center" cachePolicy="memory-disk" allowDownscaling transition={120} style={styles.backdrop} />
+      <Image source={background} contentFit="cover" contentPosition="center" cachePolicy="memory-disk" allowDownscaling blurRadius={backgroundBlurRadius} transition={120} style={styles.backdrop} />
       {tone !== 'none' ? <View pointerEvents="none" style={[styles.tint, tone === 'dark' && styles.dark, tone === 'deep' && styles.deep]} /> : null}
       <View style={[styles.content, safe && {
         paddingLeft: Math.max(insets.left, 12), paddingRight: Math.max(insets.right, 12),

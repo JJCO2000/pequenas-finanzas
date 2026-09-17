@@ -42,9 +42,9 @@ export default function InvestmentsScreen() {
   };
 
   return (
-    <WorldScene background={ACTIVE_THEME.world.investments ?? ACTIVE_THEME.world.finance} tone="none" contentStyle={styles.root}>
+    <WorldScene background={ACTIVE_THEME.destinations.investments.background} backgroundBlurRadius={ACTIVE_THEME.destinations.backgroundBlurRadius} tone="none" contentStyle={styles.root}>
       <View style={styles.topRow}>
-        <CompactHeader title="Inversiones" subtitle="Tu dinero viaja 4 días y vuelve con +50%." eyebrow="CENTRO DE EXPEDICIONES" hero={ACTIVE_THEME.characters.secondary} onBack={goBack} />
+        <CompactHeader title="Inversiones" subtitle="Tu dinero viaja 4 días y vuelve con +50%." eyebrow="CENTRO DE EXPEDICIONES" hero={ACTIVE_THEME.destinations.investments.stegosaur} onBack={goBack} />
         <View style={styles.stats}>
           <HudPill label="DISPONIBLE" value={formatMoney(wallet?.availableCents ?? 0)} icon="●" tone="gold" />
           <HudPill label="VIAJANDO" value={formatMoney(wallet?.investedCents ?? 0)} icon="↗" />
@@ -63,7 +63,7 @@ export default function InvestmentsScreen() {
 
         <View style={styles.routeLine} />
         <View style={styles.today}><Text style={styles.daySmall}>SALE</Text><Text style={styles.dayBig}>D{currentDay}</Text></View>
-        <Image source={ACTIVE_THEME.characters.secondary} style={styles.heroDino} resizeMode="contain" />
+        <Image source={ACTIVE_THEME.destinations.investments.stegosaur} style={styles.heroDino} resizeMode="contain" />
         <View style={styles.arrival}><Text style={styles.daySmall}>REGRESA</Text><Text style={styles.dayBig}>D{targetDay}</Text></View>
         <View style={styles.rule}><Text style={styles.ruleText}>+50%</Text><Text style={styles.ruleSub}>ganancia fijada</Text></View>
         <ActionPill label="NUEVA EXPEDICIÓN  →" onPress={() => { setMessage(null); setInvestOpen(true); }} style={styles.newAction} />
@@ -79,7 +79,7 @@ export default function InvestmentsScreen() {
         <Pressable accessibilityRole="button" accessibilityLabel="Cerrar ventana de inversión" style={styles.modalShade} onPress={() => setInvestOpen(false)}>
           <Pressable style={styles.modalCard} onPress={(event) => event.stopPropagation()}>
             <View style={styles.modalTop}>
-              <Image source={ACTIVE_THEME.characters.secondary} style={styles.modalHero} resizeMode="contain" />
+              <Image source={ACTIVE_THEME.destinations.investments.stegosaur} style={styles.modalHero} resizeMode="contain" />
               <View style={styles.modalCopy}><Text style={styles.modalKicker}>D{currentDay} → D{targetDay}</Text><Text style={styles.modalTitle}>¿Cuánto enviamos?</Text><Text style={styles.modalSub}>Lo que elijas vuelve automáticamente con 50% extra.</Text></View>
               <Pressable accessibilityRole="button" accessibilityLabel="Cerrar" onPress={() => setInvestOpen(false)} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
             </View>

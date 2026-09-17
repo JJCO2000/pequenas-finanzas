@@ -62,6 +62,7 @@ export const DINO_THEME: ThemePack = {
     gameIntro: ASSETS.world.grassLandscape,
     coinField: ASSETS.world.v6CoinFieldWide,
   },
+  destinations: { ...ASSETS.homeDestinations, backgroundBlurRadius: 10 },
   decor: { currency: ASSETS.decor.fossil, savings: ASSETS.decor.nest, event: ASSETS.decor.meteor, trail: ASSETS.decor.tracks },
   tabs: { home: ASSETS.tabs.home, map: ASSETS.tabs.map, games: ASSETS.tabs.games, wallet: ASSETS.tabs.wallet, parents: ASSETS.tabs.parents },
   shop: {

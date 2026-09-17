@@ -31,9 +31,9 @@ export default function CollectionScreen() {
   const foundHidden = HIDDEN_FINDS.filter((item) => settings[`museum.find.${item.id}`] === '1').length;
 
   return (
-    <WorldScene background={ACTIVE_THEME.world.camp ?? ACTIVE_THEME.world.shop} tone="none" contentStyle={styles.root}>
+    <WorldScene background={ACTIVE_THEME.destinations.collection.background} backgroundBlurRadius={ACTIVE_THEME.destinations.backgroundBlurRadius} tone="none" contentStyle={styles.root}>
       <View style={styles.topRow}>
-        <CompactHeader title="Museo" subtitle="Huevos, hallazgos ocultos y galería completa de retos." eyebrow="COLECCIÓN" hero={ACTIVE_THEME.shop.featuredItem} onBack={goBack} />
+        <CompactHeader title="Museo" subtitle="Huevos, hallazgos ocultos y galería completa de retos." eyebrow="COLECCIÓN" hero={ACTIVE_THEME.destinations.collection.longneck} onBack={goBack} />
         <HudPill label="HUEVOS" value={`${ownedEggs}/${SHOP_ITEMS.length}`} icon="★" tone="gold" />
       </View>
 

@@ -23,9 +23,9 @@ export default function ArcadeScreen() {
   const tileHeight = Math.min(118, Math.round(tileWidth * 0.78));
 
   return (
-    <WorldScene background={ACTIVE_THEME.world.arcade ?? ACTIVE_THEME.world.activity} tone="none" contentStyle={styles.root}>
+    <WorldScene background={ACTIVE_THEME.destinations.arcade.background} backgroundBlurRadius={ACTIVE_THEME.destinations.backgroundBlurRadius} tone="none" contentStyle={styles.root}>
       <View style={styles.topRow}>
-        <CompactHeader title="Arcade" subtitle="7 juegos disponibles · toca una portada." eyebrow="JUEGO LIBRE" hero={ACTIVE_THEME.characters.primary} onBack={goBack} />
+        <CompactHeader title="Arcade" subtitle="7 juegos disponibles · toca una portada." eyebrow="JUEGO LIBRE" hero={ACTIVE_THEME.destinations.arcade.pterosaur} onBack={goBack} />
         <HudPill label="RETOS" value={`${GAMES.length}/7`} icon="★" tone="gold" />
       </View>
 
