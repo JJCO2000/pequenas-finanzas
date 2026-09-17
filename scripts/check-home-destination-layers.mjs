@@ -28,6 +28,7 @@ for (const path of canonicalAssets) {
 for (const retiredPath of [
   'assets/ui/home/destinations/arcade/mascot.webp',
   'assets/ui/home/destinations/arcade/prop.webp',
+  'assets/ui/home/dinero-vector.svg',
   'tmp/should-not-exist.txt',
 ]) {
   assert.equal(exists(retiredPath), false, `Retired Home destination path must stay absent: ${retiredPath}`);
