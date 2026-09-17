@@ -94,11 +94,5 @@ test('Home is layered, responsive and tappable from compact-min through expanded
     expect(overflow.height, `${label}: vertical overflow`).toBeLessThanOrEqual(1);
 
     await page.screenshot({ path: `artifacts/home-${label}-${width}x${height}.png`, fullPage: false });
-
-    if (label === 'regular-reference') {
-      await page.getByRole('button', { name: 'Inversiones', exact: true }).screenshot({
-        path: 'artifacts/home-inversiones-reference-crop.png',
-      });
-    }
   }
 });
