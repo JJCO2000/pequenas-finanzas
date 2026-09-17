@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Blocks 1-2 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
+// Blocks 1-3 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
 type MapDestinationArtLayers = {
   kind: 'map';
   background: number;
@@ -14,7 +14,14 @@ type ArcadeDestinationArtLayers = {
   starBlocks: number;
 };
 
-export type HomeDestinationArtLayers = MapDestinationArtLayers | ArcadeDestinationArtLayers;
+type WalletDestinationArtLayers = {
+  kind: 'wallet';
+  background: number;
+  coinStack: number;
+  starCoin: number;
+};
+
+export type HomeDestinationArtLayers = MapDestinationArtLayers | ArcadeDestinationArtLayers | WalletDestinationArtLayers;
 
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
@@ -45,6 +52,15 @@ const arcadeArt = {
   starBlocks: require('../../../assets/ui/home/destinations/arcade/star-blocks.webp'),
 } satisfies ArcadeDestinationArtLayers;
 
+// Block 3 reference contract: jungle/waterfall background + stacked coins + the large star coin in front.
+// The PNG layers share one scene canvas and avoid the invalid-WebP regression previously found on Expo Web.
+const walletArt = {
+  kind: 'wallet',
+  background: require('../../../assets/ui/home/destinations/dinero/background.png'),
+  coinStack: require('../../../assets/ui/home/destinations/dinero/coin-stack.png'),
+  starCoin: require('../../../assets/ui/home/destinations/dinero/star-coin.png'),
+} satisfies WalletDestinationArtLayers;
+
 export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLayers) {
   switch (layers.kind) {
     case 'map':
@@ -59,6 +75,12 @@ export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLaye
         { key: 'pterosaur', source: layers.pterosaur },
         { key: 'starBlocks', source: layers.starBlocks },
       ] as const;
+    case 'wallet':
+      return [
+        { key: 'background', source: layers.background },
+        { key: 'coinStack', source: layers.coinStack },
+        { key: 'starCoin', source: layers.starCoin },
+      ] as const;
   }
 }
 
@@ -71,8 +93,11 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
     artLayers: arcadeArt,
     artHeightRatio: 0.67,
     artBackground: '#D8EEFF' },
+  // Approved reference: the money illustration uses the same tall image-to-copy split as Arcade.
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',
-    art: require('../../../assets/ui/home/dinero-vector.svg'), artBackground: '#FFF2A8' },
+    artLayers: walletArt,
+    artHeightRatio: 0.67,
+    artBackground: '#FFF2A8' },
   { id: 'investments', label: 'Inversiones', subtitle: 'Expediciones', hint: 'Abre tus expediciones de inversión', route: '/investments', navigation: 'push',
     art: require('../../../assets/ui/home/inversiones-vector.svg'), artBackground: '#FFE0B8' },
   { id: 'shop', label: 'Tienda', subtitle: 'Mejoras', hint: 'Abre la tienda de mejoras', route: '/shop', navigation: 'push',
