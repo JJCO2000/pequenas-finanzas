@@ -25,6 +25,7 @@ export type HomeDestination = {
   navigation: 'push' | 'replace';
   art?: number;
   artLayers?: HomeDestinationArtLayers;
+  artHeightRatio?: number;
   artBackground: string;
 };
 
@@ -65,8 +66,10 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
   { id: 'map', label: 'Mapa', subtitle: 'Aventura', hint: 'Abre la aventura principal', route: '/play', navigation: 'replace',
     artLayers: mapArt,
     artBackground: '#DDF3E4' },
+  // Approved reference: the painted Arcade scene occupies ~67% of the card height before the label area begins.
   { id: 'arcade', label: 'Arcade', subtitle: '7 retos', hint: 'Abre los retos del arcade', route: '/arcade', navigation: 'push',
     artLayers: arcadeArt,
+    artHeightRatio: 0.67,
     artBackground: '#D8EEFF' },
   { id: 'wallet', label: 'Mi dinero', subtitle: '$0', hint: 'Abre tu cartera', route: '/wallet', navigation: 'push',
     art: require('../../../assets/ui/home/dinero-vector.svg'), artBackground: '#FFF2A8' },

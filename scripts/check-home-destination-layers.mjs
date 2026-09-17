@@ -36,12 +36,14 @@ assert.match(destinationsSource, /sign: require\('[^']*mapa\/sign\.webp'\)/, 'Ma
 assert.match(destinationsSource, /kind: 'arcade'/, 'Arcade must keep a semantic arcade layer contract');
 assert.match(destinationsSource, /pterosaur: require\('[^']*arcade\/pterosaur\.webp'\)/, 'Arcade pterosaur must be a named canonical layer');
 assert.match(destinationsSource, /starBlocks: require\('[^']*arcade\/star-blocks\.webp'\)/, 'Arcade star blocks must be a named canonical layer');
+assert.match(destinationsSource, /id: 'arcade'[\s\S]*artHeightRatio: 0\.67/, 'Arcade must preserve the approved reference art-height ratio');
 assert.doesNotMatch(destinationsSource, /arcade\/(?:mascot|prop)\.webp/, 'Arcade must not regress to generic mascot/prop asset names');
 assert.match(destinationsSource, /case 'arcade':[\s\S]*layers\.background[\s\S]*layers\.pterosaur[\s\S]*layers\.starBlocks/, 'Arcade layer order must stay background -> pterosaur -> star blocks');
 
 assert.match(cardSource, /getHomeDestinationArtLayerEntries\(destination\.artLayers\)/, 'Shared card renderer must consume the destination SSOT layer order');
+assert.match(cardSource, /destination\.artHeightRatio \?\? \(expanded \? 0\.68 : 0\.66\)/, 'Approved per-destination art ratio must override the shared layered fallback');
 assert.match(cardSource, /source=\{source\}/, 'Shared card renderer must render the semantic layer source');
 assert.match(cardSource, /contentFit="cover"/, 'Canonical scene layers must keep the approved full-canvas crop');
 assert.match(cardSource, /style=\{styles\.fullSceneLayer\}/, 'Canonical scene layers must stay locked to one shared scene canvas');
 
-console.log('PASS check-home-destination-layers: Mapa and Arcade use semantic canonical layers; Arcade is background + pterosaur + star blocks with no generic prop contract.');
+console.log('PASS check-home-destination-layers: Mapa and Arcade use semantic canonical layers; Arcade keeps background + pterosaur + star blocks and the approved 67% art framing.');

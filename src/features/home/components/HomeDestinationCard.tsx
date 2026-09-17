@@ -14,9 +14,10 @@ export function HomeDestinationCard({ destination, layout, onPress }: Props) {
   const compact = layout.mode === 'compact';
   const expanded = layout.mode === 'expanded';
   const layeredScene = Boolean(destination.artLayers);
+  const layeredArtHeightRatio = destination.artHeightRatio ?? (expanded ? 0.68 : 0.66);
   const artHeight = compact
     ? layeredScene ? 32 : 28
-    : Math.round(layout.destinationCardHeight * (layeredScene ? (expanded ? 0.68 : 0.66) : (expanded ? 0.61 : 0.6)));
+    : Math.round(layout.destinationCardHeight * (layeredScene ? layeredArtHeightRatio : (expanded ? 0.61 : 0.6)));
 
   return (
     <Pressable
