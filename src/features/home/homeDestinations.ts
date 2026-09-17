@@ -89,7 +89,7 @@ const walletArt = {
 // Only two semantic layers are needed; adding more would be fake complexity.
 const investmentsArt = {
   kind: 'investments',
-  background: require('../../../assets/ui/home/destinations/inversiones/background.png'),
+  background: require('../../../assets/ui/home/destinations/inversiones/background.webp'),
   stegosaur: require('../../../assets/ui/home/destinations/inversiones/stegosaur.png'),
 } satisfies InvestmentsDestinationArtLayers;
 
@@ -105,7 +105,7 @@ const shopArt = {
 // The fossil belongs to the museum environment, so Collection needs two semantic layers rather than fake extra props.
 const collectionArt = {
   kind: 'collection',
-  background: require('../../../assets/ui/home/destinations/coleccion/background.jpg'),
+  background: require('../../../assets/ui/home/destinations/coleccion/background.webp'),
   longneck: require('../../../assets/ui/home/destinations/coleccion/longneck.webp'),
 } satisfies CollectionDestinationArtLayers;
 

@@ -38,7 +38,7 @@ BLOCKS = {
         ('star-coin', 'assets/ui/home/destinations/dinero/star-coin.svg', False),
     ],
     'bloque4-inversiones': [
-        ('background', 'assets/ui/home/destinations/inversiones/background.png', True),
+        ('background', 'assets/ui/home/destinations/inversiones/background.webp', True),
         ('stegosaur', 'assets/ui/home/destinations/inversiones/stegosaur.png', False),
     ],
     'bloque5-tienda': [
@@ -46,7 +46,7 @@ BLOCKS = {
         ('egg-nest', 'assets/ui/home/destinations/tienda/egg-nest.webp', False),
     ],
     'bloque6-coleccion': [
-        ('background', 'assets/ui/home/destinations/coleccion/background.jpg', True),
+        ('background', 'assets/ui/home/destinations/coleccion/background.webp', True),
         ('longneck', 'assets/ui/home/destinations/coleccion/longneck.webp', False),
     ],
 }

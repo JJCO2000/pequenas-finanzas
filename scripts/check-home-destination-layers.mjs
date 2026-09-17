@@ -19,11 +19,11 @@ const canonicalAssets = [
   'assets/ui/home/destinations/dinero/background.png',
   'assets/ui/home/destinations/dinero/coin-stack.svg',
   'assets/ui/home/destinations/dinero/star-coin.svg',
-  'assets/ui/home/destinations/inversiones/background.png',
+  'assets/ui/home/destinations/inversiones/background.webp',
   'assets/ui/home/destinations/inversiones/stegosaur.png',
   'assets/ui/home/destinations/tienda/background.webp',
   'assets/ui/home/destinations/tienda/egg-nest.webp',
-  'assets/ui/home/destinations/coleccion/background.jpg',
+  'assets/ui/home/destinations/coleccion/background.webp',
   'assets/ui/home/destinations/coleccion/longneck.webp',
 ];
 
