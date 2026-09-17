@@ -53,12 +53,12 @@ const arcadeArt = {
 } satisfies ArcadeDestinationArtLayers;
 
 // Block 3 reference contract: jungle/waterfall background + stacked coins + the large star coin in front.
-// The PNG layers share one scene canvas and avoid the invalid-WebP regression previously found on Expo Web.
+// The background stays raster while the two transparent foreground layers are SVG so Expo Web renders them reliably.
 const walletArt = {
   kind: 'wallet',
   background: require('../../../assets/ui/home/destinations/dinero/background.png'),
-  coinStack: require('../../../assets/ui/home/destinations/dinero/coin-stack.png'),
-  starCoin: require('../../../assets/ui/home/destinations/dinero/star-coin.png'),
+  coinStack: require('../../../assets/ui/home/destinations/dinero/coin-stack.svg'),
+  starCoin: require('../../../assets/ui/home/destinations/dinero/star-coin.svg'),
 } satisfies WalletDestinationArtLayers;
 
 export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLayers) {
