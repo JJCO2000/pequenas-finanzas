@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Blocks 1-3 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
+// Blocks 1-4 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
 type MapDestinationArtLayers = {
   kind: 'map';
   background: number;
@@ -21,7 +21,17 @@ type WalletDestinationArtLayers = {
   starCoin: number;
 };
 
-export type HomeDestinationArtLayers = MapDestinationArtLayers | ArcadeDestinationArtLayers | WalletDestinationArtLayers;
+type InvestmentsDestinationArtLayers = {
+  kind: 'investments';
+  background: number;
+  stegosaur: number;
+};
+
+export type HomeDestinationArtLayers =
+  | MapDestinationArtLayers
+  | ArcadeDestinationArtLayers
+  | WalletDestinationArtLayers
+  | InvestmentsDestinationArtLayers;
 
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
@@ -61,6 +71,14 @@ const walletArt = {
   starCoin: require('../../../assets/ui/home/destinations/dinero/star-coin.svg'),
 } satisfies WalletDestinationArtLayers;
 
+// Block 4 reference contract: desert/ruins background + orange stegosaur.
+// Only two semantic layers are needed; adding more would be fake complexity.
+const investmentsArt = {
+  kind: 'investments',
+  background: require('../../../assets/ui/home/destinations/inversiones/background.png'),
+  stegosaur: require('../../../assets/ui/home/destinations/inversiones/stegosaur.png'),
+} satisfies InvestmentsDestinationArtLayers;
+
 export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLayers) {
   switch (layers.kind) {
     case 'map':
@@ -81,6 +99,11 @@ export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLaye
         { key: 'coinStack', source: layers.coinStack },
         { key: 'starCoin', source: layers.starCoin },
       ] as const;
+    case 'investments':
+      return [
+        { key: 'background', source: layers.background },
+        { key: 'stegosaur', source: layers.stegosaur },
+      ] as const;
   }
 }
 
@@ -98,8 +121,11 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
     artLayers: walletArt,
     artHeightRatio: 0.67,
     artBackground: '#FFF2A8' },
+  // Approved reference: the investments illustration uses the same tall image-to-copy split as Arcade and Wallet.
   { id: 'investments', label: 'Inversiones', subtitle: 'Expediciones', hint: 'Abre tus expediciones de inversión', route: '/investments', navigation: 'push',
-    art: require('../../../assets/ui/home/inversiones-vector.svg'), artBackground: '#FFE0B8' },
+    artLayers: investmentsArt,
+    artHeightRatio: 0.67,
+    artBackground: '#FFE0B8' },
   { id: 'shop', label: 'Tienda', subtitle: 'Mejoras', hint: 'Abre la tienda de mejoras', route: '/shop', navigation: 'push',
     art: require('../../../assets/ui/home/tienda-vector.svg'), artBackground: '#E8DEFF' },
   { id: 'collection', label: 'Colección', subtitle: 'Museo', hint: 'Abre el museo y tu colección', route: '/collection', navigation: 'push',
