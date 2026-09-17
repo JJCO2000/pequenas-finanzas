@@ -5,7 +5,12 @@ import json
 from collections import deque
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFile, ImageFont
+
+# Several legacy Home assets are browser-renderable but have truncated image streams.
+# Load them for diagnosis so the audit can inspect all blocks instead of stopping at
+# the first decoder error. The visual/semantic report still exposes the real pixels.
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 try:
     import cairosvg
@@ -69,7 +74,9 @@ def load_layer(path: Path, canvas: tuple[int, int] | None = None) -> Image.Image
             raise ValueError(f'canvas required to rasterize SVG: {path}')
         png = cairosvg.svg2png(url=str(path), output_width=canvas[0], output_height=canvas[1])
         return Image.open(io.BytesIO(png)).convert('RGBA')
-    return Image.open(path).convert('RGBA')
+    with Image.open(path) as source:
+        source.load()
+        return source.convert('RGBA')
 
 
 def alpha_metrics(image: Image.Image) -> dict[str, object]:
@@ -177,13 +184,18 @@ failures: list[str] = []
 report: dict[str, object] = {}
 
 for block, specs in BLOCKS.items():
-    bg_name, bg_rel, _ = specs[0]
+    _, bg_rel, _ = specs[0]
     bg_path = ROOT / bg_rel
     if not bg_path.exists():
         failures.append(f'{block}: missing {bg_rel}')
         continue
 
-    background = load_layer(bg_path)
+    try:
+        background = load_layer(bg_path)
+    except Exception as exc:
+        failures.append(f'{block}/background: cannot decode {bg_rel}: {exc}')
+        continue
+
     canvas = background.size
     loaded: list[tuple[str, Image.Image]] = []
     block_report: dict[str, object] = {}
@@ -193,7 +205,11 @@ for block, specs in BLOCKS.items():
         if not path.exists():
             failures.append(f'{block}: missing {rel}')
             continue
-        image = load_layer(path, canvas)
+        try:
+            image = load_layer(path, canvas)
+        except Exception as exc:
+            failures.append(f'{block}/{name}: cannot decode {rel}: {exc}')
+            continue
         if image.size != canvas:
             failures.append(f'{block}/{name}: canvas {image.size} != background canvas {canvas}')
             image = image.resize(canvas, Image.Resampling.LANCZOS)
