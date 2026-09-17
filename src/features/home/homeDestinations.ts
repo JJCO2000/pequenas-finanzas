@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Blocks 1-4 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
+// Blocks 1-5 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
 type MapDestinationArtLayers = {
   kind: 'map';
   background: number;
@@ -27,11 +27,18 @@ type InvestmentsDestinationArtLayers = {
   stegosaur: number;
 };
 
+type ShopDestinationArtLayers = {
+  kind: 'shop';
+  background: number;
+  eggNest: number;
+};
+
 export type HomeDestinationArtLayers =
   | MapDestinationArtLayers
   | ArcadeDestinationArtLayers
   | WalletDestinationArtLayers
-  | InvestmentsDestinationArtLayers;
+  | InvestmentsDestinationArtLayers
+  | ShopDestinationArtLayers;
 
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
@@ -79,6 +86,14 @@ const investmentsArt = {
   stegosaur: require('../../../assets/ui/home/destinations/inversiones/stegosaur.png'),
 } satisfies InvestmentsDestinationArtLayers;
 
+// Block 5 reference contract: purple mountain/foliage scene + the green-spotted egg in its nest.
+// The split is semantic and reconstructs the approved composition without placeholder props.
+const shopArt = {
+  kind: 'shop',
+  background: require('../../../assets/ui/home/destinations/tienda/background.webp'),
+  eggNest: require('../../../assets/ui/home/destinations/tienda/egg-nest.webp'),
+} satisfies ShopDestinationArtLayers;
+
 export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLayers) {
   switch (layers.kind) {
     case 'map':
@@ -104,6 +119,11 @@ export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLaye
         { key: 'background', source: layers.background },
         { key: 'stegosaur', source: layers.stegosaur },
       ] as const;
+    case 'shop':
+      return [
+        { key: 'background', source: layers.background },
+        { key: 'eggNest', source: layers.eggNest },
+      ] as const;
   }
 }
 
@@ -126,8 +146,11 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
     artLayers: investmentsArt,
     artHeightRatio: 0.67,
     artBackground: '#FFE0B8' },
+  // Approved reference: Tienda keeps the same tall scene-to-copy split and uses the real egg-in-nest composition.
   { id: 'shop', label: 'Tienda', subtitle: 'Mejoras', hint: 'Abre la tienda de mejoras', route: '/shop', navigation: 'push',
-    art: require('../../../assets/ui/home/tienda-vector.svg'), artBackground: '#E8DEFF' },
+    artLayers: shopArt,
+    artHeightRatio: 0.67,
+    artBackground: '#E8DEFF' },
   { id: 'collection', label: 'Colección', subtitle: 'Museo', hint: 'Abre el museo y tu colección', route: '/collection', navigation: 'push',
     art: require('../../../assets/ui/home/coleccion-vector.svg'), artBackground: '#DDF4FF' },
 ] as const;
