@@ -23,6 +23,8 @@ const canonicalAssets = [
   'assets/ui/home/destinations/inversiones/stegosaur.png',
   'assets/ui/home/destinations/tienda/background.webp',
   'assets/ui/home/destinations/tienda/egg-nest.webp',
+  'assets/ui/home/destinations/coleccion/background.jpg',
+  'assets/ui/home/destinations/coleccion/longneck.webp',
 ];
 
 for (const path of canonicalAssets) {
@@ -37,6 +39,7 @@ for (const retiredPath of [
   'assets/ui/home/dinero-vector.svg',
   'assets/ui/home/inversiones-vector.svg',
   'assets/ui/home/tienda-vector.svg',
+  'assets/ui/home/coleccion-vector.svg',
   'tmp/should-not-exist.txt',
 ]) {
   assert.equal(exists(retiredPath), false, `Retired Home destination path must stay absent: ${retiredPath}`);
@@ -77,10 +80,18 @@ assert.match(destinationsSource, /case 'shop':[\s\S]*layers\.background[\s\S]*la
 assert.doesNotMatch(destinationsSource, /id: 'shop'[\s\S]{0,350}tienda-vector\.svg/, 'Tienda must not regress to the legacy single SVG');
 assert.doesNotMatch(destinationsSource, /tienda\/(?:mascot|prop|foreground)\./, 'Tienda must not regress to vague fake layer names');
 
+assert.match(destinationsSource, /kind: 'collection'/, 'Colección must keep a semantic collection layer contract');
+assert.match(destinationsSource, /background: require\('[^']*coleccion\/background\.jpg'\)/, 'Colección museum background must remain explicit');
+assert.match(destinationsSource, /longneck: require\('[^']*coleccion\/longneck\.webp'\)/, 'Colección longneck must be a named canonical foreground layer');
+assert.match(destinationsSource, /id: 'collection'[\s\S]*artLayers: collectionArt[\s\S]*artHeightRatio: 0\.67/, 'Colección must preserve the approved reference art-height ratio');
+assert.match(destinationsSource, /case 'collection':[\s\S]*layers\.background[\s\S]*layers\.longneck/, 'Colección layer order must stay background -> longneck');
+assert.doesNotMatch(destinationsSource, /id: 'collection'[\s\S]{0,350}coleccion-vector\.svg/, 'Colección must not regress to the legacy single SVG');
+assert.doesNotMatch(destinationsSource, /coleccion\/(?:mascot|prop|foreground)\./, 'Colección must not regress to vague fake layer names');
+
 assert.match(cardSource, /getHomeDestinationArtLayerEntries\(destination\.artLayers\)/, 'Shared card renderer must consume the destination SSOT layer order');
 assert.match(cardSource, /destination\.artHeightRatio \?\? \(expanded \? 0\.68 : 0\.66\)/, 'Approved per-destination art ratio must override the shared layered fallback');
 assert.match(cardSource, /source=\{source\}/, 'Shared card renderer must render the semantic layer source');
 assert.match(cardSource, /contentFit="cover"/, 'Canonical scene layers must keep the approved full-canvas crop');
 assert.match(cardSource, /style=\{styles\.fullSceneLayer\}/, 'Canonical scene layers must stay locked to one shared scene canvas');
 
-console.log('PASS check-home-destination-layers: Mapa, Arcade, Mi dinero, Inversiones and Tienda use semantic canonical layers; Block 5 keeps background + egg nest at the approved 67% framing.');
+console.log('PASS check-home-destination-layers: Mapa, Arcade, Mi dinero, Inversiones, Tienda and Colección use semantic canonical layers; Block 6 keeps background + longneck at the approved 67% framing.');

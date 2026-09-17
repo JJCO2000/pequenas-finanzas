@@ -1,5 +1,5 @@
 // Destination illustration SSOTs live under assets/ui/home/destinations as each block is approved.
-// Blocks 1-5 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
+// Blocks 1-6 use semantic canonical layers from their approved references instead of generic mascot/prop slots.
 type MapDestinationArtLayers = {
   kind: 'map';
   background: number;
@@ -33,12 +33,19 @@ type ShopDestinationArtLayers = {
   eggNest: number;
 };
 
+type CollectionDestinationArtLayers = {
+  kind: 'collection';
+  background: number;
+  longneck: number;
+};
+
 export type HomeDestinationArtLayers =
   | MapDestinationArtLayers
   | ArcadeDestinationArtLayers
   | WalletDestinationArtLayers
   | InvestmentsDestinationArtLayers
-  | ShopDestinationArtLayers;
+  | ShopDestinationArtLayers
+  | CollectionDestinationArtLayers;
 
 export type HomeDestination = {
   id: 'map' | 'arcade' | 'wallet' | 'investments' | 'shop' | 'collection';
@@ -94,6 +101,14 @@ const shopArt = {
   eggNest: require('../../../assets/ui/home/destinations/tienda/egg-nest.webp'),
 } satisfies ShopDestinationArtLayers;
 
+// Block 6 reference contract: museum/ruins scene with the fossil exhibit in the background + the green longneck in front.
+// The fossil belongs to the museum environment, so Collection needs two semantic layers rather than fake extra props.
+const collectionArt = {
+  kind: 'collection',
+  background: require('../../../assets/ui/home/destinations/coleccion/background.jpg'),
+  longneck: require('../../../assets/ui/home/destinations/coleccion/longneck.webp'),
+} satisfies CollectionDestinationArtLayers;
+
 export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLayers) {
   switch (layers.kind) {
     case 'map':
@@ -124,6 +139,11 @@ export function getHomeDestinationArtLayerEntries(layers: HomeDestinationArtLaye
         { key: 'background', source: layers.background },
         { key: 'eggNest', source: layers.eggNest },
       ] as const;
+    case 'collection':
+      return [
+        { key: 'background', source: layers.background },
+        { key: 'longneck', source: layers.longneck },
+      ] as const;
   }
 }
 
@@ -151,6 +171,9 @@ export const HOME_DESTINATIONS: readonly HomeDestination[] = [
     artLayers: shopArt,
     artHeightRatio: 0.67,
     artBackground: '#E8DEFF' },
+  // Approved reference: Colección keeps the same tall scene-to-copy split and the real museum + longneck composition.
   { id: 'collection', label: 'Colección', subtitle: 'Museo', hint: 'Abre el museo y tu colección', route: '/collection', navigation: 'push',
-    art: require('../../../assets/ui/home/coleccion-vector.svg'), artBackground: '#DDF4FF' },
+    artLayers: collectionArt,
+    artHeightRatio: 0.67,
+    artBackground: '#DDF4FF' },
 ] as const;

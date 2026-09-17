@@ -45,6 +45,10 @@ BLOCKS = {
         ('background', 'assets/ui/home/destinations/tienda/background.webp', True),
         ('egg-nest', 'assets/ui/home/destinations/tienda/egg-nest.webp', False),
     ],
+    'bloque6-coleccion': [
+        ('background', 'assets/ui/home/destinations/coleccion/background.jpg', True),
+        ('longneck', 'assets/ui/home/destinations/coleccion/longneck.webp', False),
+    ],
 }
 
 CHECKER_A = (238, 238, 238, 255)

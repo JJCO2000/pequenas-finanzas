@@ -102,6 +102,9 @@ test('Home is layered, responsive and tappable from compact-min through expanded
       await page.getByRole('button', { name: 'Tienda', exact: true }).screenshot({
         path: 'artifacts/home-tienda-reference-crop.png',
       });
+      await page.getByRole('button', { name: 'Colección', exact: true }).screenshot({
+        path: 'artifacts/home-coleccion-reference-crop.png',
+      });
     }
   }
 });
