@@ -17,8 +17,8 @@ const canonicalAssets = [
   'assets/ui/home/destinations/arcade/pterosaur.webp',
   'assets/ui/home/destinations/arcade/star-blocks.webp',
   'assets/ui/home/destinations/dinero/background.png',
-  'assets/ui/home/destinations/dinero/coin-stack.png',
-  'assets/ui/home/destinations/dinero/star-coin.png',
+  'assets/ui/home/destinations/dinero/coin-stack.svg',
+  'assets/ui/home/destinations/dinero/star-coin.svg',
 ];
 
 for (const path of canonicalAssets) {
@@ -28,6 +28,8 @@ for (const path of canonicalAssets) {
 for (const retiredPath of [
   'assets/ui/home/destinations/arcade/mascot.webp',
   'assets/ui/home/destinations/arcade/prop.webp',
+  'assets/ui/home/destinations/dinero/coin-stack.png',
+  'assets/ui/home/destinations/dinero/star-coin.png',
   'assets/ui/home/dinero-vector.svg',
   'tmp/should-not-exist.txt',
 ]) {
@@ -47,8 +49,8 @@ assert.match(destinationsSource, /case 'arcade':[\s\S]*layers\.background[\s\S]*
 
 assert.match(destinationsSource, /kind: 'wallet'/, 'Mi dinero must keep a semantic wallet layer contract');
 assert.match(destinationsSource, /background: require\('[^']*dinero\/background\.png'\)/, 'Mi dinero background must remain explicit');
-assert.match(destinationsSource, /coinStack: require\('[^']*dinero\/coin-stack\.png'\)/, 'Mi dinero coin stack must be a named canonical layer');
-assert.match(destinationsSource, /starCoin: require\('[^']*dinero\/star-coin\.png'\)/, 'Mi dinero star coin must be a named canonical layer');
+assert.match(destinationsSource, /coinStack: require\('[^']*dinero\/coin-stack\.svg'\)/, 'Mi dinero coin stack must be a named canonical layer');
+assert.match(destinationsSource, /starCoin: require\('[^']*dinero\/star-coin\.svg'\)/, 'Mi dinero star coin must be a named canonical layer');
 assert.match(destinationsSource, /id: 'wallet'[\s\S]*artLayers: walletArt[\s\S]*artHeightRatio: 0\.67/, 'Mi dinero must preserve the approved reference art-height ratio');
 assert.match(destinationsSource, /case 'wallet':[\s\S]*layers\.background[\s\S]*layers\.coinStack[\s\S]*layers\.starCoin/, 'Mi dinero layer order must stay background -> coin stack -> star coin');
 assert.doesNotMatch(destinationsSource, /id: 'wallet'[\s\S]{0,300}dinero-vector\.svg/, 'Mi dinero must not regress to the legacy single SVG');
