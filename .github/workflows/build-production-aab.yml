@@ -30,10 +30,12 @@ jobs:
       - name: Verify CI safety policy
         run: npm run check:ci-policy
 
-      - name: Production release preflight
-        shell: powershell
-        run: .\VERIFY_RELEASE.ps1 -SkipRemoteVersion
+      - name: Verify Expo package compatibility
+        run: npx expo install --check
+
+      - name: Verify Expo project health
+        run: npx expo-doctor@latest
 
       - name: Build signed production AAB
         shell: powershell
-        run: npx.cmd eas-cli@latest build --platform android --profile production --non-interactive
+        run: npx.cmd eas-cli@latest build --platform android --profile production --non-interactive --wait
