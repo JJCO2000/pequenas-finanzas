@@ -1,0 +1,39 @@
+name: Build Android Production AAB
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-production-aab-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-aab:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      CI: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Verify CI safety policy
+        run: npm run check:ci-policy
+
+      - name: Production release preflight
+        shell: powershell
+        run: .\VERIFY_RELEASE.ps1 -SkipRemoteVersion
+
+      - name: Build signed production AAB
+        shell: powershell
+        run: npx.cmd eas-cli@latest build --platform android --profile production --non-interactive
