@@ -18,7 +18,7 @@ const canonicalAssets = [
   'assets/ui/home/destinations/arcade/background.webp',
   'assets/ui/home/destinations/arcade/pterosaur.webp',
   'assets/ui/home/destinations/arcade/star-blocks.webp',
-  'assets/ui/home/destinations/dinero/background.png',
+  'assets/ui/home/destinations/dinero/background.webp',
   'assets/ui/home/destinations/dinero/coin-stack.svg',
   'assets/ui/home/destinations/dinero/star-coin.svg',
   'assets/ui/home/destinations/inversiones/background.webp',
@@ -26,7 +26,7 @@ const canonicalAssets = [
   'assets/ui/home/destinations/tienda/background.webp',
   'assets/ui/home/destinations/tienda/egg-nest.webp',
   'assets/ui/home/destinations/coleccion/background.webp',
-  'assets/ui/home/destinations/coleccion/longneck.webp',
+  'assets/ui/home/destinations/coleccion/longneck.jpg',
 ];
 
 for (const path of canonicalAssets) {
@@ -36,6 +36,8 @@ for (const path of canonicalAssets) {
 for (const retiredPath of [
   'assets/ui/home/destinations/arcade/mascot.webp',
   'assets/ui/home/destinations/arcade/prop.webp',
+  'assets/ui/home/destinations/dinero/background.png',
+  'assets/ui/home/destinations/coleccion/longneck.webp',
   'assets/ui/home/destinations/dinero/coin-stack.png',
   'assets/ui/home/destinations/dinero/star-coin.png',
   'assets/ui/home/dinero-vector.svg',
@@ -66,7 +68,7 @@ assert.doesNotMatch(destinationsSource, /arcade\/(?:mascot|prop)\.webp/, 'Arcade
 assert.match(destinationsSource, /case 'arcade':[\s\S]*layers\.background[\s\S]*layers\.pterosaur[\s\S]*layers\.starBlocks/, 'Arcade layer order must stay background -> pterosaur -> star blocks');
 
 assert.match(destinationsSource, /kind: 'wallet'/, 'Mi dinero must keep a semantic wallet layer contract');
-assert.match(assetsSource, /background: require\('[^']*dinero\/background\.png'\)/, 'Mi dinero background must remain explicit');
+assert.match(assetsSource, /background: require\('[^']*dinero\/background\.webp'\)/, 'Mi dinero background must remain explicit');
 assert.match(assetsSource, /coinStack: require\('[^']*dinero\/coin-stack\.svg'\)/, 'Mi dinero coin stack must be a named canonical layer');
 assert.match(assetsSource, /starCoin: require\('[^']*dinero\/star-coin\.svg'\)/, 'Mi dinero star coin must be a named canonical layer');
 assert.match(destinationsSource, /id: 'wallet'[\s\S]*artLayers: walletArt[\s\S]*artHeightRatio: 0\.67/, 'Mi dinero must preserve the approved reference art-height ratio');
@@ -91,7 +93,7 @@ assert.doesNotMatch(destinationsSource, /tienda\/(?:mascot|prop|foreground)\./, 
 
 assert.match(destinationsSource, /kind: 'collection'/, 'Colección must keep a semantic collection layer contract');
 assert.match(assetsSource, /background: require\('[^']*coleccion\/background\.webp'\)/, 'Colección museum background must remain explicit');
-assert.match(assetsSource, /longneck: require\('[^']*coleccion\/longneck\.webp'\)/, 'Colección longneck must be a named canonical foreground layer');
+assert.match(assetsSource, /longneck: require\('[^']*coleccion\/longneck\.jpg'\)/, 'Colección longneck must be a named canonical foreground layer');
 assert.match(destinationsSource, /id: 'collection'[\s\S]*artLayers: collectionArt[\s\S]*artHeightRatio: 0\.67/, 'Colección must preserve the approved reference art-height ratio');
 assert.match(destinationsSource, /case 'collection':[\s\S]*layers\.background[\s\S]*layers\.longneck/, 'Colección layer order must stay background -> longneck');
 assert.doesNotMatch(destinationsSource, /id: 'collection'[\s\S]{0,350}coleccion-vector\.svg/, 'Colección must not regress to the legacy single SVG');

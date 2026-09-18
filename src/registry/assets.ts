@@ -43,7 +43,7 @@ export const ASSETS = {
       starBlocks: require('../../assets/ui/home/destinations/arcade/star-blocks.webp'),
     },
     wallet: {
-      background: require('../../assets/ui/home/destinations/dinero/background.png'),
+      background: require('../../assets/ui/home/destinations/dinero/background.webp'),
       coinStack: require('../../assets/ui/home/destinations/dinero/coin-stack.svg'),
       starCoin: require('../../assets/ui/home/destinations/dinero/star-coin.svg'),
     },
@@ -57,7 +57,7 @@ export const ASSETS = {
     },
     collection: {
       background: require('../../assets/ui/home/destinations/coleccion/background.webp'),
-      longneck: require('../../assets/ui/home/destinations/coleccion/longneck.webp'),
+      longneck: require('../../assets/ui/home/destinations/coleccion/longneck.jpg'),
     },
   },
   decor: {
